@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: blob:; font-src 'self' data:;">
+    <title>Rachgia Factory 통합 생산관리 대시보드 v9</title>
+
+    <!-- External Data File (4.85MB separated) -->
+    <script src="rachgia_data_v8.js"></script>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart.js 다크모드 기본 설정
+        Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim() || '#1f2937';
+        Chart.defaults.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e5e7eb';
+    </script>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+        .dark {
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-card: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border-color: #4b5563;
+        }
+        body { background: var(--bg-primary); color: var(--text-primary); transition: all 0.3s; }
+        .bg-card { background: var(--bg-card); }
+        .text-secondary { color: var(--text-secondary); }
+        .border-theme { border-color: var(--border-color); }
+
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .delay-highlight { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); animation: pulse-red 2s infinite; }
+        .dark .delay-highlight { background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%); }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+        .warning-highlight { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+        .dark .warning-highlight { background: linear-gradient(135deg, #78350f 0%, #92400e 100%); }
+
+        /* 선적 완료 PO 스타일 */
+        .shipped-highlight {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            position: relative;
+        }
+        .dark .shipped-highlight {
+            background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+        }
+        .shipped-highlight td { color: #047857 !important; }
+        .dark .shipped-highlight td { color: #6ee7b7 !important; }
+        .shipped-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 2px 6px;
+            background: #059669;
+            color: white;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 600;
+        }
+        .dark .shipped-badge { background: #10b981; }
+
+        table th { position: sticky; top: 0; background: var(--bg-secondary); z-index: 10; }
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background-color: rgba(59, 130, 246, 0.1) !important; }
+        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .progress-bar { height: 24px; border-radius: 12px; background: #e5e7eb; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+        .dark .progress-bar { background: #4b5563; }
+        .progress-bar:hover { transform: scaleY(1.1); }
+        .progress-fill { height: 100%; border-radius: 12px; transition: width 0.5s ease; }
+
+        .filter-chip { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 9999px; font-size: 0.875rem; margin: 2px; cursor: pointer; transition: all 0.2s; }
+        .filter-chip.active { background-color: #3b82f6; color: white; }
+        .filter-chip:not(.active) { background-color: #e5e7eb; color: #374151; }
+        .dark .filter-chip:not(.active) { background-color: #4b5563; color: #e5e7eb; }
+
+        .chart-container { position: relative; height: 300px; }
+
+        /* Sortable headers - 접근성 개선 */
+        .sort-header { cursor: pointer; user-select: none; position: relative; }
+        .sort-header:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        .sort-header:hover { background: rgba(59, 130, 246, 0.1); }
+        .sort-header::after { content: '⇅'; margin-left: 4px; opacity: 0.3; font-size: 10px; }
+        .sort-header.asc::after { content: '↑'; opacity: 1; }
+        .sort-header.desc::after { content: '↓'; opacity: 1; }
+
+        .funnel-step { position: relative; text-align: center; padding: 8px; margin: 2px; border-radius: 4px; transition: all 0.2s; cursor: pointer; }
+        .funnel-step:hover { transform: scale(1.02); }
+        .bottleneck { animation: bottleneck-pulse 1.5s infinite; border: 2px solid #ef4444 !important; }
+        @keyframes bottleneck-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } }
+
+        .loading-spinner { border: 3px solid #f3f4f6; border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .calendar-day { width: 40px; height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .calendar-day:hover { background: rgba(59, 130, 246, 0.2); }
+        .calendar-day.today { border: 2px solid #3b82f6; }
+        .calendar-day.delayed { background: #fecaca; }
+        .dark .calendar-day.delayed { background: #7f1d1d; }
+        .calendar-day.warning { background: #fef3c7; }
+        .dark .calendar-day.warning { background: #78350f; }
+
+        .exec-kpi { font-size: 2.5rem; font-weight: 700; }
+
+        /* Process timeline visual */
+        .process-timeline { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .process-step { display: flex; flex-direction: column; align-items: center; padding: 8px 12px; border-radius: 8px; min-width: 70px; }
+        .process-step.completed { background: #dcfce7; border: 2px solid #22c55e; }
+        .process-step.in-progress { background: #fef3c7; border: 2px solid #f59e0b; }
+        .process-step.pending { background: #f3f4f6; border: 2px solid #d1d5db; }
+        .dark .process-step.completed { background: #166534; border-color: #22c55e; }
+        .dark .process-step.in-progress { background: #854d0e; border-color: #f59e0b; }
+        .dark .process-step.pending { background: #374151; border-color: #6b7280; }
+        .process-arrow { font-size: 20px; color: #9ca3af; }
+
+        /* Date mode toggle */
+        .date-mode-toggle { display: flex; border-radius: 8px; overflow: hidden; border: 2px solid #3b82f6; }
+        .date-mode-btn { padding: 8px 16px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .date-mode-btn.active { background: #3b82f6; color: white; }
+        .date-mode-btn:not(.active) { background: transparent; color: #3b82f6; }
+        .date-mode-btn:not(.active):hover { background: rgba(59, 130, 246, 0.1); }
+
+        /* Heatmap styles */
+        .heatmap-cell { padding: 4px 8px; text-align: center; font-size: 11px; min-width: 50px; }
+
+        @media (max-width: 768px) { .chart-container { height: 250px; } }
+        @media print { .no-print { display: none !important; } body { font-size: 12px; } }
+
+        .kbd { display: inline-block; padding: 2px 6px; font-size: 11px; background: #e5e7eb; border-radius: 4px; font-family: monospace; }
+        .dark .kbd { background: #4b5563; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600 dark:text-gray-300">데이터 로딩 중...</p>
+        </div>
+    </div>
+
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg no-print" role="banner" aria-label="Rachgia Factory 대시보드 헤더">
+        <div class="max-w-[2000px] mx-auto px-4 py-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                    <h1 class="text-2xl font-bold">🏭 Rachgia Factory 통합 생산관리 <span class="text-sm font-normal bg-white/20 px-2 py-1 rounded">v8</span></h1>
+                    <p class="text-blue-100 text-sm mt-1">Factory A, B, C, D 생산 현황 모니터링</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <!-- Date Mode Toggle (SDD/CRD) -->
+                    <div class="date-mode-toggle">
+                        <div class="date-mode-btn active" data-mode="sdd" onclick="setDateMode('sdd')">SDD</div>
+                        <div class="date-mode-btn" data-mode="crd" onclick="setDateMode('crd')">CRD</div>
+                    </div>
+                    <!-- Date Range Filter -->
+                    <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
+                        <label class="text-sm">기간:</label>
+                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()">
+                            <option value="all" style="color: #000;">전체</option>
+                            <option value="week" style="color: #000;">1주일 이내</option>
+                            <option value="month" style="color: #000;">1달 이내</option>
+                        </select>
+                    </div>
+                    <!-- Auto Refresh -->
+                    <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
+                        <label class="text-sm">자동 새로고침</label>
+                        <input type="checkbox" id="autoRefreshToggle" class="w-4 h-4" checked>
+                    </div>
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm">
+                        <span id="darkModeIcon">🌙</span>
+                    </button>
+                    <!-- Delay Alert -->
+                    <div id="delayAlert" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg animate-pulse cursor-pointer" onclick="showDelayedOrders()">
+                        ⚠️ 지연: <span id="delayCount">0</span>건
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100">마지막 업데이트</div>
+                        <div class="font-semibold text-sm" id="lastUpdateTime">로딩 중...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 월요 오더 현황 요약 - 상단 고정 -->
+    <div id="weeklyOrderSummary" class="sticky top-0 z-40 bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg no-print">
+        <div class="max-w-[2000px] mx-auto px-4 py-3">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <h2 class="text-lg font-bold flex items-center gap-2">
+                    📋 월요 오더 현황 요약
+                    <span class="text-xs font-normal bg-white/20 px-2 py-0.5 rounded" id="summaryUpdateTime">-</span>
+                </h2>
+                <div class="flex flex-wrap items-center gap-6 text-sm">
+                    <!-- SDD 기준 -->
+                    <div class="flex items-center gap-4 bg-blue-500/20 px-4 py-2 rounded-lg">
+                        <span class="font-semibold text-blue-300">📅 SDD 기준</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-red-400">🚨 지연:</span>
+                            <span id="sddDelayCount" class="font-bold text-red-300">-</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-amber-400">⚡ 경고:</span>
+                            <span id="sddWarningCount" class="font-bold text-amber-300">-</span>
+                        </div>
+                    </div>
+                    <!-- CRD 기준 -->
+                    <div class="flex items-center gap-4 bg-purple-500/20 px-4 py-2 rounded-lg">
+                        <span class="font-semibold text-purple-300">🎯 CRD 기준</span>
+                        <div class="flex items-center gap-1">
+                            <span class="text-red-400">🚨 지연:</span>
+                            <span id="crdDelayCount" class="font-bold text-red-300">-</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-amber-400">⚡ 경고:</span>
+                            <span id="crdWarningCount" class="font-bold text-amber-300">-</span>
+                        </div>
+                    </div>
+                    <!-- 생산/출고 현황 -->
+                    <div class="flex items-center gap-4 bg-green-500/20 px-4 py-2 rounded-lg">
+                        <div class="flex items-center gap-1">
+                            <span class="text-green-300">👟 제화 생산 완료:</span>
+                            <span id="sewingCompleteCount" class="font-bold text-green-200">-</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <span class="text-cyan-300">📦 창고 출고 완료:</span>
+                            <span id="warehouseOutCount" class="font-bold text-cyan-200">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-[2000px] mx-auto px-4 py-6">
+        <!-- Executive Summary -->
+        <div id="execSummary" class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold">🎯 Executive Summary</h2>
+                <div class="text-sm opacity-80">기준: <span id="dateModeLabel">SDD</span></div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                <div class="bg-white/10 rounded-lg p-4 text-center">
+                    <div class="text-white/80 text-sm">전체 완료율</div>
+                    <div class="exec-kpi" id="execCompletionRate">-</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4 text-center">
+                    <div class="text-white/80 text-sm">지연 위험</div>
+                    <div class="exec-kpi text-red-300" id="execDelayCount">-</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4 text-center">
+                    <div class="text-white/80 text-sm">오늘 예정</div>
+                    <div class="exec-kpi text-yellow-300" id="execTodayCount">-</div>
+                    <div class="text-sm opacity-80" id="execTodayQty">-</div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-4 text-center">
+                    <div class="text-white/80 text-sm">창고 재고</div>
+                    <div class="exec-kpi text-blue-300" id="execInventory">-</div>
+                    <div class="text-sm opacity-80" id="execInventoryOrders">-</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white/10 rounded-lg p-3">
+                    <div class="text-sm font-medium mb-2">📊 공장 순위</div>
+                    <div id="execFactoryRanking" class="text-sm"></div>
+                </div>
+                <div class="bg-white/10 rounded-lg p-3">
+                    <div class="text-sm font-medium mb-2">⚠️ 주요 경고</div>
+                    <div id="execWarnings" class="text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Cards -->
+        <div id="alertSection" class="hidden mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showDelayedOrders()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">🚨</span>
+                        <div>
+                            <div class="text-red-700 dark:text-red-300 text-sm font-medium">지연 오더</div>
+                            <div class="text-2xl font-bold text-red-800 dark:text-red-200" id="delayedOrderCount">0건</div>
+                            <div class="text-xs text-red-600 dark:text-red-400" id="delayedOrderQty">0족</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="warning-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showWarningOrders()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">⚡</span>
+                        <div>
+                            <div class="text-amber-700 dark:text-amber-300 text-sm font-medium">3일 내 예정</div>
+                            <div class="text-2xl font-bold text-amber-800 dark:text-amber-200" id="warningOrderCount">0건</div>
+                            <div class="text-xs text-amber-600 dark:text-amber-400" id="warningOrderQty">0족</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-400 rounded-xl shadow-sm p-4 cursor-pointer" onclick="showInventoryOrders()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">📦</span>
+                        <div>
+                            <div class="text-blue-700 dark:text-blue-300 text-sm font-medium">창고 재고</div>
+                            <div class="text-2xl font-bold text-blue-800 dark:text-blue-200" id="inventoryCount">0족</div>
+                            <div class="text-xs text-blue-600 dark:text-blue-400" id="inventoryOrders">0건</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="shipped-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showShippedOrders()">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">🚢</span>
+                        <div>
+                            <div class="text-emerald-700 dark:text-emerald-300 text-sm font-medium">선적 완료</div>
+                            <div class="text-2xl font-bold text-emerald-800 dark:text-emerald-200" id="shippedOrderCount">0건</div>
+                            <div class="text-xs text-emerald-600 dark:text-emerald-400" id="shippedOrderQty">0족</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-blue-500">
+                <div class="text-secondary text-sm">총 오더 건수</div>
+                <div class="text-2xl font-bold" id="totalOrders">-</div>
+            </div>
+            <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-indigo-500">
+                <div class="text-secondary text-sm">총 주문 수량</div>
+                <div class="text-2xl font-bold" id="totalQty">-</div>
+            </div>
+            <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-green-500">
+                <div class="text-secondary text-sm">창고입고 완료</div>
+                <div class="text-2xl font-bold text-green-600" id="totalCompleted">-</div>
+            </div>
+            <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-purple-500">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-secondary text-sm">전체 완료율</div>
+                        <div class="text-2xl font-bold text-purple-600" id="totalRate">-</div>
+                    </div>
+                    <div class="w-16 h-16"><canvas id="rateDonut"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Production Flow -->
+            <div class="lg:col-span-2 bg-card rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold mb-4">⚙️ 공정별 생산 현황 <span class="text-sm font-normal text-secondary">(🔴 = 병목공정)</span></h3>
+                <div id="funnelChart" class="grid grid-cols-8 gap-1 mb-4"></div>
+                <div id="processProgress" class="space-y-3"></div>
+            </div>
+            <div class="bg-card rounded-xl shadow-sm p-6">
+                <h3 class="text-lg font-semibold mb-4">🏭 공장별 완료율</h3>
+                <div id="factoryCards" class="space-y-3"></div>
+                <div class="mt-4 pt-4 border-t border-theme">
+                    <h4 class="text-sm font-medium text-secondary mb-2">공장 비교</h4>
+                    <div style="height: 200px;"><canvas id="factoryRadar"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Calendar -->
+        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">📅 예정 캘린더 <span class="text-sm font-normal text-secondary" id="calendarLabel">(SDD 기준)</span></h3>
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="prevMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600">◀ 이전</button>
+                <span id="calendarMonth" class="font-semibold text-lg"></span>
+                <button onclick="nextMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600">다음 ▶</button>
+            </div>
+            <div id="shippingCalendar" class="grid grid-cols-7 gap-2"></div>
+            <div class="flex gap-4 mt-4 text-sm">
+                <span><span class="inline-block w-3 h-3 bg-red-300 rounded mr-1"></span>지연</span>
+                <span><span class="inline-block w-3 h-3 bg-amber-200 rounded mr-1"></span>3일 이내</span>
+                <span><span class="inline-block w-3 h-3 bg-green-200 rounded mr-1"></span>정상</span>
+            </div>
+        </div>
+
+        <!-- Outsole Vendor Section -->
+        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">👟 아웃솔 벤더별 현황</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div><div class="chart-container"><canvas id="vendorChart"></canvas></div></div>
+                <div>
+                    <div class="overflow-x-auto max-h-[300px]">
+                        <table class="w-full text-sm" id="vendorTable">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-3 py-2 text-left sort-header" data-sort="vendor" data-table="vendor">아웃솔 벤더</th>
+                                    <th class="px-3 py-2 text-right sort-header" data-sort="count" data-table="vendor">오더</th>
+                                    <th class="px-3 py-2 text-right sort-header" data-sort="qty" data-table="vendor">수량</th>
+                                    <th class="px-3 py-2 text-right sort-header" data-sort="rate" data-table="vendor">완료율</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendorTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Destinations -->
+        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">🎯 중요 행선지</h3>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="asiaCards"></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-card rounded-xl shadow-sm p-4 mb-6 no-print" role="search" aria-label="필터 옵션">
+            <div class="flex justify-between items-center mb-3">
+                <h4 class="font-medium">🔍 필터 <span class="kbd ml-2">F</span></h4>
+                <button onclick="resetAllFilters()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded-lg transition">
+                    ↺ 필터 초기화 <span class="kbd">R</span>
+                </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-sm font-medium mb-1" id="monthFilterLabel">월 (SDD)</label>
+                    <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()"><option value="">전체</option></select>
+                </div>
+                <div class="flex-1 min-w-[280px]">
+                    <label class="block text-sm font-medium mb-1" id="dateRangeLabel">📅 날짜 범위 (SDD)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="startDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()">
+                        <span class="text-secondary">~</span>
+                        <input type="date" id="endDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()">
+                        <button onclick="clearDateRange()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center" title="날짜 초기화" aria-label="날짜 범위 초기화">✕</button>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-sm font-medium mb-1">빠른 선택</label>
+                    <select id="quickDateFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                        <option value="">전체 기간</option>
+                        <option value="today">오늘</option>
+                        <option value="week">이번 주</option>
+                        <option value="month">이번 달</option>
+                        <option value="delayed">지연만</option>
+                        <option value="warning">3일 이내</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-sm font-medium mb-1">행선지</label>
+                    <select id="destFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                        <option value="">전체</option>
+                        <option value="asia">중요 행선지만</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-sm font-medium mb-1">아웃솔 벤더</label>
+                    <select id="vendorFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card"><option value="">전체</option></select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-sm font-medium mb-1">완료 상태</label>
+                    <select id="statusFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                        <option value="">전체</option>
+                        <option value="shipped">🚢 선적 완료</option>
+                        <option value="completed">완료</option>
+                        <option value="partial">진행 중</option>
+                        <option value="pending">미시작</option>
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[180px]">
+                    <label class="block text-sm font-medium mb-1">공장</label>
+                    <div id="factoryFilter" class="flex flex-wrap gap-1">
+                        <span class="filter-chip active" data-factory="">전체</span>
+                        <span class="filter-chip" data-factory="A">A</span>
+                        <span class="filter-chip" data-factory="B">B</span>
+                        <span class="filter-chip" data-factory="C">C</span>
+                        <span class="filter-chip" data-factory="D">D</span>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label class="block text-sm font-medium mb-1">통합 검색 <span class="kbd">S</span></label>
+                    <input type="text" id="searchInput" placeholder="모델, PO, 행선지, 벤더..." aria-label="오더 통합 검색" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-card rounded-xl shadow-sm mb-6">
+            <div class="border-b border-theme overflow-x-auto">
+                <nav class="flex -mb-px min-w-max" role="tablist" aria-label="대시보드 탭 네비게이션">
+                    <button class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" tabindex="0">📅 월별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" tabindex="-1">🌍 행선지별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" tabindex="-1">👟 모델별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" tabindex="-1">🏭 공장별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" tabindex="-1">🔧 아웃솔 벤더</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" tabindex="-1">🔥 히트맵</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
+                </nav>
+            </div>
+            <div id="tabContents" class="p-6">
+                <!-- Monthly Tab -->
+                <div id="monthlyTab" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div><h3 class="text-lg font-semibold mb-4">월별 오더 현황</h3><div class="chart-container"><canvas id="monthlyChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">월별 완료 현황</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm" id="monthlyTable">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left sort-header" data-sort="month" data-table="monthly">월</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="count" data-table="monthly">오더</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="qty" data-table="monthly">주문량</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="completed" data-table="monthly">완료량</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="rate" data-table="monthly">완료율</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Destination Tab -->
+                <div id="destinationTab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div><h3 class="text-lg font-semibold mb-4">국가별 수량 분포</h3><div class="chart-container"><canvas id="destChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">행선지별 상세</h3>
+                            <div class="overflow-x-auto max-h-[400px]">
+                                <table class="w-full text-sm" id="destTable">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left sort-header" data-sort="dest" data-table="dest">국가</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="count" data-table="dest">건수</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="qty" data-table="dest">수량</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="completed" data-table="dest">완료</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="rate" data-table="dest">완료율</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Model Tab -->
+                <div id="modelTab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div><h3 class="text-lg font-semibold mb-4">모델별 수량 (Top 15)</h3><div class="chart-container" style="height:400px"><canvas id="modelChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">모델별 상세</h3>
+                            <div class="overflow-x-auto max-h-[400px]">
+                                <table class="w-full text-sm" id="modelTable">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left sort-header" data-sort="model" data-table="model">모델</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="count" data-table="model">건수</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="qty" data-table="model">수량</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="completed" data-table="model">완료</th>
+                                            <th class="px-4 py-2 text-right sort-header" data-sort="rate" data-table="model">완료율</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Factory Tab -->
+                <div id="factoryTab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div><h3 class="text-lg font-semibold mb-4">공장별 수량 비교</h3><div class="chart-container"><canvas id="factoryChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">공장별 공정 현황</h3><div id="factoryProcessDetail" class="space-y-4"></div></div>
+                    </div>
+                </div>
+                <!-- Vendor Tab (NEW) -->
+                <div id="vendorTab" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 수량</h3><div class="chart-container"><canvas id="vendorDetailChart"></canvas></div></div>
+                            <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 상세</h3>
+                                <div class="overflow-x-auto max-h-[300px]">
+                                    <table class="w-full text-sm" id="vendorDetailTable">
+                                        <thead class="bg-gray-50 dark:bg-gray-700">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left sort-header" data-sort="vendor" data-table="vendorDetail">아웃솔 벤더</th>
+                                                <th class="px-3 py-2 text-right sort-header" data-sort="count" data-table="vendorDetail">오더</th>
+                                                <th class="px-3 py-2 text-right sort-header" data-sort="qty" data-table="vendorDetail">수량</th>
+                                                <th class="px-3 py-2 text-right sort-header" data-sort="completed" data-table="vendorDetail">완료</th>
+                                                <th class="px-3 py-2 text-right sort-header" data-sort="rate" data-table="vendorDetail">완료율</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4">🔥 모델 × 아웃솔 벤더 히트맵</h3>
+                            <div id="modelVendorHeatmap" class="overflow-x-auto"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Heatmap Tab -->
+                <div id="heatmapTab" class="tab-content hidden">
+                    <div class="space-y-6">
+                        <div><h3 class="text-lg font-semibold mb-4">중요 행선지 × 월별 히트맵</h3><div id="countryMonthHeatmap" class="overflow-x-auto"></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">모델 × 행선지 히트맵</h3><div id="modelDestHeatmap" class="overflow-x-auto"></div></div>
+                    </div>
+                </div>
+                <!-- Data Tab -->
+                <div id="dataTab" class="tab-content hidden">
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                        <div>
+                            <h3 class="text-lg font-semibold">상세 데이터 <span id="dataCount" class="text-sm font-normal text-secondary"></span></h3>
+                            <div id="pagination" class="text-sm text-secondary mt-1"></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled>← 이전</button>
+                            <button onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn">다음 →</button>
+                            <button onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium">📥 Excel</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm" id="dataTable">
+                            <thead class="bg-gray-50 dark:bg-gray-700"><tr>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="factory" data-table="data">공장</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="po" data-table="data">PO</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="model" data-table="data">모델</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="article" data-table="data">Article</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="destination" data-table="data">행선지</th>
+                                <th class="px-2 py-2 text-left">아웃솔 벤더</th>
+                                <th class="px-2 py-2 text-right sort-header" data-sort="quantity" data-table="data">수량</th>
+                                <th class="px-2 py-2 text-center">재단</th>
+                                <th class="px-2 py-2 text-center">재봉</th>
+                                <th class="px-2 py-2 text-center">조립</th>
+                                <th class="px-2 py-2 text-center">입고</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="crd" data-table="data">CRD</th>
+                                <th class="px-2 py-2 text-left sort-header" data-sort="sdd" data-table="data">SDD</th>
+                                <th class="px-2 py-2 text-center">상태</th>
+                            </tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Help -->
+        <div class="text-center text-sm text-secondary no-print">
+            <span class="kbd">S</span> 검색 | <span class="kbd">F</span> 필터 | <span class="kbd">R</span> 초기화 | <span class="kbd">D</span> 상세탭 | <span class="kbd">Esc</span> 모달닫기 | <span class="kbd">←→</span> 페이지
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="orderDetailModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme">
+                <h3 class="text-lg font-semibold" id="modalTitle">상세 정보</h3>
+                <button onclick="closeOrderModal()" class="text-2xl hover:text-red-500">×</button>
+            </div>
+            <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modal (Process Visual) -->
+    <div id="orderProcessModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme">
+                <h3 class="text-lg font-semibold" id="orderProcessTitle">오더 상세</h3>
+                <button onclick="closeOrderProcessModal()" class="text-2xl hover:text-red-500">×</button>
+            </div>
+            <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);" id="orderProcessContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data and state
+        let allData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 50;
+        let currentCalendarDate = new Date();
+        let charts = {};
+        let dateMode = 'sdd'; // 'sdd' or 'crd'
+        let dateRangeFilter = 'all'; // 'all', 'week', 'month'
+
+        // Production mode flag (disable console in production)
+        const IS_PRODUCTION = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
+        const DEBUG = !IS_PRODUCTION;
+
+        // Conditional logging
+        const log = {
+            debug: (...args) => DEBUG && console.log('[DEBUG]', ...args),
+            info: (...args) => DEBUG && console.info('[INFO]', ...args),
+            warn: (...args) => console.warn('[WARN]', ...args),
+            error: (...args) => console.error('[ERROR]', ...args)
+        };
+
+        // Chart instance reuse helper - prevents memory leaks
+        function updateOrCreateChart(chartKey, ctx, config) {
+            if (charts[chartKey]) {
+                charts[chartKey].data = config.data;
+                if (config.options) {
+                    charts[chartKey].options = config.options;
+                }
+                charts[chartKey].update('none');
+                return charts[chartKey];
+            } else {
+                charts[chartKey] = new Chart(ctx, config);
+                return charts[chartKey];
+            }
+        }
+
+        // Filter result caching
+        const filterCache = new Map();
+        const CACHE_MAX_SIZE = 50;
+
+        function getFilterCacheKey() {
+            return JSON.stringify({
+                search: document.getElementById('filterName')?.value || '',
+                factory: document.getElementById('filterFactory')?.value || '',
+                status: document.getElementById('filterStatus')?.value || '',
+                dest: document.getElementById('filterDestination')?.value || '',
+                vendor: document.getElementById('filterVendor')?.value || '',
+                month: document.getElementById('filterMonth')?.value || '',
+                dateMode: dateMode,
+                dateRange: dateRangeFilter
+            });
+        }
+
+        function getCachedFilter(key) {
+            return filterCache.get(key);
+        }
+
+        function setCachedFilter(key, result) {
+            if (filterCache.size >= CACHE_MAX_SIZE) {
+                const firstKey = filterCache.keys().next().value;
+                filterCache.delete(firstKey);
+            }
+            filterCache.set(key, result);
+        }
+
+        function clearFilterCache() {
+            filterCache.clear();
+            log.debug('Filter cache cleared');
+        }
+
+        // Focus Trap for Modals (Accessibility improvement)
+        let lastFocusedElement = null;
+        let activeModal = null;
+
+        function trapFocus(modal) {
+            lastFocusedElement = document.activeElement;
+            activeModal = modal;
+            const focusableElements = modal.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (firstElement) {
+                firstElement.focus();
+            }
+
+            modal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAllModals();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+
+                if (e.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        lastElement.focus();
+                        e.preventDefault();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        firstElement.focus();
+                        e.preventDefault();
+                    }
+                }
+            });
+        }
+
+        function releaseFocus() {
+            if (lastFocusedElement) {
+                lastFocusedElement.focus();
+                lastFocusedElement = null;
+            }
+            activeModal = null;
+        }
+
+        function closeAllModals() {
+            document.getElementById('orderDetailModal')?.classList.add('hidden');
+            document.getElementById('orderProcessModal')?.classList.add('hidden');
+            releaseFocus();
+        }
+
+        function applyDateRangeFilter() {
+            dateRangeFilter = document.getElementById('dateRangeFilter').value;
+            applyFilters();
+        }
+        let sortState = {}; // Track sort state per table
+
+        const PROCESS_NAMES = { s_cut: '재단', pre_sew: '재봉전', sew_input: '재봉투입', sew_bal: '재봉', s_fit: '스탁핏', ass_bal: '조립', wh_in: '창고입고', wh_out: '창고출고' };
+        const PROCESS_ORDER = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 's_fit', 'ass_bal', 'wh_in', 'wh_out'];
+        const IMPORTANT_DESTINATIONS = { 'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Taiwan': '🇹🇼', 'India': '🇮🇳' };
+
+        // Embedded Data (will be replaced)
+        // Data loaded from external file (rachgia_data_v8.js)
+        // EMBEDDED_DATA is defined in rachgia_data_v8.js
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEmbeddedData();
+        });
+
+        function loadEmbeddedData() {
+            allData = EMBEDDED_DATA;
+            initApp();
+        }
+
+        function initApp() {
+            if (allData.length === 0) {
+                document.getElementById('loadingOverlay').innerHTML = '<div class="text-center"><p class="text-red-500">데이터 없음</p></div>';
+                return;
+            }
+
+            // remaining 잔량 데이터 계산
+            allData.forEach(d => {
+                const qty = d.quantity || 0;
+                const prod = d.production || {};
+
+                // 각 공정별 잔량 계산 (주문량 - 완료량)
+                d.remaining = {
+                    osc: Math.max(0, qty - (prod.osc?.completed || 0)),
+                    sew: Math.max(0, qty - (prod.sew?.completed || 0)),
+                    ass: Math.max(0, qty - (prod.ass?.completed || 0)),
+                    whIn: Math.max(0, qty - (prod.wh_in?.completed || 0)),
+                    whOut: Math.max(0, qty - (prod.wh_out?.completed || 0))
+                };
+            });
+
+            populateFilters();
+            setupEventListeners();
+            applyFilters();
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('ko-KR');
+        }
+
+        // Date mode functions
+        function setDateMode(mode) {
+            dateMode = mode;
+            document.querySelectorAll('.date-mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            const label = mode === 'sdd' ? 'SDD' : 'CRD (고객요청일)';
+            document.getElementById('dateModeLabel').textContent = label;
+            document.getElementById('calendarLabel').textContent = `(${mode.toUpperCase()} 기준)`;
+            document.getElementById('monthFilterLabel').textContent = `월 (${mode.toUpperCase()})`;
+            document.getElementById('dateRangeLabel').textContent = `📅 날짜 범위 (${mode.toUpperCase()})`;
+            populateFilters();
+            applyFilters();
+        }
+
+        // 날짜 범위 초기화
+        function clearDateRange() {
+            document.getElementById('startDateFilter').value = '';
+            document.getElementById('endDateFilter').value = '';
+            applyFilters();
+        }
+
+        // 월 필터 변경 시 → 날짜 범위 초기화
+        function onMonthFilterChange() {
+            const month = document.getElementById('monthFilter').value;
+            if (month) {
+                document.getElementById('startDateFilter').value = '';
+                document.getElementById('endDateFilter').value = '';
+            }
+            applyFilters();
+        }
+
+        // 날짜 범위 변경 시 → 월 필터 초기화
+        function onDateRangeChange() {
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+            if (startDate || endDate) {
+                document.getElementById('monthFilter').value = '';
+            }
+            applyFilters();
+        }
+
+        function getDateValue(d) {
+            return dateMode === 'sdd' ? d.sddValue : (d.crd || d.sddValue);
+        }
+
+        function getYearMonth(d) {
+            return dateMode === 'sdd' ? d.sddYearMonth : (d.crdYearMonth || d.sddYearMonth);
+        }
+
+        function populateFilters() {
+            const yearMonthKey = dateMode === 'sdd' ? 'sddYearMonth' : 'crdYearMonth';
+            const months = [...new Set(allData.map(d => d[yearMonthKey] || d.sddYearMonth).filter(Boolean))].sort();
+            document.getElementById('monthFilter').innerHTML = '<option value="">전체</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
+
+            const destinations = [...new Set(allData.map(d => d.destination).filter(Boolean))].sort();
+            const destSelect = document.getElementById('destFilter');
+            destSelect.innerHTML = '<option value="">전체</option><option value="asia">중요 행선지만</option>' + destinations.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            const vendors = [...new Set(allData.map(d => d.outsoleVendor).filter(Boolean))].sort();
+            document.getElementById('vendorFilter').innerHTML = '<option value="">전체</option>' + vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+        }
+
+        function setupEventListeners() {
+            // Filters
+            ['monthFilter', 'quickDateFilter', 'destFilter', 'vendorFilter', 'statusFilter'].forEach(id => {
+                document.getElementById(id).addEventListener('change', applyFilters);
+            });
+            document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+
+            // Factory chips
+            document.querySelectorAll('#factoryFilter .filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('#factoryFilter .filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    applyFilters();
+                });
+            });
+
+            // Tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
+                    btn.classList.add('tab-active');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                    document.getElementById(btn.dataset.tab + 'Tab').classList.remove('hidden');
+                });
+            });
+
+            // Sort headers
+            document.querySelectorAll('.sort-header').forEach(header => {
+                header.addEventListener('click', () => handleSort(header));
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboard);
+        }
+
+        // Sort functionality
+        function handleSort(header) {
+            const sortKey = header.dataset.sort;
+            const table = header.dataset.table;
+
+            if (!sortState[table]) sortState[table] = { key: null, dir: 'asc' };
+
+            if (sortState[table].key === sortKey) {
+                sortState[table].dir = sortState[table].dir === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortState[table].key = sortKey;
+                sortState[table].dir = 'asc';
+            }
+
+            // 접근성: aria-sort 업데이트
+            document.querySelectorAll(`[data-table="${table}"]`).forEach(h => {
+                h.setAttribute('aria-sort', 'none');
+            });
+            header.setAttribute('aria-sort', sortState[table].dir === 'asc' ? 'ascending' : 'descending');
+
+            // Update header classes
+            document.querySelectorAll(`[data-table="${table}"]`).forEach(h => {
+                h.classList.remove('asc', 'desc');
+            });
+            header.classList.add(sortState[table].dir);
+
+            // Re-render the appropriate table
+            updateTabs();
+        }
+
+        function sortData(data, table) {
+            if (!sortState[table] || !sortState[table].key) return data;
+
+            const key = sortState[table].key;
+            const dir = sortState[table].dir === 'asc' ? 1 : -1;
+
+            return [...data].sort((a, b) => {
+                let valA = a[key] || a[1]?.[key] || 0;
+                let valB = b[key] || b[1]?.[key] || 0;
+
+                if (typeof valA === 'string') {
+                    return dir * valA.localeCompare(valB);
+                }
+                return dir * (valA - valB);
+            });
+        }
+
+        // Filter functions
+        function isDelayed(d) {
+            // Ground Truth: 지연 = SDD > CRD (출고예정일이 고객요구일보다 늦음)
+            const sdd = d.sddValue;
+            const crd = d.crd;
+            if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') return false;
+
+            // 이미 출고 완료된 경우 지연 아님
+            const whOutCompleted = d.production?.wh_out?.completed || 0;
+            const qty = d.quantity || 0;
+            if (whOutCompleted >= qty) return false;
+
+            // Code04 승인 있는 경우 지연 아님 (공식 승인된 SDD 변경)
+            if (d.code04) return false;
+
+            try {
+                const sddDate = new Date(sdd.replace(/\./g, '-'));
+                const crdDate = new Date(crd.replace(/\./g, '-'));
+                return sddDate > crdDate;  // SDD가 CRD보다 늦으면 지연
+            } catch (e) { console.warn("Date parsing error:", e); return false; }
+        }
+
+        function isWarning(d) {
+            // Warning: 아직 지연은 아니지만 SDD가 CRD에 근접 (3일 이내 차이)
+            const sdd = d.sddValue;
+            const crd = d.crd;
+            if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') return false;
+
+            // 이미 출고 완료된 경우 경고 아님
+            const whOutCompleted = d.production?.wh_out?.completed || 0;
+            const qty = d.quantity || 0;
+            if (whOutCompleted >= qty) return false;
+
+            // 이미 지연인 경우 경고 아님
+            if (isDelayed(d)) return false;
+
+            try {
+                const sddDate = new Date(sdd.replace(/\./g, '-'));
+                const crdDate = new Date(crd.replace(/\./g, '-'));
+                const diffDays = (crdDate - sddDate) / (1000 * 60 * 60 * 24);
+                return diffDays >= 0 && diffDays <= 3;  // CRD와 SDD 차이가 3일 이내
+            } catch (e) { console.warn("Date parsing error:", e); return false; }
+        }
+
+        // 선적 완료 여부 (창고출고 완료)
+        function isShipped(d) {
+            const whOutCompleted = d.production?.wh_out?.completed || 0;
+            const qty = d.quantity || 0;
+            return qty > 0 && whOutCompleted >= qty;
+        }
+
+        function isToday(d) {
+            const dateVal = getDateValue(d);
+            if (!dateVal || dateVal === '00:00:00') return false;
+            try {
+                const targetDate = new Date(dateVal.replace(/\./g, '-'));
+                const today = new Date();
+                return targetDate.toDateString() === today.toDateString();
+            } catch (e) { console.warn("Date parsing error:", e); return false; }
+        }
+
+        function applyFilters() {
+            const month = document.getElementById('monthFilter').value;
+            const quick = document.getElementById('quickDateFilter').value;
+            const dest = document.getElementById('destFilter').value;
+            const vendor = document.getElementById('vendorFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const factory = document.querySelector('#factoryFilter .filter-chip.active')?.dataset.factory || '';
+            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+
+            // 날짜 유효성 검증: 시작일 > 종료일 체크
+            if (startDate && endDate && startDate > endDate) {
+                alert('⚠️ 시작일이 종료일보다 늦을 수 없습니다.');
+                document.getElementById('startDateFilter').value = '';
+                return;
+            }
+
+            // Check cache first
+            const cacheKey = JSON.stringify({ month, quick, dest, vendor, status, factory, search, dateMode, dateRangeFilter, startDate, endDate });
+            const cached = filterCache.get(cacheKey);
+            if (cached) {
+                log.debug('Filter cache hit');
+                filteredData = cached;
+                currentPage = 1;
+                updateDashboard();
+                return;
+            }
+
+            filteredData = allData.filter(d => {
+            // Date Range Filter (1주일/1달/전체)
+            if (dateRangeFilter !== 'all') {
+                const dateField = dateMode === 'sdd' ? d.sddValue : d.crd;
+                if (dateField && dateField !== '00:00:00') {
+                    const targetDate = new Date(dateField.replace(/\./g, '-'));
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    let maxDate = new Date(today);
+                    if (dateRangeFilter === 'week') {
+                        maxDate.setDate(maxDate.getDate() + 7);
+                    } else if (dateRangeFilter === 'month') {
+                        maxDate.setMonth(maxDate.getMonth() + 1);
+                    }
+
+                    // 선택한 날짜 범위 내의 오더만 표시
+                    if (targetDate > maxDate) return false;
+                }
+            }
+
+            // Custom Date Range Filter (시작일~종료일)
+            if (startDate || endDate) {
+                const dateField = dateMode === 'sdd' ? d.sddValue : d.crd;
+                if (dateField && dateField !== '00:00:00') {
+                    try {
+                        const targetDate = new Date(dateField.replace(/\./g, '-'));
+                        targetDate.setHours(0, 0, 0, 0);
+
+                        if (startDate) {
+                            const start = new Date(startDate);
+                            start.setHours(0, 0, 0, 0);
+                            if (targetDate < start) return false;
+                        }
+                        if (endDate) {
+                            const end = new Date(endDate);
+                            end.setHours(23, 59, 59, 999);
+                            if (targetDate > end) return false;
+                        }
+                    } catch (e) {
+                        log.warn('Date range filter parsing error:', e);
+                    }
+                } else {
+                    // 날짜가 없는 경우 필터에서 제외
+                    return false;
+                }
+            }
+
+                const yearMonth = getYearMonth(d);
+                if (month && yearMonth !== month) return false;
+                if (dest === 'asia' && !IMPORTANT_DESTINATIONS[d.destination]) return false;
+                if (dest && dest !== 'asia' && d.destination !== dest) return false;
+                if (vendor && d.outsoleVendor !== vendor) return false;
+                if (factory && d.factory !== factory) return false;
+
+                if (status) {
+                    if (status === 'shipped' && !isShipped(d)) return false;
+                    const s = d.production?.wh_in?.status;
+                    if (status === 'completed' && s !== 'completed') return false;
+                    if (status === 'partial' && s !== 'partial') return false;
+                    if (status === 'pending' && s !== 'pending') return false;
+                }
+
+                if (quick) {
+                    if (quick === 'delayed' && !isDelayed(d)) return false;
+                    if (quick === 'warning' && !isWarning(d)) return false;
+                    if (quick === 'today' && !isToday(d)) return false;
+                    if (quick === 'week' && !isWithinWeek(d)) return false;
+                    if (quick === 'month' && !isCurrentMonth(d)) return false;
+                }
+
+                if (search) {
+                    const searchFields = [d.model, d.destination, d.outsoleVendor, d.poNumber, d.factory, d.article].join(' ').toLowerCase();
+                    if (!searchFields.includes(search)) return false;
+                }
+
+                return true;
+            });
+
+            // Cache the result
+            setCachedFilter(cacheKey, filteredData);
+            log.debug('Filter result cached, entries:', filterCache.size);
+
+            currentPage = 1;
+            updateDashboard();
+        }
+
+        function resetAllFilters() {
+            clearFilterCache(); // Clear cache when filters are reset
+            document.getElementById('monthFilter').value = '';
+            document.getElementById('quickDateFilter').value = '';
+            document.getElementById('destFilter').value = '';
+            document.getElementById('vendorFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('startDateFilter').value = '';
+            document.getElementById('endDateFilter').value = '';
+            document.querySelectorAll('#factoryFilter .filter-chip').forEach(c => c.classList.remove('active'));
+            document.querySelector('#factoryFilter .filter-chip[data-factory=""]').classList.add('active');
+            applyFilters();
+        }
+
+        function updateDashboard() {
+            updateWeeklySummary();
+            updateSummary();
+            updateAlerts();
+            updateProcessFlow();
+            updateFactoryCards();
+            updateVendorSection();
+            updateAsiaCards();
+            updateCalendar();
+            updateTabs();
+        }
+
+        // 월요 오더 현황 요약 업데이트
+        function updateWeeklySummary() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // SDD 기준 지연/경고 계산
+            let sddDelayed = 0, sddWarning = 0;
+            // CRD 기준 지연/경고 계산 (CRD 대비 오늘 날짜)
+            let crdDelayed = 0, crdWarning = 0;
+            // 제화 생산 완료 (sew_bal 완료 >= qty)
+            let sewingComplete = 0;
+            // 창고 출고 완료 (wh_out 완료 >= qty)
+            let warehouseOut = 0;
+
+            allData.forEach(d => {
+                const qty = d.quantity || 0;
+                const sewBalCompleted = d.production?.sew_bal?.completed || 0;
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const sdd = d.sddValue;
+                const crd = d.crd;
+
+                // 제화 생산 완료 (재봉 완료량 >= 주문량)
+                if (sewBalCompleted >= qty && qty > 0) {
+                    sewingComplete++;
+                }
+
+                // 창고 출고 완료 (출고량 >= 주문량)
+                if (whOutCompleted >= qty && qty > 0) {
+                    warehouseOut++;
+                }
+
+                // 아직 출고 안 된 오더만 지연/경고 체크
+                if (whOutCompleted < qty) {
+                    // SDD 기준 (기존 isDelayed, isWarning 로직)
+                    if (isDelayed(d)) {
+                        sddDelayed++;
+                    } else if (isWarning(d)) {
+                        sddWarning++;
+                    }
+
+                    // CRD 기준 (오늘 날짜와 CRD 비교)
+                    if (crd && crd !== '00:00:00') {
+                        try {
+                            const crdDate = new Date(crd.replace(/\./g, '-'));
+                            crdDate.setHours(0, 0, 0, 0);
+                            const diffDays = Math.floor((crdDate - today) / (1000 * 60 * 60 * 24));
+
+                            if (diffDays < 0) {
+                                // CRD가 이미 지났음 = 지연
+                                crdDelayed++;
+                            } else if (diffDays <= 3) {
+                                // CRD가 3일 이내 = 경고
+                                crdWarning++;
+                            }
+                        } catch (e) { }
+                    }
+                }
+            });
+
+            // UI 업데이트
+            document.getElementById('sddDelayCount').textContent = sddDelayed + '건';
+            document.getElementById('sddWarningCount').textContent = sddWarning + '건';
+            document.getElementById('crdDelayCount').textContent = crdDelayed + '건';
+            document.getElementById('crdWarningCount').textContent = crdWarning + '건';
+            document.getElementById('sewingCompleteCount').textContent = sewingComplete + '건';
+            document.getElementById('warehouseOutCount').textContent = warehouseOut + '건';
+            document.getElementById('summaryUpdateTime').textContent = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateSummary() {
+            const totalQty = filteredData.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            const totalCompleted = filteredData.reduce((sum, d) => sum + (d.production?.wh_in?.completed || 0), 0);
+            const rate = totalQty > 0 ? (totalCompleted / totalQty * 100) : 0;
+
+            document.getElementById('totalOrders').textContent = formatNumber(filteredData.length) + '건';
+            document.getElementById('totalQty').textContent = formatNumber(totalQty) + '족';
+            document.getElementById('totalCompleted').textContent = formatNumber(totalCompleted) + '족';
+            document.getElementById('totalRate').textContent = rate.toFixed(1) + '%';
+            document.getElementById('execCompletionRate').textContent = rate.toFixed(1) + '%';
+
+            // Donut chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('rateDonut', document.getElementById('rateDonut'), {
+                type: 'doughnut',
+                data: { datasets: [{ data: [rate, 100 - rate], backgroundColor: ['#8b5cf6', '#e5e7eb'], borderWidth: 0 }] },
+                options: { cutout: '70%', plugins: { legend: { display: false } }, responsive: true, maintainAspectRatio: true }
+            });
+
+            // Executive summary
+            const todayOrders = allData.filter(isToday);
+            const todayQty = todayOrders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            document.getElementById('execTodayCount').textContent = todayOrders.length + '건';
+            document.getElementById('execTodayQty').textContent = formatNumber(todayQty) + '족';
+
+            // Factory ranking
+            const factoryRates = ['A', 'B', 'C', 'D'].map(f => {
+                const fData = filteredData.filter(d => d.factory === f);
+                const fQty = fData.reduce((s, d) => s + (d.quantity || 0), 0);
+                const fCompleted = fData.reduce((s, d) => s + (d.production?.wh_in?.completed || 0), 0);
+                return { factory: f, rate: fQty > 0 ? (fCompleted / fQty * 100) : 0 };
+            }).sort((a, b) => b.rate - a.rate);
+
+            document.getElementById('execFactoryRanking').innerHTML = factoryRates.map((f, i) =>
+                `<span class="mr-2">${i + 1}. Factory ${f.factory}: ${f.rate.toFixed(1)}%</span>`
+            ).join('');
+
+            // Warnings
+            const delayed = allData.filter(isDelayed);
+            const warnings = [];
+            if (delayed.length > 0) warnings.push(`🚨 지연 ${delayed.length}건`);
+
+            const bottleneck = findBottleneck();
+            if (bottleneck && bottleneck.rate < 80) warnings.push(`🔴 병목: ${PROCESS_NAMES[bottleneck.key]} (${bottleneck.rate.toFixed(1)}%)`);
+
+            document.getElementById('execWarnings').innerHTML = warnings.length > 0 ? warnings.join(' | ') : '✅ 정상';
+        }
+
+        function findBottleneck() {
+            let minRate = 100, bottleneckKey = null;
+            PROCESS_ORDER.forEach(key => {
+                let completed = 0, total = 0;
+                filteredData.forEach(d => {
+                    const p = d.production?.[key];
+                    if (p) {
+                        completed += p.completed || 0;
+                        total += (p.completed || 0) + (p.pending || 0);
+                    }
+                });
+                const rate = total > 0 ? (completed / total * 100) : 100;
+                if (rate < minRate) { minRate = rate; bottleneckKey = key; }
+            });
+            return { key: bottleneckKey, rate: minRate };
+        }
+
+        function updateAlerts() {
+            const delayed = allData.filter(isDelayed);
+            const warning = allData.filter(isWarning);
+            const delayedQty = delayed.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            const warningQty = warning.reduce((sum, d) => sum + (d.quantity || 0), 0);
+
+            document.getElementById('delayedOrderCount').textContent = delayed.length + '건';
+            document.getElementById('delayedOrderQty').textContent = formatNumber(delayedQty) + '족';
+            document.getElementById('warningOrderCount').textContent = warning.length + '건';
+            document.getElementById('warningOrderQty').textContent = formatNumber(warningQty) + '족';
+            document.getElementById('execDelayCount').textContent = delayed.length + '건';
+
+            // Inventory
+            let invQty = 0, invCount = 0;
+            allData.forEach(d => {
+                const diff = (d.production?.wh_in?.completed || 0) - (d.production?.wh_out?.completed || 0);
+                if (diff > 0) { invQty += diff; invCount++; }
+            });
+            document.getElementById('inventoryCount').textContent = formatNumber(invQty) + '족';
+            document.getElementById('inventoryOrders').textContent = invCount + '건';
+            document.getElementById('execInventory').textContent = formatNumber(invQty);
+            document.getElementById('execInventoryOrders').textContent = invCount + '건';
+
+            // Shipped orders (선적 완료)
+            const shipped = allData.filter(isShipped);
+            const shippedQty = shipped.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            document.getElementById('shippedOrderCount').textContent = shipped.length + '건';
+            document.getElementById('shippedOrderQty').textContent = formatNumber(shippedQty) + '족';
+
+            // Show alert section (show if any alerts or shipped orders exist)
+            document.getElementById('alertSection').classList.toggle('hidden', delayed.length === 0 && warning.length === 0 && shipped.length === 0);
+            document.getElementById('delayAlert').classList.toggle('hidden', delayed.length === 0);
+            document.getElementById('delayCount').textContent = delayed.length;
+        }
+
+        function updateProcessFlow() {
+            const processData = {};
+            let minRate = 100, bottleneckKey = null;
+
+            PROCESS_ORDER.forEach(key => {
+                processData[key] = { completed: 0, pending: 0 };
+            });
+
+            filteredData.forEach(d => {
+                PROCESS_ORDER.forEach(key => {
+                    const p = d.production?.[key];
+                    if (p) {
+                        processData[key].completed += p.completed || 0;
+                        processData[key].pending += p.pending || 0;
+                    }
+                });
+            });
+
+            // Find bottleneck
+            PROCESS_ORDER.forEach(key => {
+                const data = processData[key];
+                const total = data.completed + data.pending;
+                const rate = total > 0 ? (data.completed / total * 100) : 100;
+                if (rate < minRate) { minRate = rate; bottleneckKey = key; }
+            });
+
+            // Funnel chart
+            document.getElementById('funnelChart').innerHTML = PROCESS_ORDER.map((key, i) => {
+                const data = processData[key];
+                const total = data.completed + data.pending;
+                const rate = total > 0 ? (data.completed / total * 100) : 0;
+                const width = 100 - (i * 2);
+                const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+                const isBottleneck = key === bottleneckKey && minRate < 80;
+
+                return `<div class="funnel-step ${isBottleneck ? 'bottleneck' : ''}" style="background: linear-gradient(to right, ${color}40, ${color}20); width: ${width}%"
+                    onclick="showProcessDetail('${key}')" title="${PROCESS_NAMES[key]}: ${rate.toFixed(1)}%">
+                    <div class="text-xs font-medium">${PROCESS_NAMES[key]}</div>
+                    <div class="text-lg font-bold" style="color: ${color}">${rate.toFixed(0)}%</div>
+                    <div class="text-xs text-secondary">${formatNumber(data.completed)}</div>
+                    ${isBottleneck ? '<div class="text-xs text-red-500">병목</div>' : ''}
+                </div>`;
+            }).join('');
+
+            // Progress bars
+            document.getElementById('processProgress').innerHTML = PROCESS_ORDER.map(key => {
+                const data = processData[key];
+                const total = data.completed + data.pending;
+                const rate = total > 0 ? (data.completed / total * 100) : 0;
+                const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+                const isBottleneck = key === bottleneckKey && minRate < 80;
+
+                return `<div class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded ${isBottleneck ? 'ring-2 ring-red-500' : ''}" onclick="showProcessDetail('${key}')">
+                    <div class="w-16 text-sm font-medium">${PROCESS_NAMES[key]}${isBottleneck ? ' 🔴' : ''}</div>
+                    <div class="flex-1 progress-bar"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
+                    <div class="w-24 text-right text-sm"><span class="font-medium" style="color: ${color}">${rate.toFixed(1)}%</span> <span class="text-secondary">(${formatNumber(data.completed)})</span></div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateVendorSection() {
+            const vendorData = {};
+            let totalQty = 0;
+
+            filteredData.forEach(d => {
+                const v = d.outsoleVendor || '(미지정)';
+                if (!vendorData[v]) vendorData[v] = { count: 0, qty: 0, completed: 0 };
+                vendorData[v].count++;
+                vendorData[v].qty += d.quantity || 0;
+                vendorData[v].completed += d.production?.wh_in?.completed || 0;
+                totalQty += d.quantity || 0;
+            });
+
+            const sorted = Object.entries(vendorData).sort((a, b) => b[1].qty - a[1].qty);
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // Chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('vendor', document.getElementById('vendorChart'), {
+                type: 'pie',
+                data: {
+                    labels: sorted.slice(0, 8).map(([v]) => v),
+                    datasets: [{ data: sorted.slice(0, 8).map(([, d]) => d.qty), backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#64748b'] }]
+                },
+                options: { plugins: { legend: { position: 'right', labels: { color: isDarkMode ? '#fff' : '#333' } } }, responsive: true, maintainAspectRatio: false }
+            });
+
+            document.getElementById('vendorTableBody').innerHTML = sorted.slice(0, 10).map(([vendor, data]) => {
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')">
+                    <td class="px-3 py-2 text-xs">${vendor}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(data.count)}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(data.qty)}</td>
+                    <td class="px-3 py-2 text-right font-medium" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateFactoryCards() {
+            const factoryData = { A: { count: 0, qty: 0, completed: 0 }, B: { count: 0, qty: 0, completed: 0 }, C: { count: 0, qty: 0, completed: 0 }, D: { count: 0, qty: 0, completed: 0 } };
+            filteredData.forEach(d => {
+                if (!factoryData[d.factory]) return;
+                factoryData[d.factory].qty += d.quantity || 0;
+                factoryData[d.factory].completed += d.production?.wh_in?.completed || 0;
+                factoryData[d.factory].count++;
+            });
+
+            document.getElementById('factoryCards').innerHTML = ['A', 'B', 'C', 'D'].map(f => {
+                const d = factoryData[f];
+                const rate = d.qty > 0 ? (d.completed / d.qty * 100) : 0;
+                const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+                return `<div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')">
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold">Factory ${f}</span>
+                        <span class="text-sm font-medium" style="color: ${color}">${rate.toFixed(1)}%</span>
+                    </div>
+                    <div class="text-xs text-secondary mt-1">${formatNumber(d.count)}건 · ${formatNumber(d.qty)}족</div>
+                    <div class="progress-bar mt-2" style="height: 6px;"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
+                </div>`;
+            }).join('');
+
+            // Radar chart
+            const radarData = ['A', 'B', 'C', 'D'].map(f => {
+                const fData = filteredData.filter(d => d.factory === f);
+                const qty = fData.reduce((s, d) => s + (d.quantity || 0), 0);
+                const completed = fData.reduce((s, d) => s + (d.production?.wh_in?.completed || 0), 0);
+                return qty > 0 ? (completed / qty * 100) : 0;
+            });
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            // Factory radar chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('factoryRadar', document.getElementById('factoryRadar'), {
+                type: 'radar',
+                data: {
+                    labels: ['Factory A', 'Factory B', 'Factory C', 'Factory D'],
+                    datasets: [{ label: '완료율', data: radarData, backgroundColor: 'rgba(59, 130, 246, 0.3)', borderColor: '#3b82f6' }]
+                },
+                options: { scales: { r: { min: 0, max: 100, ticks: { color: isDarkMode ? '#fff' : '#333' }, pointLabels: { color: isDarkMode ? '#fff' : '#333' } } }, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function updateAsiaCards() {
+            const asiaData = {};
+            const displayNames = { 'Japan': '일본', 'South Korea': '한국', 'China': '중국', 'Taiwan': '대만', 'India': '인도' };
+            const displayOrder = ['Japan', 'South Korea', 'China', 'Taiwan', 'India'];
+
+            displayOrder.forEach(c => { asiaData[c] = { qty: 0, completed: 0, count: 0 }; });
+
+            filteredData.forEach(d => {
+                let country = null;
+                if (d.destination === 'Japan') country = 'Japan';
+                else if (d.destination === 'South Korea' || d.destination === 'Korea') country = 'South Korea';
+                else if (d.destination === 'China') country = 'China';
+                else if (d.destination === 'Taiwan') country = 'Taiwan';
+                else if (d.destination === 'India') country = 'India';
+
+                if (country) {
+                    asiaData[country].qty += d.quantity || 0;
+                    asiaData[country].completed += d.production?.wh_in?.completed || 0;
+                    asiaData[country].count++;
+                }
+            });
+
+            document.getElementById('asiaCards').innerHTML = displayOrder.map(country => {
+                const data = asiaData[country] || { qty: 0, completed: 0, count: 0 };
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+                return `<div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl cursor-pointer hover:shadow-md transition" onclick="showCountryDetail('${country}')">
+                    <div class="text-2xl mb-1">${IMPORTANT_DESTINATIONS[country]}</div>
+                    <div class="font-medium">${displayNames[country]}</div>
+                    <div class="text-sm text-secondary">${formatNumber(data.qty)}족 · ${data.count}건</div>
+                    <div class="progress-bar mt-2" style="height: 6px;"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
+                    <div class="text-xs text-right mt-1" style="color: ${color}">${rate.toFixed(1)}%</div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            document.getElementById('calendarMonth').textContent = `${year}년 ${month + 1}월`;
+
+            const calendarData = {};
+            const today = new Date();
+
+            allData.forEach(d => {
+                const dateVal = getDateValue(d);
+                if (!dateVal || dateVal === '00:00:00') return;
+                try {
+                    const targetDate = new Date(dateVal.replace(/\./g, '-'));
+                    if (targetDate.getFullYear() === year && targetDate.getMonth() === month) {
+                        const day = targetDate.getDate();
+                        if (!calendarData[day]) calendarData[day] = { count: 0, qty: 0, delayed: 0, warning: 0 };
+                        calendarData[day].count++;
+                        calendarData[day].qty += d.quantity || 0;
+
+                        const isComplete = (d.production?.wh_in?.completed || 0) >= (d.quantity || 0);
+                        if (!isComplete) {
+                            if (targetDate < today) calendarData[day].delayed++;
+                            else {
+                                const diff = (targetDate - today) / (1000 * 60 * 60 * 24);
+                                if (diff <= 3) calendarData[day].warning++;
+                            }
+                        }
+                    }
+                } catch {}
+            });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+
+            let html = dayNames.map(d => `<div class="text-center font-medium text-sm text-secondary py-2">${d}</div>`).join('');
+            for (let i = 0; i < firstDay; i++) html += '<div></div>';
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const data = calendarData[day];
+                const isCurrentDay = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
+                let dayClass = 'calendar-day';
+                if (isCurrentDay) dayClass += ' today';
+                if (data?.delayed > 0) dayClass += ' delayed';
+                else if (data?.warning > 0) dayClass += ' warning';
+
+                html += `<div class="${dayClass}" onclick="showCalendarDayDetail(${year}, ${month}, ${day})">
+                    <div class="font-medium">${day}</div>
+                    ${data ? `<div class="text-xs">${data.count}건</div>` : ''}
+                </div>`;
+            }
+
+            document.getElementById('shippingCalendar').innerHTML = html;
+        }
+
+        function prevMonth() { currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1); updateCalendar(); }
+        function nextMonth() { currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1); updateCalendar(); }
+
+        function showCalendarDayDetail(year, month, day) {
+            const targetDate = new Date(year, month, day);
+            const orders = allData.filter(d => {
+                const dateVal = getDateValue(d);
+                if (!dateVal || dateVal === '00:00:00') return false;
+                try {
+                    const dDate = new Date(dateVal.replace(/\./g, '-'));
+                    return dDate.toDateString() === targetDate.toDateString();
+                } catch (e) { console.warn("Date parsing error:", e); return false; }
+            });
+            showOrderListModal(`📅 ${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')} 예정`, orders);
+        }
+
+        function updateTabs() {
+            updateMonthlyTab();
+            updateDestinationTab();
+            updateModelTab();
+            updateFactoryTab();
+            updateVendorTab();
+            updateHeatmapTab();
+            updateDataTab();
+        }
+
+        function updateMonthlyTab() {
+            const monthlyData = {};
+            filteredData.forEach(d => {
+                const ym = getYearMonth(d);
+                if (!ym) return;
+                if (!monthlyData[ym]) monthlyData[ym] = { count: 0, qty: 0, completed: 0 };
+                monthlyData[ym].count++;
+                monthlyData[ym].qty += d.quantity || 0;
+                monthlyData[ym].completed += d.production?.wh_in?.completed || 0;
+            });
+
+            let sorted = Object.entries(monthlyData).sort((a, b) => a[0].localeCompare(b[0]));
+            sorted = sortData(sorted.map(([k, v]) => ({ month: k, ...v })), 'monthly');
+            if (!Array.isArray(sorted[0])) sorted = sorted.map(d => [d.month, d]);
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            // Monthly chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('monthly', document.getElementById('monthlyChart'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(([m]) => m),
+                    datasets: [
+                        { label: '주문량', data: sorted.map(([, d]) => d.qty), backgroundColor: '#3b82f6' },
+                        { label: '완료량', data: sorted.map(([, d]) => d.completed), backgroundColor: '#22c55e' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: isDarkMode ? '#fff' : '#333' } } } }
+            });
+
+            document.querySelector('#monthlyTable tbody').innerHTML = sorted.map(([month, data]) => {
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                return `<tr class="border-b border-theme"><td class="px-4 py-2">${month}</td><td class="px-4 py-2 text-right">${formatNumber(data.count)}</td><td class="px-4 py-2 text-right">${formatNumber(data.qty)}</td><td class="px-4 py-2 text-right">${formatNumber(data.completed)}</td><td class="px-4 py-2 text-right font-medium" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</td></tr>`;
+            }).join('');
+        }
+
+        function updateDestinationTab() {
+            const destData = {};
+            filteredData.forEach(d => {
+                if (!d.destination) return;
+                if (!destData[d.destination]) destData[d.destination] = { count: 0, qty: 0, completed: 0 };
+                destData[d.destination].count++;
+                destData[d.destination].qty += d.quantity || 0;
+                destData[d.destination].completed += d.production?.wh_in?.completed || 0;
+            });
+
+            const sorted = Object.entries(destData).sort((a, b) => b[1].qty - a[1].qty);
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // Destination chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('dest', document.getElementById('destChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: sorted.slice(0, 10).map(([d]) => d),
+                    datasets: [{ data: sorted.slice(0, 10).map(([, d]) => d.qty), backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#64748b', '#0ea5e9', '#f97316'] }]
+                },
+                options: { plugins: { legend: { position: 'right', labels: { color: isDarkMode ? '#fff' : '#333' } } }, responsive: true, maintainAspectRatio: false }
+            });
+
+            document.querySelector('#destTable tbody').innerHTML = sorted.map(([dest, data]) => {
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                const flag = IMPORTANT_DESTINATIONS[dest] || '';
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showCountryDetail('${dest}')">
+                    <td class="px-4 py-2">${flag} ${dest}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.qty)}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.completed)}</td>
+                    <td class="px-4 py-2 text-right font-medium" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateModelTab() {
+            const modelData = {};
+            filteredData.forEach(d => {
+                if (!d.model) return;
+                if (!modelData[d.model]) modelData[d.model] = { count: 0, qty: 0, completed: 0 };
+                modelData[d.model].count++;
+                modelData[d.model].qty += d.quantity || 0;
+                modelData[d.model].completed += d.production?.wh_in?.completed || 0;
+            });
+
+            const sorted = Object.entries(modelData).sort((a, b) => b[1].qty - a[1].qty);
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // Model chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('model', document.getElementById('modelChart'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.slice(0, 15).map(([m]) => m),
+                    datasets: [{ label: '수량', data: sorted.slice(0, 15).map(([, d]) => d.qty), backgroundColor: '#3b82f6' }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: isDarkMode ? '#fff' : '#333' } } } }
+            });
+
+            document.querySelector('#modelTable tbody').innerHTML = sorted.slice(0, 30).map(([model, data]) => {
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showModelDetail('${model}')">
+                    <td class="px-4 py-2 text-xs">${model}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.qty)}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.completed)}</td>
+                    <td class="px-4 py-2 text-right font-medium" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateFactoryTab() {
+            const factoryData = {};
+            filteredData.forEach(d => {
+                if (!factoryData[d.factory]) factoryData[d.factory] = { count: 0, qty: 0, completed: 0 };
+                factoryData[d.factory].count++;
+                factoryData[d.factory].qty += d.quantity || 0;
+                factoryData[d.factory].completed += d.production?.wh_in?.completed || 0;
+            });
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            // Factory chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('factory', document.getElementById('factoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['A', 'B', 'C', 'D'].map(f => `Factory ${f}`),
+                    datasets: [
+                        { label: '주문량', data: ['A', 'B', 'C', 'D'].map(f => factoryData[f]?.qty || 0), backgroundColor: '#3b82f6' },
+                        { label: '완료량', data: ['A', 'B', 'C', 'D'].map(f => factoryData[f]?.completed || 0), backgroundColor: '#22c55e' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: isDarkMode ? '#fff' : '#333' } } } }
+            });
+
+            let html = '';
+            ['A', 'B', 'C', 'D'].forEach(f => {
+                const fData = filteredData.filter(d => d.factory === f);
+                const totalQty = fData.reduce((sum, d) => sum + (d.quantity || 0), 0);
+                const whInCompleted = fData.reduce((sum, d) => sum + (d.production?.wh_in?.completed || 0), 0);
+                const rate = totalQty > 0 ? (whInCompleted / totalQty * 100) : 0;
+                html += `<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')">
+                    <div class="flex justify-between items-center mb-2"><span class="font-semibold">Factory ${f}</span><span class="text-sm" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}% 완료</span></div>
+                    <div class="text-sm text-secondary">${formatNumber(fData.length)}건 · ${formatNumber(totalQty)}족</div>
+                </div>`;
+            });
+            document.getElementById('factoryProcessDetail').innerHTML = html;
+        }
+
+        function updateVendorTab() {
+            const vendorData = {};
+            filteredData.forEach(d => {
+                const v = d.outsoleVendor || '(미지정)';
+                if (!vendorData[v]) vendorData[v] = { count: 0, qty: 0, completed: 0 };
+                vendorData[v].count++;
+                vendorData[v].qty += d.quantity || 0;
+                vendorData[v].completed += d.production?.wh_in?.completed || 0;
+            });
+
+            const sorted = Object.entries(vendorData).sort((a, b) => b[1].qty - a[1].qty);
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // Vendor detail chart - using updateOrCreateChart for memory efficiency
+            updateOrCreateChart('vendorDetail', document.getElementById('vendorDetailChart'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.slice(0, 10).map(([v]) => v),
+                    datasets: [
+                        { label: '주문량', data: sorted.slice(0, 10).map(([, d]) => d.qty), backgroundColor: '#3b82f6' },
+                        { label: '완료량', data: sorted.slice(0, 10).map(([, d]) => d.completed), backgroundColor: '#22c55e' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: isDarkMode ? '#fff' : '#333' } } } }
+            });
+
+            document.querySelector('#vendorDetailTable tbody').innerHTML = sorted.map(([vendor, data]) => {
+                const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')">
+                    <td class="px-3 py-2 text-xs">${vendor}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(data.count)}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(data.qty)}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(data.completed)}</td>
+                    <td class="px-3 py-2 text-right font-medium" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</td>
+                </tr>`;
+            }).join('');
+
+            // Model x Vendor Heatmap
+            renderModelVendorHeatmap();
+        }
+
+        function renderModelVendorHeatmap() {
+            const models = [...new Set(filteredData.map(d => d.model).filter(Boolean))];
+            const vendors = [...new Set(filteredData.map(d => d.outsoleVendor || '(미지정)').filter(Boolean))];
+
+            // Get top models and vendors by quantity
+            const modelQty = {};
+            const vendorQty = {};
+            filteredData.forEach(d => {
+                modelQty[d.model] = (modelQty[d.model] || 0) + (d.quantity || 0);
+                const v = d.outsoleVendor || '(미지정)';
+                vendorQty[v] = (vendorQty[v] || 0) + (d.quantity || 0);
+            });
+
+            const topModels = Object.entries(modelQty).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([m]) => m);
+            const topVendors = Object.entries(vendorQty).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([v]) => v);
+
+            // Build heatmap data
+            const heatmapData = {};
+            let maxVal = 0;
+            filteredData.forEach(d => {
+                const model = d.model;
+                const vendor = d.outsoleVendor || '(미지정)';
+                if (topModels.includes(model) && topVendors.includes(vendor)) {
+                    const key = `${model}|${vendor}`;
+                    heatmapData[key] = (heatmapData[key] || 0) + (d.quantity || 0);
+                    if (heatmapData[key] > maxVal) maxVal = heatmapData[key];
+                }
+            });
+
+            let html = '<table class="w-full text-xs"><thead><tr><th class="heatmap-cell">모델 \\ 벤더</th>';
+            topVendors.forEach(v => { html += `<th class="heatmap-cell">${v.substring(0, 15)}</th>`; });
+            html += '</tr></thead><tbody>';
+
+            topModels.forEach(model => {
+                html += `<tr><td class="heatmap-cell font-medium text-left">${model.substring(0, 20)}</td>`;
+                topVendors.forEach(vendor => {
+                    const val = heatmapData[`${model}|${vendor}`] || 0;
+                    const intensity = maxVal > 0 ? val / maxVal : 0;
+                    const bg = val > 0 ? `rgba(59, 130, 246, ${0.2 + intensity * 0.8})` : '#f3f4f6';
+                    const textColor = intensity > 0.5 ? '#fff' : '#333';
+                    html += `<td class="heatmap-cell" style="background: ${bg}; color: ${textColor}">${val > 0 ? formatNumber(val) : '-'}</td>`;
+                });
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('modelVendorHeatmap').innerHTML = html;
+        }
+
+        function updateHeatmapTab() {
+            // Country x Month heatmap
+            const countryMonthData = {};
+            const months = [...new Set(filteredData.map(d => getYearMonth(d)).filter(Boolean))].sort();
+            const countries = Object.keys(IMPORTANT_DESTINATIONS);
+
+            let maxCountryMonth = 0;
+            filteredData.forEach(d => {
+                const ym = getYearMonth(d);
+                const country = countries.find(c => d.destination === c || (c === 'South Korea' && d.destination === 'Korea'));
+                if (country && ym) {
+                    const key = `${country}|${ym}`;
+                    countryMonthData[key] = (countryMonthData[key] || 0) + (d.quantity || 0);
+                    if (countryMonthData[key] > maxCountryMonth) maxCountryMonth = countryMonthData[key];
+                }
+            });
+
+            let html1 = '<table class="w-full text-xs"><thead><tr><th class="heatmap-cell">국가 \\ 월</th>';
+            months.forEach(m => { html1 += `<th class="heatmap-cell">${m}</th>`; });
+            html1 += '</tr></thead><tbody>';
+
+            countries.forEach(country => {
+                const displayName = { 'Japan': '일본', 'South Korea': '한국', 'China': '중국', 'Taiwan': '대만', 'India': '인도' }[country];
+                html1 += `<tr><td class="heatmap-cell font-medium text-left">${IMPORTANT_DESTINATIONS[country]} ${displayName}</td>`;
+                months.forEach(month => {
+                    const val = countryMonthData[`${country}|${month}`] || 0;
+                    const intensity = maxCountryMonth > 0 ? val / maxCountryMonth : 0;
+                    const bg = val > 0 ? `rgba(34, 197, 94, ${0.2 + intensity * 0.8})` : '#f3f4f6';
+                    const textColor = intensity > 0.5 ? '#fff' : '#333';
+                    html1 += `<td class="heatmap-cell" style="background: ${bg}; color: ${textColor}">${val > 0 ? formatNumber(val) : '-'}</td>`;
+                });
+                html1 += '</tr>';
+            });
+            html1 += '</tbody></table>';
+            document.getElementById('countryMonthHeatmap').innerHTML = html1;
+
+            // Model x Destination heatmap
+            const modelDestData = {};
+            const topModels = Object.entries(
+                filteredData.reduce((acc, d) => { acc[d.model] = (acc[d.model] || 0) + (d.quantity || 0); return acc; }, {})
+            ).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([m]) => m);
+            const topDest = Object.entries(
+                filteredData.reduce((acc, d) => { acc[d.destination] = (acc[d.destination] || 0) + (d.quantity || 0); return acc; }, {})
+            ).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([d]) => d);
+
+            let maxModelDest = 0;
+            filteredData.forEach(d => {
+                if (topModels.includes(d.model) && topDest.includes(d.destination)) {
+                    const key = `${d.model}|${d.destination}`;
+                    modelDestData[key] = (modelDestData[key] || 0) + (d.quantity || 0);
+                    if (modelDestData[key] > maxModelDest) maxModelDest = modelDestData[key];
+                }
+            });
+
+            let html2 = '<table class="w-full text-xs"><thead><tr><th class="heatmap-cell">모델 \\ 행선지</th>';
+            topDest.forEach(d => { html2 += `<th class="heatmap-cell">${d}</th>`; });
+            html2 += '</tr></thead><tbody>';
+
+            topModels.forEach(model => {
+                html2 += `<tr><td class="heatmap-cell font-medium text-left">${model.substring(0, 20)}</td>`;
+                topDest.forEach(dest => {
+                    const val = modelDestData[`${model}|${dest}`] || 0;
+                    const intensity = maxModelDest > 0 ? val / maxModelDest : 0;
+                    const bg = val > 0 ? `rgba(139, 92, 246, ${0.2 + intensity * 0.8})` : '#f3f4f6';
+                    const textColor = intensity > 0.5 ? '#fff' : '#333';
+                    html2 += `<td class="heatmap-cell" style="background: ${bg}; color: ${textColor}">${val > 0 ? formatNumber(val) : '-'}</td>`;
+                });
+                html2 += '</tr>';
+            });
+            html2 += '</tbody></table>';
+            document.getElementById('modelDestHeatmap').innerHTML = html2;
+        }
+
+        function updateDataTab() {
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = start + PAGE_SIZE;
+            const pageData = filteredData.slice(start, end);
+            const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+
+            document.getElementById('dataCount').textContent = `(${formatNumber(filteredData.length)}건)`;
+            document.getElementById('pagination').textContent = `${currentPage} / ${totalPages} 페이지`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+
+            const getIcon = (status) => {
+                if (status === 'completed') return '✅';
+                if (status === 'partial') return '🔄';
+                return '⏳';
+            };
+
+            document.querySelector('#dataTable tbody').innerHTML = pageData.map(d => {
+                const shipped = isShipped(d);
+                const delayed = isDelayed(d);
+                const warning = isWarning(d);
+                const rowClass = shipped ? 'shipped-highlight' : delayed ? 'delay-highlight' : warning ? 'warning-highlight' : '';
+                return `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="showOrderProcessDetail(${filteredData.indexOf(d)})">
+                    <td class="px-2 py-2">${d.factory}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.poNumber) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.model) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.article) || '-'}</td>
+                    <td class="px-2 py-2">${escapeHtml(d.destination) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.outsoleVendor) || '-'}</td>
+                    <td class="px-2 py-2 text-right">${formatNumber(d.quantity || 0)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.s_cut?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.sew_bal?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.ass_bal?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.wh_in?.status)}</td>
+                    <td class="px-2 py-2 text-xs">${d.crd || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${d.sddValue || '-'}</td>
+                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge">🚢 선적</span>' : delayed ? '🚨' : warning ? '⚡' : d.production?.wh_in?.status === 'completed' ? '✅' : '⏳'}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; updateDataTab(); } }
+        function nextPage() { const totalPages = Math.ceil(filteredData.length / PAGE_SIZE); if (currentPage < totalPages) { currentPage++; updateDataTab(); } }
+
+        // Modal functions
+        function showProcessDetail(processKey) {
+            const incompleteOrders = filteredData.filter(d => {
+                const p = d.production?.[processKey];
+                return p && p.status !== 'completed';
+            });
+            showOrderListModal(`${PROCESS_NAMES[processKey]} 미완료 오더`, incompleteOrders);
+        }
+
+        function showDelayedOrders() { showOrderListModal('🚨 지연 오더', allData.filter(isDelayed)); }
+        function showWarningOrders() { showOrderListModal('⚡ 3일 내 예정 (미완료)', allData.filter(isWarning)); }
+
+        function showInventoryOrders() {
+            const inventory = allData.filter(d => {
+                const whIn = d.production?.wh_in?.completed || 0;
+                const whOut = d.production?.wh_out?.completed || 0;
+                return whIn > whOut;
+            });
+            showOrderListModal('📦 창고 재고 오더', inventory);
+        }
+
+        function showShippedOrders() {
+            showOrderListModal('🚢 선적 완료 오더', allData.filter(isShipped));
+        }
+
+        function showVendorDetail(vendor) { showOrderListModal(`${vendor} 상세`, filteredData.filter(d => (d.outsoleVendor || '(미지정)') === vendor)); }
+        function showFactoryDetail(factory) { showOrderListModal(`Factory ${factory} 상세`, filteredData.filter(d => d.factory === factory)); }
+        function showCountryDetail(country) {
+            const orders = filteredData.filter(d => {
+                if (country === 'South Korea') return d.destination === 'South Korea' || d.destination === 'Korea';
+                return d.destination === country;
+            });
+            showOrderListModal(`${IMPORTANT_DESTINATIONS[country] || ''} ${country} 상세`, orders);
+        }
+        function showModelDetail(model) { showOrderListModal(`${model} 상세`, filteredData.filter(d => d.model === model)); }
+
+        function showOrderListModal(title, orders) {
+            document.getElementById('modalTitle').textContent = `${title} (${orders.length}건)`;
+
+            const totalQty = orders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            const totalCompleted = orders.reduce((sum, d) => sum + (d.production?.wh_in?.completed || 0), 0);
+            const rate = totalQty > 0 ? (totalCompleted / totalQty * 100) : 0;
+
+            let html = `<div class="grid grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div><div class="text-secondary text-sm">오더 수</div><div class="text-xl font-bold">${orders.length}건</div></div>
+                <div><div class="text-secondary text-sm">주문량</div><div class="text-xl font-bold">${formatNumber(totalQty)}족</div></div>
+                <div><div class="text-secondary text-sm">완료량</div><div class="text-xl font-bold text-green-600">${formatNumber(totalCompleted)}족</div></div>
+                <div><div class="text-secondary text-sm">완료율</div><div class="text-xl font-bold" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</div></div>
+            </div>`;
+
+            const getIcon = (status) => status === 'completed' ? '✅' : status === 'partial' ? '🔄' : '⏳';
+            const modalPageSize = 50;
+            const displayOrders = orders.slice(0, modalPageSize);
+
+            html += `<div class="overflow-x-auto"><table class="w-full text-sm">
+                <thead class="bg-gray-50 dark:bg-gray-700"><tr>
+                    <th class="px-2 py-2 text-left">공장</th>
+                    <th class="px-2 py-2 text-left">PO</th>
+                    <th class="px-2 py-2 text-left">모델</th>
+                    <th class="px-2 py-2 text-left">Article</th>
+                    <th class="px-2 py-2 text-left">행선지</th>
+                    <th class="px-2 py-2 text-left">아웃솔 벤더</th>
+                    <th class="px-2 py-2 text-right">수량</th>
+                    <th class="px-2 py-2 text-center">재단</th>
+                    <th class="px-2 py-2 text-center">재봉</th>
+                    <th class="px-2 py-2 text-center">조립</th>
+                    <th class="px-2 py-2 text-center">입고</th>
+                    <th class="px-2 py-2 text-left">CRD</th>
+                    <th class="px-2 py-2 text-left">SDD</th>
+                    <th class="px-2 py-2 text-center">상태</th>
+                </tr></thead><tbody>`;
+
+            displayOrders.forEach((d, i) => {
+                const shipped = isShipped(d);
+                const delayed = isDelayed(d);
+                const warning = isWarning(d);
+                const rowClass = shipped ? 'shipped-highlight' : delayed ? 'delay-highlight' : warning ? 'warning-highlight' : '';
+                const globalIndex = allData.indexOf(d);
+                html += `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="closeOrderModal(); showOrderProcessDetail(${globalIndex})">
+                    <td class="px-2 py-2">${d.factory}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.poNumber) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.model) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.article) || '-'}</td>
+                    <td class="px-2 py-2">${escapeHtml(d.destination) || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${escapeHtml(d.outsoleVendor) || '-'}</td>
+                    <td class="px-2 py-2 text-right">${formatNumber(d.quantity || 0)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.s_cut?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.sew_bal?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.ass_bal?.status)}</td>
+                    <td class="px-2 py-2 text-center">${getIcon(d.production?.wh_in?.status)}</td>
+                    <td class="px-2 py-2 text-xs">${d.crd || '-'}</td>
+                    <td class="px-2 py-2 text-xs">${d.sddValue || '-'}</td>
+                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge">🚢 선적</span>' : delayed ? '🚨' : warning ? '⚡' : d.production?.wh_in?.status === 'completed' ? '✅' : '⏳'}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table></div>';
+            if (orders.length > modalPageSize) {
+                html += `<div class="mt-4 text-center text-secondary">... 외 ${orders.length - modalPageSize}건 (전체 보기는 상세 탭 이용)</div>`;
+            }
+
+            document.getElementById('modalContent').innerHTML = html;
+            const modal = document.getElementById('orderDetailModal');
+            modal.classList.remove('hidden');
+            trapFocus(modal); // Focus trap for accessibility
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+            releaseFocus(); // Restore focus
+        }
+
+        // Order Process Detail Modal (NEW)
+        function showOrderProcessDetail(index) {
+            const d = allData[index];
+            if (!d) return;
+
+            document.getElementById('orderProcessTitle').textContent = `오더 상세: ${escapeHtml(d.poNumber) || '-'}`;
+
+            let html = `
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div><div class="text-secondary text-xs">PO 번호</div><div class="font-bold">${escapeHtml(d.poNumber) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">Article (PGSC)</div><div class="font-bold">${escapeHtml(d.article) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">모델</div><div class="font-bold text-sm">${escapeHtml(d.model) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">수량</div><div class="font-bold">${formatNumber(d.quantity || 0)}족</div></div>
+                <div><div class="text-secondary text-xs">공장</div><div class="font-bold">Factory ${d.factory}</div></div>
+                <div><div class="text-secondary text-xs">행선지</div><div class="font-bold">${escapeHtml(d.destination) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">CRD (고객요청일)</div><div class="font-bold">${d.crd || '-'}</div></div>
+                <div><div class="text-secondary text-xs">SDD</div><div class="font-bold">${d.sddValue || '-'}</div></div>
+                <div><div class="text-secondary text-xs">아웃솔 벤더</div><div class="font-bold">${escapeHtml(d.outsoleVendor) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">색상</div><div class="font-bold">${d.color || '-'}</div></div>
+                <div><div class="text-secondary text-xs">시즌</div><div class="font-bold">${escapeHtml(d.season) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">단위</div><div class="font-bold">${escapeHtml(d.unit) || '-'}</div></div>
+                <div><div class="text-secondary text-xs">AQL 검사</div><div class="font-bold ${d.aql ? 'text-blue-600' : 'text-gray-400'}">${d.aql ? '✅ 필요' : '불필요'}</div></div>
+            </div>
+
+            <h4 class="font-semibold mb-3 mt-4">📦 잔량 현황</h4>
+            <div class="grid grid-cols-5 gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div class="text-center p-2 rounded ${(d.remaining?.osc || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
+                    <div class="text-xs text-secondary">외주 잔량</div>
+                    <div class="font-bold ${(d.remaining?.osc || 0) > 0 ? 'text-yellow-700' : 'text-green-700'}">${formatNumber(d.remaining?.osc || 0)}</div>
+                </div>
+                <div class="text-center p-2 rounded ${(d.remaining?.sew || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
+                    <div class="text-xs text-secondary">재봉 잔량</div>
+                    <div class="font-bold ${(d.remaining?.sew || 0) > 0 ? 'text-yellow-700' : 'text-green-700'}">${formatNumber(d.remaining?.sew || 0)}</div>
+                </div>
+                <div class="text-center p-2 rounded ${(d.remaining?.ass || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
+                    <div class="text-xs text-secondary">제화 잔량</div>
+                    <div class="font-bold ${(d.remaining?.ass || 0) > 0 ? 'text-yellow-700' : 'text-green-700'}">${formatNumber(d.remaining?.ass || 0)}</div>
+                </div>
+                <div class="text-center p-2 rounded ${(d.remaining?.whIn || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
+                    <div class="text-xs text-secondary">입고 잔량</div>
+                    <div class="font-bold ${(d.remaining?.whIn || 0) > 0 ? 'text-yellow-700' : 'text-green-700'}">${formatNumber(d.remaining?.whIn || 0)}</div>
+                </div>
+                <div class="text-center p-2 rounded ${(d.remaining?.whOut || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
+                    <div class="text-xs text-secondary">출고 잔량</div>
+                    <div class="font-bold ${(d.remaining?.whOut || 0) > 0 ? 'text-yellow-700' : 'text-green-700'}">${formatNumber(d.remaining?.whOut || 0)}</div>
+                </div>
+            </div>
+
+            <h4 class="font-semibold mb-4">📊 공정별 생산 현황</h4>
+            <div class="process-timeline mb-6 justify-center">`;
+
+            PROCESS_ORDER.forEach((key, i) => {
+                const p = d.production?.[key];
+                const completed = p?.completed || 0;
+                const pending = p?.pending || 0;
+                const total = completed + pending;
+                const status = p?.status || 'pending';
+
+                let stepClass = 'pending';
+                if (status === 'completed') stepClass = 'completed';
+                else if (status === 'partial') stepClass = 'in-progress';
+
+                html += `
+                <div class="process-step ${stepClass}">
+                    <div class="text-xs font-medium mb-1">${PROCESS_NAMES[key]}</div>
+                    <div class="text-lg font-bold">${status === 'completed' ? '✅' : status === 'partial' ? '🔄' : '⏳'}</div>
+                    <div class="text-xs">${formatNumber(completed)}/${formatNumber(total)}</div>
+                    <div class="text-xs text-secondary">${total > 0 ? ((completed/total)*100).toFixed(0) : 0}%</div>
+                </div>`;
+
+                if (i < PROCESS_ORDER.length - 1) {
+                    html += '<div class="process-arrow">→</div>';
+                }
+            });
+
+            html += `</div>
+
+            <h4 class="font-semibold mb-4">📈 공정별 상세 현황</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-3 py-2 text-left">공정</th>
+                            <th class="px-3 py-2 text-right">완료</th>
+                            <th class="px-3 py-2 text-right">미완료</th>
+                            <th class="px-3 py-2 text-right">합계</th>
+                            <th class="px-3 py-2 text-right">완료율</th>
+                            <th class="px-3 py-2 text-center">상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            PROCESS_ORDER.forEach(key => {
+                const p = d.production?.[key];
+                const completed = p?.completed || 0;
+                const pending = p?.pending || 0;
+                const total = completed + pending;
+                const rate = total > 0 ? (completed / total * 100) : 0;
+                const status = p?.status || 'pending';
+                const statusIcon = status === 'completed' ? '✅ 완료' : status === 'partial' ? '🔄 진행중' : '⏳ 대기';
+                const rateColor = rate >= 100 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+
+                html += `<tr class="border-b border-theme">
+                    <td class="px-3 py-2 font-medium">${PROCESS_NAMES[key]}</td>
+                    <td class="px-3 py-2 text-right text-green-600">${formatNumber(completed)}</td>
+                    <td class="px-3 py-2 text-right text-gray-500">${formatNumber(pending)}</td>
+                    <td class="px-3 py-2 text-right">${formatNumber(total)}</td>
+                    <td class="px-3 py-2 text-right font-medium" style="color: ${rateColor}">${rate.toFixed(1)}%</td>
+                    <td class="px-3 py-2 text-center">${statusIcon}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+
+            document.getElementById('orderProcessContent').innerHTML = html;
+            const modal = document.getElementById('orderProcessModal');
+            modal.classList.remove('hidden');
+            trapFocus(modal); // Focus trap for accessibility
+        }
+
+        function closeOrderProcessModal() {
+            document.getElementById('orderProcessModal').classList.add('hidden');
+            releaseFocus(); // Restore focus
+        }
+
+        // Keyboard handling
+        function handleKeyboard(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+            switch(e.key.toLowerCase()) {
+                case 's': document.getElementById('searchInput').focus(); e.preventDefault(); break;
+                case 'f': document.getElementById('monthFilter').focus(); e.preventDefault(); break;
+                case 'r': resetAllFilters(); break;
+                case 'd': document.querySelector('[data-tab="data"]').click(); break;
+                case 'escape': closeOrderModal(); closeOrderProcessModal(); break;
+                case 'arrowleft': if (document.querySelector('[data-tab="data"]').classList.contains('tab-active')) prevPage(); break;
+                case 'arrowright': if (document.querySelector('[data-tab="data"]').classList.contains('tab-active')) nextPage(); break;
+            }
+        }
+
+        // Utility functions
+        // XSS 방지를 위한 HTML 이스케이프 함수
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
+
+        function formatNumber(num) { return num.toLocaleString('ko-KR'); }
+        function debounce(fn, delay) { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); }; }
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('darkModeIcon').textContent = isDark ? '☀️' : '🌙';
+
+            // 차트 색상 업데이트
+            const textColor = isDark ? '#f9fafb' : '#1f2937';
+            const borderColor = isDark ? '#4b5563' : '#e5e7eb';
+            Chart.defaults.color = textColor;
+            Chart.defaults.borderColor = borderColor;
+
+            // 모든 차트 업데이트
+            Object.values(Chart.instances).forEach((instance) => {
+                if (instance.options.scales) {
+                    ['x', 'y', 'r'].forEach(axis => {
+                        if (instance.options.scales[axis]) {
+                            instance.options.scales[axis].ticks = instance.options.scales[axis].ticks || {};
+                            instance.options.scales[axis].ticks.color = textColor;
+                            instance.options.scales[axis].grid = instance.options.scales[axis].grid || {};
+                            instance.options.scales[axis].grid.color = borderColor;
+                        }
+                    });
+                }
+                if (instance.options.plugins?.legend?.labels) {
+                    instance.options.plugins.legend.labels.color = textColor;
+                }
+                instance.update();
+            });
+            updateDashboard();
+        }
+
+        // Export
+        function exportToExcel() {
+            const exportData = filteredData.map(d => ({
+                '공장': d.factory,
+                'PO번호': d.poNumber,
+                '모델': d.model,
+                'Article': d.article,
+                '행선지': d.destination,
+                '아웃솔벤더': d.outsoleVendor,
+                '수량': d.quantity,
+                'CRD': d.crd,
+                'SDD': d.sddValue,
+                '재단완료': d.production?.s_cut?.completed || 0,
+                '재봉완료': d.production?.sew_bal?.completed || 0,
+                '조립완료': d.production?.ass_bal?.completed || 0,
+                '입고완료': d.production?.wh_in?.completed || 0
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Data');
+            XLSX.writeFile(wb, `rachgia_export_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+    </script>
+</body>
+</html>
