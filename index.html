@@ -1,0 +1,2548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rachgia Factory Loadplan 통합 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .asia-highlight { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .drop-zone.dragover { border-color: #3b82f6; background-color: #eff6ff; }
+        table th { position: sticky; top: 0; background: #f8fafc; z-index: 10; }
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background-color: #f0f9ff !important; }
+        .modal-overlay { background: rgba(0,0,0,0.5); }
+        .debug-info { font-size: 10px; color: #999; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="max-w-[1800px] mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold">🏭 Rachgia Factory Loadplan</h1>
+                    <p class="text-blue-100 text-sm">통합 오더 현황 대시보드</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="uploadStatus" class="text-sm bg-blue-700 px-4 py-2 rounded-lg">
+                        <span class="text-blue-200">📁 파일을 업로드하세요</span>
+                    </div>
+                    <button id="githubSaveBtn" onclick="openGithubModal()" class="hidden px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub 저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-[1800px] mx-auto px-6 py-6">
+        <!-- File Upload Section -->
+        <section id="uploadSection" class="mb-6">
+            <div id="dropZone" class="drop-zone border-2 border-dashed border-gray-300 rounded-xl p-8 text-center bg-white transition-all cursor-pointer hover:border-blue-400">
+                <div class="flex flex-col items-center">
+                    <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <p class="text-gray-600 mb-2">Excel 파일을 드래그하거나 클릭하여 업로드</p>
+                    <p class="text-gray-400 text-sm">Factory A, B, C, D Loadplan 파일 (최대 4개)</p>
+                    <input type="file" id="fileInput" multiple accept=".xlsx,.xls" class="hidden">
+                    <button onclick="event.stopPropagation(); document.getElementById('fileInput').click();" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        📂 파일 선택
+                    </button>
+                </div>
+            </div>
+            <!-- File List -->
+            <div id="fileList" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 hidden"></div>
+            <!-- Process Button -->
+            <div id="processSection" class="mt-4 text-center hidden">
+                <button id="processBtn" onclick="processFiles()" class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                    📊 데이터 분석 시작
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden text-center py-12">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">데이터를 분석하고 있습니다...</p>
+        </div>
+
+        <!-- Debug Info -->
+        <div id="debugInfo" class="hidden mb-4 p-3 bg-gray-100 rounded text-xs text-gray-600"></div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboardSection" class="hidden">
+            <!-- Summary Cards -->
+            <div id="summaryCards" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+                <div class="bg-white rounded-xl p-5 shadow-sm card-hover transition-all">
+                    <div class="text-gray-500 text-sm mb-1">📦 전체 오더</div>
+                    <div id="totalOrders" class="text-2xl font-bold text-gray-800">0</div>
+                    <div class="text-gray-400 text-xs">건</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm card-hover transition-all">
+                    <div class="text-gray-500 text-sm mb-1">👟 총 수량</div>
+                    <div id="totalQuantity" class="text-2xl font-bold text-blue-600">0</div>
+                    <div class="text-gray-400 text-xs">족</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm card-hover transition-all asia-highlight">
+                    <div class="text-amber-700 text-sm mb-1">🌏 아시아 오더</div>
+                    <div id="asiaOrders" class="text-2xl font-bold text-amber-800">0</div>
+                    <div class="text-amber-600 text-xs" id="asiaPercent">0%</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm card-hover transition-all">
+                    <div class="text-gray-500 text-sm mb-1">🏭 공장 수</div>
+                    <div id="factoryCount" class="text-2xl font-bold text-green-600">0</div>
+                    <div class="text-gray-400 text-xs">개</div>
+                </div>
+                <div class="bg-white rounded-xl p-5 shadow-sm card-hover transition-all">
+                    <div class="text-gray-500 text-sm mb-1">📅 SDD 유효</div>
+                    <div id="sddValidCount" class="text-2xl font-bold text-purple-600">0</div>
+                    <div class="text-gray-400 text-xs" id="sddValidPercent">0%</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="bg-white rounded-xl p-4 shadow-sm mb-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">📅 월 선택</label>
+                        <select id="filterMonth" class="border rounded-lg px-3 py-2 text-sm" onchange="applyFilters()">
+                            <option value="all">전체</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">🌍 국가</label>
+                        <select id="filterCountry" class="border rounded-lg px-3 py-2 text-sm" onchange="applyFilters()">
+                            <option value="all">전체</option>
+                            <option value="asia">🌏 아시아만</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-600 block mb-1">🏭 공장</label>
+                        <select id="filterFactory" class="border rounded-lg px-3 py-2 text-sm" onchange="applyFilters()">
+                            <option value="all">전체</option>
+                        </select>
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-sm text-gray-600 block mb-1">🔍 검색</label>
+                        <input type="text" id="searchInput" placeholder="모델명, PO번호 검색..."
+                               class="border rounded-lg px-3 py-2 text-sm w-full" oninput="applyFilters()">
+                    </div>
+                    <div class="self-end">
+                        <button onclick="resetFilters()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
+                            ↻ 초기화
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <div class="flex border-b">
+                    <button onclick="showTab('monthly')" id="tab-monthly" class="px-6 py-4 font-semibold text-gray-600 hover:text-blue-600 tab-active">
+                        📅 월별 현황
+                    </button>
+                    <button onclick="showTab('destination')" id="tab-destination" class="px-6 py-4 font-semibold text-gray-600 hover:text-blue-600">
+                        🌍 행선지별 현황
+                    </button>
+                    <button onclick="showTab('model')" id="tab-model" class="px-6 py-4 font-semibold text-gray-600 hover:text-blue-600">
+                        👟 모델별 현황
+                    </button>
+                    <button onclick="showTab('detail')" id="tab-detail" class="px-6 py-4 font-semibold text-gray-600 hover:text-blue-600">
+                        📋 상세 데이터
+                    </button>
+                    <button onclick="showTab('heatmap')" id="tab-heatmap" class="px-6 py-4 font-semibold text-gray-600 hover:text-blue-600">
+                        🔥 히트맵
+                    </button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="p-6">
+                    <!-- Monthly Tab -->
+                    <div id="content-monthly" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">📊 월별 오더 추이 (SDD 기준)</h3>
+                                <canvas id="monthlyChart" height="250"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">📋 월별 상세 현황</h3>
+                                <div class="overflow-auto max-h-[400px]">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="px-4 py-2 text-left">SDD 월</th>
+                                                <th class="px-4 py-2 text-right">오더 건수</th>
+                                                <th class="px-4 py-2 text-right">수량</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="monthlyTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Top 5 Destinations by Month -->
+                        <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-4">🏆 월별 상위 5개 행선지</h3>
+                            <div id="monthlyTopDestinations" class="overflow-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="px-4 py-2 text-left">SDD 월</th>
+                                            <th class="px-4 py-2 text-left">1위</th>
+                                            <th class="px-4 py-2 text-left">2위</th>
+                                            <th class="px-4 py-2 text-left">3위</th>
+                                            <th class="px-4 py-2 text-left">4위</th>
+                                            <th class="px-4 py-2 text-left">5위</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="topDestTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Destination Tab -->
+                    <div id="content-destination" class="tab-content hidden">
+                        <!-- Asia Summary Cards -->
+                        <div class="mb-6">
+                            <h3 class="font-semibold text-gray-700 mb-4">🌏 아시아 주요 국가 현황 <span class="text-sm font-normal text-gray-500">(클릭하면 상세 오더 보기)</span></h3>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="asiaCards"></div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">🥧 행선지별 비중</h3>
+                                <canvas id="destinationPieChart" height="300"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">📋 행선지별 상세 <span class="text-sm font-normal text-gray-500">(클릭하면 상세 보기)</span></h3>
+                                <div class="overflow-auto max-h-[500px]">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="px-4 py-2 text-left">순위</th>
+                                                <th class="px-4 py-2 text-left">국가</th>
+                                                <th class="px-4 py-2 text-right">건수</th>
+                                                <th class="px-4 py-2 text-right">수량</th>
+                                                <th class="px-4 py-2 text-right">비율</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="destinationTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Monthly by Destination -->
+                        <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                            <h3 class="font-semibold text-gray-700 mb-4">📅 아시아 국가 월별 현황 (SDD 기준)</h3>
+                            <div class="overflow-auto">
+                                <table class="w-full text-sm" id="asiaMonthlyTable">
+                                    <thead id="asiaMonthlyHead"></thead>
+                                    <tbody id="asiaMonthlyBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Order Detail Section (for clicked country) -->
+                        <div id="countryDetailSection" class="mt-6 bg-blue-50 rounded-lg p-4 hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-blue-700" id="countryDetailTitle">📦 국가별 상세 오더</h3>
+                                <button onclick="hideCountryDetail()" class="text-gray-500 hover:text-gray-700">✕ 닫기</button>
+                            </div>
+                            <div class="overflow-auto max-h-[500px]">
+                                <table class="w-full text-sm bg-white rounded">
+                                    <thead class="bg-blue-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">공장</th>
+                                            <th class="px-3 py-2 text-left">모델</th>
+                                            <th class="px-3 py-2 text-left">아티클</th>
+                                            <th class="px-3 py-2 text-right">수량</th>
+                                            <th class="px-3 py-2 text-left">SDD</th>
+                                            <th class="px-3 py-2 text-left">PO번호</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="countryDetailTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Model Tab -->
+                    <div id="content-model" class="tab-content hidden">
+                        <!-- Model Tab Filters -->
+                        <div class="mb-4 flex flex-wrap gap-4 items-center bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">📅 SDD 월</label>
+                                <select id="modelFilterMonth" class="border rounded-lg px-3 py-2 text-sm" onchange="renderModelTab()">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">🌍 행선지</label>
+                                <select id="modelFilterCountry" class="border rounded-lg px-3 py-2 text-sm" onchange="renderModelTab()">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-sm text-gray-600 block mb-1">🔍 모델 검색</label>
+                                <input type="text" id="modelSearchInput" placeholder="모델명 검색..."
+                                       class="border rounded-lg px-3 py-2 text-sm w-full" oninput="renderModelTab()">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">📊 모델별 순위 (Top 15)</h3>
+                                <canvas id="modelBarChart" height="400"></canvas>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-700 mb-4">📋 모델별 상세 <span class="text-sm font-normal text-gray-500">(클릭하면 상세 보기)</span></h3>
+                                <div class="overflow-auto max-h-[500px]">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-gray-100">
+                                                <th class="px-4 py-2 text-left">순위</th>
+                                                <th class="px-4 py-2 text-left">모델</th>
+                                                <th class="px-4 py-2 text-right">건수</th>
+                                                <th class="px-4 py-2 text-right">수량</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="modelTable"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Model Detail Section -->
+                        <div id="modelDetailSection" class="mt-6 bg-green-50 rounded-lg p-4 hidden">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-semibold text-green-700" id="modelDetailTitle">📦 모델별 상세 오더</h3>
+                                <button onclick="hideModelDetail()" class="text-gray-500 hover:text-gray-700">✕ 닫기</button>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white rounded p-3">
+                                    <h4 class="font-medium text-gray-600 mb-2">월별 추이</h4>
+                                    <canvas id="modelMonthlyChart" height="150"></canvas>
+                                </div>
+                                <div class="bg-white rounded p-3">
+                                    <h4 class="font-medium text-gray-600 mb-2">행선지 분포</h4>
+                                    <canvas id="modelDestChart" height="150"></canvas>
+                                </div>
+                            </div>
+                            <div class="overflow-auto max-h-[350px]">
+                                <table class="w-full text-sm bg-white rounded">
+                                    <thead class="bg-green-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">공장</th>
+                                            <th class="px-3 py-2 text-left">행선지</th>
+                                            <th class="px-3 py-2 text-left">아티클</th>
+                                            <th class="px-3 py-2 text-right">수량</th>
+                                            <th class="px-3 py-2 text-left">SDD</th>
+                                            <th class="px-3 py-2 text-left">PO번호</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modelDetailTable"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Tab -->
+                    <div id="content-detail" class="tab-content hidden">
+                        <div class="mb-4 flex justify-between items-center">
+                            <div id="dataCount" class="text-gray-600 text-sm">총 0건</div>
+                            <button onclick="exportToExcel()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                                📥 Excel 다운로드
+                            </button>
+                        </div>
+                        <div class="overflow-auto max-h-[800px] border rounded-lg">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">공장</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">라인</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">시즌</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">모델</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">아티클</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">행선지</th>
+                                        <th class="px-3 py-2 text-right whitespace-nowrap">수량</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">SDD</th>
+                                        <th class="px-3 py-2 text-left whitespace-nowrap">PO번호</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Heatmap Tab -->
+                    <div id="content-heatmap" class="tab-content hidden">
+                        <!-- Heatmap Controls -->
+                        <div class="mb-4 flex flex-wrap gap-4 items-center">
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">📅 SDD 월</label>
+                                <select id="heatmapMonth" class="border rounded-lg px-3 py-2 text-sm" onchange="renderHeatmaps()">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">🏭 공장</label>
+                                <select id="heatmapFactory" class="border rounded-lg px-3 py-2 text-sm" onchange="renderHeatmaps()">
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">📊 상위 모델</label>
+                                <select id="heatmapTopN" class="border rounded-lg px-3 py-2 text-sm" onchange="renderHeatmaps()">
+                                    <option value="10">Top 10</option>
+                                    <option value="15" selected>Top 15</option>
+                                    <option value="20">Top 20</option>
+                                    <option value="30">Top 30</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-600 block mb-1">🌍 상위 행선지</label>
+                                <select id="heatmapTopDest" class="border rounded-lg px-3 py-2 text-sm" onchange="renderHeatmaps()">
+                                    <option value="10">Top 10</option>
+                                    <option value="15" selected>Top 15</option>
+                                    <option value="20">Top 20</option>
+                                    <option value="all">전체</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Heatmap -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-gray-700 mb-4">👟 수량(족수) 기준 히트맵 <span class="text-sm font-normal text-gray-500">(셀 클릭 시 상세 오더)</span></h3>
+                            <div class="overflow-auto bg-gray-50 rounded-lg p-4">
+                                <div id="quantityHeatmap" class="min-w-max"></div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                                <span>낮음</span>
+                                <div class="flex">
+                                    <div class="w-6 h-4 bg-blue-50"></div>
+                                    <div class="w-6 h-4 bg-blue-100"></div>
+                                    <div class="w-6 h-4 bg-blue-200"></div>
+                                    <div class="w-6 h-4 bg-blue-300"></div>
+                                    <div class="w-6 h-4 bg-blue-400"></div>
+                                    <div class="w-6 h-4 bg-blue-500"></div>
+                                    <div class="w-6 h-4 bg-blue-600"></div>
+                                    <div class="w-6 h-4 bg-blue-700"></div>
+                                </div>
+                                <span>높음</span>
+                            </div>
+                        </div>
+
+                        <!-- Order Count Heatmap -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-4">📦 오더 건수 기준 히트맵 <span class="text-sm font-normal text-gray-500">(셀 클릭 시 상세 오더)</span></h3>
+                            <div class="overflow-auto bg-gray-50 rounded-lg p-4">
+                                <div id="orderCountHeatmap" class="min-w-max"></div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                                <span>낮음</span>
+                                <div class="flex">
+                                    <div class="w-6 h-4 bg-green-50"></div>
+                                    <div class="w-6 h-4 bg-green-100"></div>
+                                    <div class="w-6 h-4 bg-green-200"></div>
+                                    <div class="w-6 h-4 bg-green-300"></div>
+                                    <div class="w-6 h-4 bg-green-400"></div>
+                                    <div class="w-6 h-4 bg-green-500"></div>
+                                    <div class="w-6 h-4 bg-green-600"></div>
+                                    <div class="w-6 h-4 bg-green-700"></div>
+                                </div>
+                                <span>높음</span>
+                            </div>
+                        </div>
+
+                        <!-- Asia Section Divider -->
+                        <div class="mt-10 mb-6 border-t-2 border-amber-300 pt-6">
+                            <h2 class="text-xl font-bold text-amber-700 flex items-center gap-2">
+                                🌏 아시아 주요 국가 히트맵
+                                <span class="text-sm font-normal text-gray-500">(🇯🇵 일본, 🇰🇷 한국, 🇨🇳 중국, 🇹🇼 대만, 🇮🇳 인도)</span>
+                            </h2>
+                        </div>
+
+                        <!-- Asia CRD Heatmap -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-gray-700 mb-4">📅 CRD 월별 히트맵 (아시아) <span class="text-sm font-normal text-gray-500">(셀 클릭 시 상세 오더)</span></h3>
+                            <div class="overflow-auto bg-amber-50 rounded-lg p-4">
+                                <div id="asiaCrdHeatmap" class="min-w-max"></div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                                <span>낮음</span>
+                                <div class="flex">
+                                    <div class="w-6 h-4 bg-amber-50"></div>
+                                    <div class="w-6 h-4 bg-amber-100"></div>
+                                    <div class="w-6 h-4 bg-amber-200"></div>
+                                    <div class="w-6 h-4 bg-amber-300"></div>
+                                    <div class="w-6 h-4 bg-amber-400"></div>
+                                    <div class="w-6 h-4 bg-amber-500"></div>
+                                    <div class="w-6 h-4 bg-amber-600"></div>
+                                    <div class="w-6 h-4 bg-amber-700"></div>
+                                </div>
+                                <span>높음</span>
+                            </div>
+                        </div>
+
+                        <!-- Asia SDD Heatmap -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-gray-700 mb-4">🚢 SDD 월별 히트맵 (아시아) <span class="text-sm font-normal text-gray-500">(셀 클릭 시 상세 오더)</span></h3>
+                            <div class="overflow-auto bg-purple-50 rounded-lg p-4">
+                                <div id="asiaSddHeatmap" class="min-w-max"></div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                                <span>낮음</span>
+                                <div class="flex">
+                                    <div class="w-6 h-4 bg-purple-50"></div>
+                                    <div class="w-6 h-4 bg-purple-100"></div>
+                                    <div class="w-6 h-4 bg-purple-200"></div>
+                                    <div class="w-6 h-4 bg-purple-300"></div>
+                                    <div class="w-6 h-4 bg-purple-400"></div>
+                                    <div class="w-6 h-4 bg-purple-500"></div>
+                                    <div class="w-6 h-4 bg-purple-600"></div>
+                                    <div class="w-6 h-4 bg-purple-700"></div>
+                                </div>
+                                <span>높음</span>
+                            </div>
+                        </div>
+
+                        <!-- Asia Country x Model Heatmap -->
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-4">🗺️ 국가 × 모델 히트맵 (아시아) <span class="text-sm font-normal text-gray-500">(셀 클릭 시 상세 오더)</span></h3>
+                            <div class="overflow-auto bg-rose-50 rounded-lg p-4">
+                                <div id="asiaCountryModelHeatmap" class="min-w-max"></div>
+                            </div>
+                            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                                <span>낮음</span>
+                                <div class="flex">
+                                    <div class="w-6 h-4 bg-rose-50"></div>
+                                    <div class="w-6 h-4 bg-rose-100"></div>
+                                    <div class="w-6 h-4 bg-rose-200"></div>
+                                    <div class="w-6 h-4 bg-rose-300"></div>
+                                    <div class="w-6 h-4 bg-rose-400"></div>
+                                    <div class="w-6 h-4 bg-rose-500"></div>
+                                    <div class="w-6 h-4 bg-rose-600"></div>
+                                    <div class="w-6 h-4 bg-rose-700"></div>
+                                </div>
+                                <span>높음</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Order Detail Modal -->
+        <div id="orderDetailModal" class="fixed inset-0 z-50 hidden">
+            <div class="modal-overlay absolute inset-0" onclick="closeOrderModal()"></div>
+            <div class="absolute inset-4 md:inset-6 lg:inset-10 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+                <div class="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+                    <h2 id="modalTitle" class="text-xl font-bold">📦 상세 오더 정보</h2>
+                    <button onclick="closeOrderModal()" class="text-white hover:text-gray-200 text-2xl">&times;</button>
+                </div>
+                <div class="p-4 bg-gray-50 border-b">
+                    <div id="modalSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm"></div>
+                </div>
+                <div class="flex-1 overflow-auto p-4">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left">공장</th>
+                                <th class="px-3 py-2 text-left">라인</th>
+                                <th class="px-3 py-2 text-left">모델</th>
+                                <th class="px-3 py-2 text-left">아티클</th>
+                                <th class="px-3 py-2 text-left">PGSC</th>
+                                <th class="px-3 py-2 text-left">컬러</th>
+                                <th class="px-3 py-2 text-left">행선지</th>
+                                <th class="px-3 py-2 text-right">수량</th>
+                                <th class="px-3 py-2 text-left">CRD</th>
+                                <th class="px-3 py-2 text-left">SDD</th>
+                                <th class="px-3 py-2 text-left">PO번호</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalOrderTable"></tbody>
+                    </table>
+                </div>
+                <div class="px-6 py-4 border-t bg-gray-50 flex justify-between items-center">
+                    <div id="modalPagination" class="text-sm text-gray-600"></div>
+                    <button onclick="exportModalToExcel()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                        📥 Excel 다운로드
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p class="text-gray-500 text-lg">분석할 데이터가 없습니다</p>
+            <p class="text-gray-400 text-sm">필터 조건을 확인하거나 파일을 다시 업로드하세요</p>
+        </div>
+    </main>
+
+    <!-- GitHub Settings Modal -->
+    <div id="githubModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay absolute inset-0" onclick="closeGithubModal()"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub에 저장
+                </h3>
+                <button onclick="closeGithubModal()" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">저장소 (Repository)</label>
+                    <input type="text" id="githubRepo" placeholder="username/repository"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="">
+                    <p class="text-xs text-gray-500 mt-1">예: ksmoon/rachgia-dashboard</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Personal Access Token</label>
+                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-xs text-gray-500 mt-1">
+                        <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" class="text-blue-600 hover:underline">
+                            토큰 생성하기 →
+                        </a>
+                        (repo 권한 필요)
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">파일 경로</label>
+                    <input type="text" id="githubPath" placeholder="data/loadplan.json"
+                           class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           value="data/loadplan_data.json">
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="githubRemember" class="rounded">
+                    <label for="githubRemember" class="text-sm text-gray-600">설정 기억하기 (로컬 저장)</label>
+                </div>
+
+                <div id="githubStatus" class="hidden p-3 rounded-lg text-sm"></div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeGithubModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        취소
+                    </button>
+                    <button onclick="saveToGithub()" id="githubSaveAction" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                        저장
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-4 mt-8">
+        <div class="max-w-[1800px] mx-auto px-6 text-center text-sm">
+            Rachgia Factory Loadplan Dashboard v1.3 | 아시아 CRD/SDD 히트맵 추가
+        </div>
+    </footer>
+
+    <script>
+        // =====================================================
+        // Global Variables
+        // =====================================================
+        let rawData = [];
+        let filteredData = [];
+        let uploadedFiles = {};
+        let charts = {};
+
+        // Asia countries mapping - Korea 통합
+        const ASIA_COUNTRIES = {
+            'Japan': '🇯🇵',
+            'South Korea': '🇰🇷',
+            'China': '🇨🇳',
+            'Taiwan': '🇹🇼',
+            'India': '🇮🇳',
+            'Hong Kong': '🇭🇰',
+            'Singapore': '🇸🇬',
+            'Malaysia': '🇲🇾',
+            'Thailand': '🇹🇭',
+            'Indonesia': '🇮🇩',
+            'Philippines': '🇵🇭',
+            'Vietnam': '🇻🇳'
+        };
+
+        // Korea 통합 - "Korea"는 "South Korea"로 변환
+        const ASIA_PRIORITY = ['Japan', 'South Korea', 'China', 'Taiwan', 'India'];
+
+        // Country name normalization
+        function normalizeCountry(country) {
+            if (!country) return '';
+            const c = String(country).trim();
+            // Korea -> South Korea 통합
+            if (c === 'Korea' || c === 'korea' || c === 'KOREA') return 'South Korea';
+            return c;
+        }
+
+        // =====================================================
+        // File Upload Handling
+        // =====================================================
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+            e.target.value = ''; // Reset to allow re-selecting same files
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    let factory = 'Unknown';
+                    const factoryMatch = file.name.match(/FACTORY[_\s-]?([A-D])/i);
+                    if (factoryMatch) {
+                        factory = factoryMatch[1].toUpperCase();
+                    } else {
+                        const prefixMatch = file.name.match(/^([A-D])[_\s-]/i);
+                        if (prefixMatch) {
+                            factory = prefixMatch[1].toUpperCase();
+                        } else {
+                            const usedFactories = Object.keys(uploadedFiles);
+                            const allFactories = ['A', 'B', 'C', 'D'];
+                            factory = allFactories.find(f => !usedFactories.includes(f)) || 'X';
+                        }
+                    }
+                    uploadedFiles[factory] = file;
+                }
+            });
+            renderFileList();
+        }
+
+        function renderFileList() {
+            const fileListEl = document.getElementById('fileList');
+            fileListEl.innerHTML = '';
+            const factories = Object.keys(uploadedFiles).sort();
+
+            if (factories.length > 0) {
+                fileListEl.classList.remove('hidden');
+                document.getElementById('processSection').classList.remove('hidden');
+
+                factories.forEach(factory => {
+                    const file = uploadedFiles[factory];
+                    const fileCard = document.createElement('div');
+                    fileCard.className = 'bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center gap-2';
+                    fileCard.innerHTML = `
+                        <span class="text-2xl">🏭</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-blue-700">Factory ${factory}</div>
+                            <div class="text-xs text-gray-500 truncate">${file.name}</div>
+                        </div>
+                        <button onclick="removeFile('${factory}')" class="text-red-500 hover:text-red-700">✕</button>
+                    `;
+                    fileListEl.appendChild(fileCard);
+                });
+                updateUploadStatus();
+            } else {
+                fileListEl.classList.add('hidden');
+                document.getElementById('processSection').classList.add('hidden');
+                updateUploadStatus();
+            }
+        }
+
+        function removeFile(factory) {
+            delete uploadedFiles[factory];
+            renderFileList();
+        }
+
+        function updateUploadStatus() {
+            const count = Object.keys(uploadedFiles).length;
+            const statusEl = document.getElementById('uploadStatus');
+            if (count > 0) {
+                const factories = Object.keys(uploadedFiles).sort().join(', ');
+                statusEl.innerHTML = `<span class="text-green-200">✓ Factory ${factories} (${count}개 파일)</span>`;
+            } else {
+                statusEl.innerHTML = `<span class="text-blue-200">📁 파일을 업로드하세요</span>`;
+            }
+        }
+
+        // =====================================================
+        // Excel Processing
+        // =====================================================
+        async function processFiles() {
+            const loadingEl = document.getElementById('loadingIndicator');
+            const dashboardEl = document.getElementById('dashboardSection');
+
+            loadingEl.classList.remove('hidden');
+            dashboardEl.classList.add('hidden');
+            rawData = [];
+
+            let debugMsg = [];
+
+            try {
+                for (const [factory, file] of Object.entries(uploadedFiles)) {
+                    const result = await readExcelFile(file, factory);
+                    rawData = rawData.concat(result.data);
+                    debugMsg.push(`Factory ${factory}: ${result.data.length}건, SDD유효: ${result.sddValidCount}건`);
+                }
+
+                // Show debug info
+                document.getElementById('debugInfo').innerHTML = debugMsg.join(' | ');
+                document.getElementById('debugInfo').classList.remove('hidden');
+
+                if (rawData.length > 0) {
+                    initializeDashboard();
+                    loadingEl.classList.add('hidden');
+                    dashboardEl.classList.remove('hidden');
+                } else {
+                    alert('유효한 데이터가 없습니다. 파일을 확인해주세요.');
+                    loadingEl.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error processing files:', error);
+                alert('파일 처리 중 오류가 발생했습니다: ' + error.message);
+                loadingEl.classList.add('hidden');
+            }
+        }
+
+        function readExcelFile(file, factory) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const workbook = XLSX.read(e.target.result, { type: 'array' });
+                        const sheetName = workbook.SheetNames.find(name =>
+                            name.toLowerCase().includes('loadplan')
+                        ) || workbook.SheetNames[0];
+
+                        const sheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(sheet, {
+                            header: 1,
+                            defval: '',
+                            raw: false  // 날짜를 문자열로 가져오기
+                        });
+
+                        const result = parseSheetData(jsonData, factory);
+                        resolve(result);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function parseSheetData(jsonData, factory) {
+            const result = [];
+            let sddValidCount = 0;
+
+            // Find header row - look for row containing Unit, Model, Dest
+            let headerRowIndex = -1;
+            let headers = [];
+
+            for (let i = 0; i < Math.min(10, jsonData.length); i++) {
+                const row = jsonData[i];
+                if (row && row.some(cell => {
+                    const s = String(cell).toLowerCase();
+                    return s === 'unit' || s === 'model ' || s === 'dest';
+                })) {
+                    headerRowIndex = i;
+                    headers = row.map(h => String(h || '').trim());
+                    break;
+                }
+            }
+
+            if (headerRowIndex === -1) {
+                console.error('Header row not found for Factory', factory);
+                return { data: [], sddValidCount: 0 };
+            }
+
+            // Create column index map
+            const colIndex = {};
+            headers.forEach((header, idx) => {
+                colIndex[header] = idx;
+                colIndex[header.toLowerCase()] = idx;
+            });
+
+            // Find SDD column(s) - different files have different structures
+            // Strategy: Find column with 'SDD' in header, or look for date-like values
+            let sddColIndices = [];
+
+            for (let i = 0; i < headers.length; i++) {
+                const h = headers[i].toUpperCase();
+                if (h === 'SDD' || h.includes('SDD') || h.includes('UNNAMED')) {
+                    sddColIndices.push(i);
+                }
+            }
+
+            // Also check columns 5-8 which typically contain SDD data
+            for (let i = 5; i <= 8 && i < headers.length; i++) {
+                if (!sddColIndices.includes(i)) {
+                    sddColIndices.push(i);
+                }
+            }
+
+            console.log(`Factory ${factory}: Header at row ${headerRowIndex}, Checking SDD cols: ${sddColIndices.join(',')}`);
+
+            // Determine start row (skip sub-header row if exists)
+            let dataStartRow = headerRowIndex + 1;
+
+            // Check if first data row is a sub-header (contains 'Original', 'Current', etc.)
+            if (dataStartRow < jsonData.length) {
+                const firstDataRow = jsonData[dataStartRow];
+                if (firstDataRow && firstDataRow.some(cell => {
+                    const s = String(cell).toLowerCase();
+                    return s === 'original' || s === 'current';
+                })) {
+                    dataStartRow++;
+                    console.log(`Factory ${factory}: Skipping sub-header row`);
+                }
+            }
+
+            // Parse data rows
+            for (let i = dataStartRow; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length === 0) continue;
+
+                const firstCell = String(row[0] || '').toUpperCase();
+                if (firstCell.includes('TOTAL') || firstCell === '') continue;
+
+                const unit = getCell(row, colIndex, 'Unit');
+                const model = getCell(row, colIndex, 'Model ') || getCell(row, colIndex, 'Model');
+                let destination = getCell(row, colIndex, 'Dest');
+                const quantity = parseNumber(getCell(row, colIndex, 'Q.ty'));
+
+                // Normalize destination (Korea -> South Korea)
+                destination = normalizeCountry(destination);
+
+                if (!destination || quantity === 0) continue;
+                if (String(destination).startsWith('W999')) continue;
+
+                // Try to find valid SDD value from multiple columns
+                let sddValue = '';
+                let sddYearMonth = null;
+
+                for (const colIdx of sddColIndices) {
+                    const val = row[colIdx];
+                    if (!val) continue;
+
+                    const parsed = parseSDDToYearMonth(val);
+                    if (parsed) {
+                        sddValue = String(val);
+                        sddYearMonth = parsed;
+                        break;
+                    }
+                }
+
+                // If still no SDD, try parsing CRD as fallback
+                if (!sddYearMonth) {
+                    const crd = getCell(row, colIndex, 'CRD');
+                    const crdParsed = parseSDDToYearMonth(crd);
+                    if (crdParsed) {
+                        // Use CRD as approximate SDD
+                        sddValue = crd;
+                        sddYearMonth = crdParsed;
+                    }
+                }
+
+                if (sddYearMonth) sddValidCount++;
+
+                const record = {
+                    factory: factory,
+                    unit: unit,
+                    season: getCell(row, colIndex, 'Season SPEC') || getCell(row, colIndex, 'Season'),
+                    model: model,
+                    article: getCell(row, colIndex, 'Art'),
+                    pgsc: getCell(row, colIndex, 'PGSC') || getCell(row, colIndex, 'Art'),
+                    color: getCell(row, colIndex, 'Color'),
+                    grade: getCell(row, colIndex, 'GD'),
+                    destination: destination,
+                    quantity: quantity,
+                    poNumber: getCell(row, colIndex, 'Sales Order and Item'),
+                    crd: getCell(row, colIndex, 'CRD'),
+                    sddValue: sddValue,
+                    sddYearMonth: sddYearMonth,
+                    sddDisplay: sddYearMonth || sddValue || '-'
+                };
+
+                result.push(record);
+            }
+
+            return { data: result, sddValidCount };
+        }
+
+        function getCell(row, colIndex, colName) {
+            // Try exact match first
+            let idx = colIndex[colName];
+            if (idx === undefined) {
+                // Try lowercase
+                idx = colIndex[colName.toLowerCase()];
+            }
+            if (idx === undefined) {
+                // Try with trailing space removed
+                idx = colIndex[colName.trim()];
+            }
+            if (idx !== undefined && row[idx] !== undefined) {
+                return String(row[idx]).trim();
+            }
+            return '';
+        }
+
+        function parseNumber(val) {
+            if (typeof val === 'number') return val;
+            const num = parseFloat(String(val).replace(/,/g, ''));
+            return isNaN(num) ? 0 : num;
+        }
+
+        function parseSDDToYearMonth(sddStr) {
+            if (!sddStr) return null;
+            const str = String(sddStr).trim();
+            if (!str || str === '-' || str === '0') return null;
+
+            // Format: MM/DD or M/D (e.g., 12/13, 1/30)
+            const slashMatch = str.match(/^(\d{1,2})\/(\d{1,2})/);
+            if (slashMatch) {
+                const month = parseInt(slashMatch[1]);
+                if (month >= 1 && month <= 12) {
+                    const year = month >= 9 ? 2025 : 2026;
+                    return `${year}-${String(month).padStart(2, '0')}`;
+                }
+            }
+
+            // Format: YYYY.MM.DD or YYYY-MM-DD or YYYY/MM/DD
+            const dateMatch = str.match(/^(\d{4})[\.\-\/](\d{1,2})[\.\-\/]?(\d{1,2})?/);
+            if (dateMatch) {
+                return `${dateMatch[1]}-${String(dateMatch[2]).padStart(2, '0')}`;
+            }
+
+            // Format: DD.MM.YYYY or DD-MM-YYYY
+            const euDateMatch = str.match(/^(\d{1,2})[\.\-](\d{1,2})[\.\-](\d{4})/);
+            if (euDateMatch) {
+                return `${euDateMatch[3]}-${String(euDateMatch[2]).padStart(2, '0')}`;
+            }
+
+            // Excel serial number (days since 1900-01-01)
+            const serialNum = parseFloat(str);
+            if (!isNaN(serialNum) && serialNum > 40000 && serialNum < 50000) {
+                const date = new Date((serialNum - 25569) * 86400 * 1000);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                return `${year}-${String(month).padStart(2, '0')}`;
+            }
+
+            return null;
+        }
+
+        // =====================================================
+        // Dashboard Initialization
+        // =====================================================
+        function initializeDashboard() {
+            filteredData = [...rawData];
+            populateFilters();
+            updateSummaryCards();
+            renderAllCharts();
+            renderAllTables();
+            populateModelFilters();
+            showGithubButton(); // GitHub 저장 버튼 표시
+        }
+
+        function populateFilters() {
+            // Month filter
+            const months = [...new Set(rawData.map(d => d.sddYearMonth).filter(Boolean))].sort();
+            const monthSelect = document.getElementById('filterMonth');
+            monthSelect.innerHTML = '<option value="all">전체</option>';
+            months.forEach(m => {
+                monthSelect.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            // Country filter
+            const countries = [...new Set(rawData.map(d => d.destination).filter(Boolean))].sort();
+            const countrySelect = document.getElementById('filterCountry');
+            countrySelect.innerHTML = '<option value="all">전체</option><option value="asia">🌏 아시아만</option>';
+            countries.forEach(c => {
+                const flag = ASIA_COUNTRIES[c] || '';
+                countrySelect.innerHTML += `<option value="${c}">${flag} ${c}</option>`;
+            });
+
+            // Factory filter
+            const factories = [...new Set(rawData.map(d => d.factory).filter(Boolean))].sort();
+            const factorySelect = document.getElementById('filterFactory');
+            factorySelect.innerHTML = '<option value="all">전체</option>';
+            factories.forEach(f => {
+                factorySelect.innerHTML += `<option value="${f}">Factory ${f}</option>`;
+            });
+        }
+
+        function populateModelFilters() {
+            // Month filter for model tab
+            const months = [...new Set(filteredData.map(d => d.sddYearMonth).filter(Boolean))].sort();
+            const monthSelect = document.getElementById('modelFilterMonth');
+            monthSelect.innerHTML = '<option value="all">전체</option>';
+            months.forEach(m => {
+                monthSelect.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            // Country filter for model tab
+            const countries = [...new Set(filteredData.map(d => d.destination).filter(Boolean))].sort();
+            const countrySelect = document.getElementById('modelFilterCountry');
+            countrySelect.innerHTML = '<option value="all">전체</option><option value="asia">🌏 아시아만</option>';
+            countries.forEach(c => {
+                const flag = ASIA_COUNTRIES[c] || '';
+                countrySelect.innerHTML += `<option value="${c}">${flag} ${c}</option>`;
+            });
+        }
+
+        function applyFilters() {
+            const month = document.getElementById('filterMonth').value;
+            const country = document.getElementById('filterCountry').value;
+            const factory = document.getElementById('filterFactory').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredData = rawData.filter(d => {
+                if (month !== 'all' && d.sddYearMonth !== month) return false;
+
+                if (country === 'asia') {
+                    if (!Object.keys(ASIA_COUNTRIES).includes(d.destination)) return false;
+                } else if (country !== 'all' && d.destination !== country) {
+                    return false;
+                }
+
+                if (factory !== 'all' && d.factory !== factory) return false;
+
+                if (search) {
+                    const searchStr = `${d.model} ${d.poNumber} ${d.article}`.toLowerCase();
+                    if (!searchStr.includes(search)) return false;
+                }
+
+                return true;
+            });
+
+            updateSummaryCards();
+            renderAllCharts();
+            renderAllTables();
+            populateModelFilters();
+            hideCountryDetail();
+            hideModelDetail();
+            checkEmptyState();
+        }
+
+        function resetFilters() {
+            document.getElementById('filterMonth').value = 'all';
+            document.getElementById('filterCountry').value = 'all';
+            document.getElementById('filterFactory').value = 'all';
+            document.getElementById('searchInput').value = '';
+            applyFilters();
+        }
+
+        function checkEmptyState() {
+            const emptyState = document.getElementById('emptyState');
+            if (filteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        // =====================================================
+        // Summary Cards
+        // =====================================================
+        function updateSummaryCards() {
+            const totalOrders = filteredData.length;
+            const totalQuantity = filteredData.reduce((sum, d) => sum + d.quantity, 0);
+
+            const asiaData = filteredData.filter(d => Object.keys(ASIA_COUNTRIES).includes(d.destination));
+            const asiaQuantity = asiaData.reduce((sum, d) => sum + d.quantity, 0);
+
+            const factories = new Set(filteredData.map(d => d.factory));
+
+            const sddValid = filteredData.filter(d => d.sddYearMonth).length;
+
+            document.getElementById('totalOrders').textContent = formatNumber(totalOrders);
+            document.getElementById('totalQuantity').textContent = formatNumber(totalQuantity);
+            document.getElementById('asiaOrders').textContent = formatNumber(asiaQuantity);
+            document.getElementById('asiaPercent').textContent =
+                `${((asiaQuantity / totalQuantity) * 100 || 0).toFixed(1)}%`;
+            document.getElementById('factoryCount').textContent = factories.size;
+            document.getElementById('sddValidCount').textContent = formatNumber(sddValid);
+            document.getElementById('sddValidPercent').textContent =
+                `${((sddValid / totalOrders) * 100 || 0).toFixed(1)}%`;
+        }
+
+        // =====================================================
+        // Charts
+        // =====================================================
+        function renderAllCharts() {
+            renderMonthlyChart();
+            renderDestinationPieChart();
+            renderModelBarChart();
+        }
+
+        function renderMonthlyChart() {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+
+            const monthlyData = {};
+            filteredData.forEach(d => {
+                if (!d.sddYearMonth) return;
+                if (!monthlyData[d.sddYearMonth]) {
+                    monthlyData[d.sddYearMonth] = { count: 0, quantity: 0 };
+                }
+                monthlyData[d.sddYearMonth].count++;
+                monthlyData[d.sddYearMonth].quantity += d.quantity;
+            });
+
+            const labels = Object.keys(monthlyData).sort();
+            const counts = labels.map(m => monthlyData[m].count);
+            const quantities = labels.map(m => monthlyData[m].quantity);
+
+            if (charts.monthly) charts.monthly.destroy();
+
+            charts.monthly = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '오더 건수',
+                            data: counts,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '수량',
+                            data: quantities,
+                            type: 'line',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            yAxisID: 'y1',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { type: 'linear', position: 'left', title: { display: true, text: '건수' }},
+                        y1: { type: 'linear', position: 'right', title: { display: true, text: '수량' }, grid: { drawOnChartArea: false }}
+                    }
+                }
+            });
+        }
+
+        function renderDestinationPieChart() {
+            const ctx = document.getElementById('destinationPieChart').getContext('2d');
+
+            const destData = {};
+            filteredData.forEach(d => {
+                if (!d.destination) return;
+                if (!destData[d.destination]) destData[d.destination] = 0;
+                destData[d.destination] += d.quantity;
+            });
+
+            const sorted = Object.entries(destData).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            const labels = sorted.map(([name]) => name);
+            const data = sorted.map(([, qty]) => qty);
+
+            const colors = [
+                '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6',
+                '#ec4899', '#06b6d4', '#84cc16', '#f97316', '#6366f1'
+            ];
+
+            if (charts.destinationPie) charts.destinationPie.destroy();
+
+            charts.destinationPie = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.label}: ${formatNumber(ctx.raw)}족`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderModelBarChart() {
+            const ctx = document.getElementById('modelBarChart').getContext('2d');
+
+            // Apply model tab filters
+            const modelMonth = document.getElementById('modelFilterMonth').value;
+            const modelCountry = document.getElementById('modelFilterCountry').value;
+            const modelSearch = document.getElementById('modelSearchInput').value.toLowerCase();
+
+            let modelFilteredData = filteredData.filter(d => {
+                if (modelMonth !== 'all' && d.sddYearMonth !== modelMonth) return false;
+                if (modelCountry === 'asia') {
+                    if (!Object.keys(ASIA_COUNTRIES).includes(d.destination)) return false;
+                } else if (modelCountry !== 'all' && d.destination !== modelCountry) {
+                    return false;
+                }
+                if (modelSearch && !d.model.toLowerCase().includes(modelSearch)) return false;
+                return true;
+            });
+
+            const modelData = {};
+            modelFilteredData.forEach(d => {
+                if (!d.model) return;
+                if (!modelData[d.model]) modelData[d.model] = { count: 0, quantity: 0 };
+                modelData[d.model].count++;
+                modelData[d.model].quantity += d.quantity;
+            });
+
+            const sorted = Object.entries(modelData)
+                .sort((a, b) => b[1].quantity - a[1].quantity)
+                .slice(0, 15);
+
+            const labels = sorted.map(([name]) => name.substring(0, 25) + (name.length > 25 ? '...' : ''));
+            const data = sorted.map(([, d]) => d.quantity);
+
+            if (charts.modelBar) charts.modelBar.destroy();
+
+            charts.modelBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '수량',
+                        data: data,
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${formatNumber(ctx.raw)}족`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // =====================================================
+        // Tables
+        // =====================================================
+        function renderAllTables() {
+            renderMonthlyTable();
+            renderTopDestTable();
+            renderAsiaCards();
+            renderDestinationTable();
+            renderAsiaMonthlyTable();
+            renderModelTable();
+            renderDetailTable();
+        }
+
+        function renderMonthlyTable() {
+            const tbody = document.getElementById('monthlyTable');
+
+            const monthlyData = {};
+            filteredData.forEach(d => {
+                if (!d.sddYearMonth) return;
+                if (!monthlyData[d.sddYearMonth]) {
+                    monthlyData[d.sddYearMonth] = { count: 0, quantity: 0 };
+                }
+                monthlyData[d.sddYearMonth].count++;
+                monthlyData[d.sddYearMonth].quantity += d.quantity;
+            });
+
+            const sorted = Object.entries(monthlyData).sort((a, b) => a[0].localeCompare(b[0]));
+
+            tbody.innerHTML = sorted.map(([month, data]) => `
+                <tr class="border-b hover:bg-gray-50 clickable-row" onclick="filterByMonth('${month}')">
+                    <td class="px-4 py-2 font-medium">${month}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.count)}건</td>
+                    <td class="px-4 py-2 text-right font-semibold text-blue-600">${formatNumber(data.quantity)}족</td>
+                </tr>
+            `).join('');
+
+            if (sorted.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-400">SDD 정보가 없는 데이터입니다</td></tr>';
+            }
+        }
+
+        function filterByMonth(month) {
+            document.getElementById('filterMonth').value = month;
+            applyFilters();
+        }
+
+        function renderTopDestTable() {
+            const tbody = document.getElementById('topDestTable');
+            const months = [...new Set(filteredData.map(d => d.sddYearMonth).filter(Boolean))].sort();
+
+            const rows = months.map(month => {
+                const monthData = filteredData.filter(d => d.sddYearMonth === month);
+                const destData = {};
+                monthData.forEach(d => {
+                    if (!d.destination) return;
+                    if (!destData[d.destination]) destData[d.destination] = 0;
+                    destData[d.destination] += d.quantity;
+                });
+
+                const top5 = Object.entries(destData)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([name, qty]) => {
+                        const flag = ASIA_COUNTRIES[name] || '';
+                        return `${flag} ${name}<br><span class="text-xs text-gray-500">${formatNumber(qty)}</span>`;
+                    });
+
+                while (top5.length < 5) top5.push('-');
+
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-2 font-medium">${month}</td>
+                        ${top5.map(d => `<td class="px-4 py-2 text-sm">${d}</td>`).join('')}
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rows.join('');
+        }
+
+        function renderAsiaCards() {
+            const container = document.getElementById('asiaCards');
+
+            const asiaStats = {};
+            ASIA_PRIORITY.forEach(country => {
+                asiaStats[country] = { count: 0, quantity: 0 };
+            });
+
+            filteredData.forEach(d => {
+                if (ASIA_PRIORITY.includes(d.destination)) {
+                    asiaStats[d.destination].count++;
+                    asiaStats[d.destination].quantity += d.quantity;
+                }
+            });
+
+            container.innerHTML = ASIA_PRIORITY.map(country => {
+                const stats = asiaStats[country];
+                const flag = ASIA_COUNTRIES[country] || '';
+                const displayName = country === 'South Korea' ? 'Korea' : country;
+                return `
+                    <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-amber-400 card-hover cursor-pointer"
+                         onclick="showCountryDetail('${country}')">
+                        <div class="text-2xl mb-1">${flag}</div>
+                        <div class="font-semibold text-gray-700">${displayName}</div>
+                        <div class="text-xl font-bold text-amber-600">${formatNumber(stats.quantity)}</div>
+                        <div class="text-xs text-gray-500">${stats.count}건</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDestinationTable() {
+            const tbody = document.getElementById('destinationTable');
+
+            const destData = {};
+            filteredData.forEach(d => {
+                if (!d.destination) return;
+                if (!destData[d.destination]) destData[d.destination] = { count: 0, quantity: 0 };
+                destData[d.destination].count++;
+                destData[d.destination].quantity += d.quantity;
+            });
+
+            const totalQty = filteredData.reduce((sum, d) => sum + d.quantity, 0);
+            const sorted = Object.entries(destData).sort((a, b) => b[1].quantity - a[1].quantity);
+
+            tbody.innerHTML = sorted.map(([name, data], idx) => {
+                const flag = ASIA_COUNTRIES[name] || '';
+                const isAsia = Object.keys(ASIA_COUNTRIES).includes(name);
+                const percent = ((data.quantity / totalQty) * 100).toFixed(1);
+                return `
+                    <tr class="border-b hover:bg-gray-50 clickable-row ${isAsia ? 'bg-amber-50' : ''}"
+                        onclick="showCountryDetail('${name}')">
+                        <td class="px-4 py-2">${idx + 1}</td>
+                        <td class="px-4 py-2">${flag} ${name}</td>
+                        <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
+                        <td class="px-4 py-2 text-right font-semibold">${formatNumber(data.quantity)}</td>
+                        <td class="px-4 py-2 text-right text-gray-500">${percent}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAsiaMonthlyTable() {
+            const thead = document.getElementById('asiaMonthlyHead');
+            const tbody = document.getElementById('asiaMonthlyBody');
+
+            const months = [...new Set(filteredData.map(d => d.sddYearMonth).filter(Boolean))].sort();
+
+            thead.innerHTML = `
+                <tr class="bg-gray-100">
+                    <th class="px-4 py-2 text-left">국가</th>
+                    ${months.map(m => `<th class="px-4 py-2 text-right">${m}</th>`).join('')}
+                    <th class="px-4 py-2 text-right bg-blue-50">합계</th>
+                </tr>
+            `;
+
+            const asiaMonthly = {};
+            ASIA_PRIORITY.forEach(c => {
+                asiaMonthly[c] = { total: 0 };
+                months.forEach(m => asiaMonthly[c][m] = { count: 0, quantity: 0 });
+            });
+
+            filteredData.forEach(d => {
+                if (ASIA_PRIORITY.includes(d.destination) && d.sddYearMonth) {
+                    asiaMonthly[d.destination][d.sddYearMonth].count++;
+                    asiaMonthly[d.destination][d.sddYearMonth].quantity += d.quantity;
+                    asiaMonthly[d.destination].total += d.quantity;
+                }
+            });
+
+            tbody.innerHTML = ASIA_PRIORITY.map(country => {
+                const data = asiaMonthly[country];
+                const flag = ASIA_COUNTRIES[country] || '';
+                const displayName = country === 'South Korea' ? 'Korea' : country;
+                return `
+                    <tr class="border-b hover:bg-gray-50 clickable-row" onclick="showCountryDetail('${country}')">
+                        <td class="px-4 py-2 font-medium">${flag} ${displayName}</td>
+                        ${months.map(m => {
+                            const d = data[m];
+                            if (d.quantity === 0) return '<td class="px-4 py-2 text-right text-gray-300">-</td>';
+                            return `<td class="px-4 py-2 text-right">
+                                <div class="font-semibold">${formatNumber(d.quantity)}</div>
+                                <div class="text-xs text-gray-500">${d.count}건</div>
+                            </td>`;
+                        }).join('')}
+                        <td class="px-4 py-2 text-right bg-blue-50 font-bold text-blue-600">${formatNumber(data.total)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Country Detail
+        function showCountryDetail(country) {
+            const section = document.getElementById('countryDetailSection');
+            const title = document.getElementById('countryDetailTitle');
+            const tbody = document.getElementById('countryDetailTable');
+
+            const flag = ASIA_COUNTRIES[country] || '';
+            const displayName = country === 'South Korea' ? 'Korea' : country;
+            title.textContent = `📦 ${flag} ${displayName} 상세 오더`;
+
+            const countryData = filteredData.filter(d => d.destination === country);
+
+            tbody.innerHTML = countryData.slice(0, 100).map(d => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-3 py-2">${d.factory}</td>
+                    <td class="px-3 py-2">${d.model}</td>
+                    <td class="px-3 py-2">${d.article}</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatNumber(d.quantity)}</td>
+                    <td class="px-3 py-2">${d.sddYearMonth || d.sddDisplay}</td>
+                    <td class="px-3 py-2 text-xs">${d.poNumber}</td>
+                </tr>
+            `).join('');
+
+            if (countryData.length > 100) {
+                tbody.innerHTML += `<tr><td colspan="6" class="px-4 py-2 text-center text-gray-500">... 외 ${countryData.length - 100}건</td></tr>`;
+            }
+
+            section.classList.remove('hidden');
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideCountryDetail() {
+            document.getElementById('countryDetailSection').classList.add('hidden');
+        }
+
+        // Model Tab
+        function renderModelTab() {
+            renderModelBarChart();
+            renderModelTable();
+            hideModelDetail();
+        }
+
+        function renderModelTable() {
+            const tbody = document.getElementById('modelTable');
+
+            // Apply model tab filters
+            const modelMonth = document.getElementById('modelFilterMonth').value;
+            const modelCountry = document.getElementById('modelFilterCountry').value;
+            const modelSearch = document.getElementById('modelSearchInput').value.toLowerCase();
+
+            let modelFilteredData = filteredData.filter(d => {
+                if (modelMonth !== 'all' && d.sddYearMonth !== modelMonth) return false;
+                if (modelCountry === 'asia') {
+                    if (!Object.keys(ASIA_COUNTRIES).includes(d.destination)) return false;
+                } else if (modelCountry !== 'all' && d.destination !== modelCountry) {
+                    return false;
+                }
+                if (modelSearch && !d.model.toLowerCase().includes(modelSearch)) return false;
+                return true;
+            });
+
+            const modelData = {};
+            modelFilteredData.forEach(d => {
+                if (!d.model) return;
+                if (!modelData[d.model]) modelData[d.model] = { count: 0, quantity: 0 };
+                modelData[d.model].count++;
+                modelData[d.model].quantity += d.quantity;
+            });
+
+            const sorted = Object.entries(modelData)
+                .sort((a, b) => b[1].quantity - a[1].quantity)
+                .slice(0, 30);
+
+            tbody.innerHTML = sorted.map(([name, data], idx) => `
+                <tr class="border-b hover:bg-gray-50 clickable-row" onclick="showModelDetailView('${name.replace(/'/g, "\\'")}')">
+                    <td class="px-4 py-2">${idx + 1}</td>
+                    <td class="px-4 py-2">${name}</td>
+                    <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
+                    <td class="px-4 py-2 text-right font-semibold text-green-600">${formatNumber(data.quantity)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showModelDetailView(model) {
+            const section = document.getElementById('modelDetailSection');
+            const title = document.getElementById('modelDetailTitle');
+            const tbody = document.getElementById('modelDetailTable');
+
+            title.textContent = `📦 ${model} 상세 오더`;
+
+            const modelData = filteredData.filter(d => d.model === model);
+
+            // Monthly trend chart
+            const monthlyData = {};
+            const destData = {};
+
+            modelData.forEach(d => {
+                if (d.sddYearMonth) {
+                    if (!monthlyData[d.sddYearMonth]) monthlyData[d.sddYearMonth] = 0;
+                    monthlyData[d.sddYearMonth] += d.quantity;
+                }
+                if (d.destination) {
+                    if (!destData[d.destination]) destData[d.destination] = 0;
+                    destData[d.destination] += d.quantity;
+                }
+            });
+
+            // Monthly chart
+            const ctx1 = document.getElementById('modelMonthlyChart').getContext('2d');
+            const months = Object.keys(monthlyData).sort();
+
+            if (charts.modelMonthly) charts.modelMonthly.destroy();
+            charts.modelMonthly = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: '수량',
+                        data: months.map(m => monthlyData[m]),
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false }}}
+            });
+
+            // Destination chart
+            const ctx2 = document.getElementById('modelDestChart').getContext('2d');
+            const topDest = Object.entries(destData).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+            if (charts.modelDest) charts.modelDest.destroy();
+            charts.modelDest = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: topDest.map(([name]) => name),
+                    datasets: [{
+                        data: topDest.map(([, qty]) => qty),
+                        backgroundColor: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' }}}
+            });
+
+            // Detail table
+            tbody.innerHTML = modelData.slice(0, 50).map(d => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-3 py-2">${d.factory}</td>
+                    <td class="px-3 py-2">${ASIA_COUNTRIES[d.destination] || ''} ${d.destination}</td>
+                    <td class="px-3 py-2">${d.article}</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatNumber(d.quantity)}</td>
+                    <td class="px-3 py-2">${d.sddYearMonth || d.sddDisplay}</td>
+                    <td class="px-3 py-2 text-xs">${d.poNumber}</td>
+                </tr>
+            `).join('');
+
+            if (modelData.length > 50) {
+                tbody.innerHTML += `<tr><td colspan="6" class="px-4 py-2 text-center text-gray-500">... 외 ${modelData.length - 50}건</td></tr>`;
+            }
+
+            section.classList.remove('hidden');
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideModelDetail() {
+            document.getElementById('modelDetailSection').classList.add('hidden');
+        }
+
+        function renderDetailTable() {
+            const tbody = document.getElementById('detailTable');
+            document.getElementById('dataCount').textContent = `총 ${formatNumber(filteredData.length)}건`;
+
+            const displayData = filteredData.slice(0, 500);
+
+            tbody.innerHTML = displayData.map(d => `
+                <tr class="border-b hover:bg-gray-50 text-sm">
+                    <td class="px-3 py-2">${d.factory || '-'}</td>
+                    <td class="px-3 py-2">${d.unit || '-'}</td>
+                    <td class="px-3 py-2">${d.season || '-'}</td>
+                    <td class="px-3 py-2">${d.model || '-'}</td>
+                    <td class="px-3 py-2">${d.article || '-'}</td>
+                    <td class="px-3 py-2">${ASIA_COUNTRIES[d.destination] || ''} ${d.destination || '-'}</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatNumber(d.quantity)}</td>
+                    <td class="px-3 py-2">${d.sddYearMonth || d.sddDisplay}</td>
+                    <td class="px-3 py-2 text-xs">${d.poNumber || '-'}</td>
+                </tr>
+            `).join('');
+
+            if (filteredData.length > 500) {
+                tbody.innerHTML += `
+                    <tr class="bg-yellow-50">
+                        <td colspan="9" class="px-4 py-3 text-center text-yellow-700">
+                            ⚠️ 성능을 위해 500건만 표시됩니다. 전체 데이터는 Excel로 다운로드하세요.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // =====================================================
+        // Tab Navigation
+        // =====================================================
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(el => el.classList.remove('tab-active'));
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+
+            if (tabName === 'model') {
+                renderModelTab();
+            } else if (tabName === 'heatmap') {
+                populateHeatmapFilters();
+                renderHeatmaps();
+            }
+        }
+
+        // =====================================================
+        // Heatmap Functions
+        // =====================================================
+        function populateHeatmapFilters() {
+            // Month filter
+            const months = [...new Set(filteredData.map(d => d.sddYearMonth).filter(Boolean))].sort();
+            const monthSelect = document.getElementById('heatmapMonth');
+            monthSelect.innerHTML = '<option value="all">전체</option>';
+            months.forEach(m => {
+                monthSelect.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+
+            // Factory filter
+            const factories = [...new Set(filteredData.map(d => d.factory))].sort();
+            const factorySelect = document.getElementById('heatmapFactory');
+            factorySelect.innerHTML = '<option value="all">전체</option>';
+            factories.forEach(f => {
+                factorySelect.innerHTML += `<option value="${f}">Factory ${f}</option>`;
+            });
+        }
+
+        function renderHeatmaps() {
+            const month = document.getElementById('heatmapMonth').value;
+            const factory = document.getElementById('heatmapFactory').value;
+            const topN = parseInt(document.getElementById('heatmapTopN').value);
+            const topDestVal = document.getElementById('heatmapTopDest').value;
+
+            // Filter data
+            let data = filteredData.filter(d => {
+                if (month !== 'all' && d.sddYearMonth !== month) return false;
+                if (factory !== 'all' && d.factory !== factory) return false;
+                return true;
+            });
+
+            // Aggregate by model and destination
+            const modelTotals = {};
+            const destTotals = {};
+            const matrix = {};
+
+            data.forEach(d => {
+                if (!d.model || !d.destination) return;
+
+                if (!modelTotals[d.model]) modelTotals[d.model] = { qty: 0, count: 0 };
+                modelTotals[d.model].qty += d.quantity;
+                modelTotals[d.model].count++;
+
+                if (!destTotals[d.destination]) destTotals[d.destination] = { qty: 0, count: 0 };
+                destTotals[d.destination].qty += d.quantity;
+                destTotals[d.destination].count++;
+
+                const key = `${d.model}|||${d.destination}`;
+                if (!matrix[key]) matrix[key] = { qty: 0, count: 0 };
+                matrix[key].qty += d.quantity;
+                matrix[key].count++;
+            });
+
+            // Get top models
+            const topModels = Object.entries(modelTotals)
+                .sort((a, b) => b[1].qty - a[1].qty)
+                .slice(0, topN)
+                .map(e => e[0]);
+
+            // Get top destinations
+            let topDests;
+            if (topDestVal === 'all') {
+                topDests = Object.keys(destTotals).sort((a, b) => destTotals[b].qty - destTotals[a].qty);
+            } else {
+                topDests = Object.entries(destTotals)
+                    .sort((a, b) => b[1].qty - a[1].qty)
+                    .slice(0, parseInt(topDestVal))
+                    .map(e => e[0]);
+            }
+
+            // Find max values for color scaling
+            let maxQty = 0, maxCount = 0;
+            topModels.forEach(model => {
+                topDests.forEach(dest => {
+                    const key = `${model}|||${dest}`;
+                    if (matrix[key]) {
+                        maxQty = Math.max(maxQty, matrix[key].qty);
+                        maxCount = Math.max(maxCount, matrix[key].count);
+                    }
+                });
+            });
+
+            // Render quantity heatmap
+            renderHeatmapTable('quantityHeatmap', topModels, topDests, matrix, 'qty', maxQty, 'blue');
+
+            // Render order count heatmap
+            renderHeatmapTable('orderCountHeatmap', topModels, topDests, matrix, 'count', maxCount, 'green');
+
+            // Render Asia heatmaps
+            renderAsiaHeatmaps();
+        }
+
+        // Asia 5 countries: Japan, South Korea, China, Taiwan, India
+        const ASIA_5_COUNTRIES = ['Japan', 'South Korea', 'China', 'Taiwan', 'India'];
+
+        function renderAsiaHeatmaps() {
+            // Filter Asia data only
+            const asiaData = filteredData.filter(d => ASIA_5_COUNTRIES.includes(d.destination));
+
+            if (asiaData.length === 0) {
+                document.getElementById('asiaCrdHeatmap').innerHTML = '<p class="text-gray-500 text-center py-8">아시아 국가 오더 데이터가 없습니다</p>';
+                document.getElementById('asiaSddHeatmap').innerHTML = '<p class="text-gray-500 text-center py-8">아시아 국가 오더 데이터가 없습니다</p>';
+                document.getElementById('asiaCountryModelHeatmap').innerHTML = '<p class="text-gray-500 text-center py-8">아시아 국가 오더 데이터가 없습니다</p>';
+                return;
+            }
+
+            // Parse CRD to year-month
+            function parseCrdToYearMonth(crd) {
+                if (!crd) return null;
+                const str = String(crd).trim();
+                // YYYY.MM.DD or YYYY-MM-DD format
+                const match = str.match(/^(\d{4})[\.\-\/](\d{1,2})/);
+                if (match) return `${match[1]}-${String(match[2]).padStart(2, '0')}`;
+                return null;
+            }
+
+            // 1. CRD Heatmap (Country x CRD Month)
+            const crdMatrix = {};
+            const crdMonths = new Set();
+            asiaData.forEach(d => {
+                const crdMonth = parseCrdToYearMonth(d.crd);
+                if (crdMonth && d.destination) {
+                    crdMonths.add(crdMonth);
+                    const key = `${d.destination}|||${crdMonth}`;
+                    if (!crdMatrix[key]) crdMatrix[key] = { qty: 0, count: 0 };
+                    crdMatrix[key].qty += d.quantity;
+                    crdMatrix[key].count++;
+                }
+            });
+
+            const sortedCrdMonths = [...crdMonths].sort();
+            let maxCrdQty = 0;
+            ASIA_5_COUNTRIES.forEach(c => {
+                sortedCrdMonths.forEach(m => {
+                    const key = `${c}|||${m}`;
+                    if (crdMatrix[key]) maxCrdQty = Math.max(maxCrdQty, crdMatrix[key].qty);
+                });
+            });
+            renderAsiaDateHeatmap('asiaCrdHeatmap', ASIA_5_COUNTRIES, sortedCrdMonths, crdMatrix, maxCrdQty, 'amber', 'crd');
+
+            // 2. SDD Heatmap (Country x SDD Month)
+            const sddMatrix = {};
+            const sddMonths = new Set();
+            asiaData.forEach(d => {
+                if (d.sddYearMonth && d.destination) {
+                    sddMonths.add(d.sddYearMonth);
+                    const key = `${d.destination}|||${d.sddYearMonth}`;
+                    if (!sddMatrix[key]) sddMatrix[key] = { qty: 0, count: 0 };
+                    sddMatrix[key].qty += d.quantity;
+                    sddMatrix[key].count++;
+                }
+            });
+
+            const sortedSddMonths = [...sddMonths].sort();
+            let maxSddQty = 0;
+            ASIA_5_COUNTRIES.forEach(c => {
+                sortedSddMonths.forEach(m => {
+                    const key = `${c}|||${m}`;
+                    if (sddMatrix[key]) maxSddQty = Math.max(maxSddQty, sddMatrix[key].qty);
+                });
+            });
+            renderAsiaDateHeatmap('asiaSddHeatmap', ASIA_5_COUNTRIES, sortedSddMonths, sddMatrix, maxSddQty, 'purple', 'sdd');
+
+            // 3. Country x Model Heatmap
+            const modelMatrix = {};
+            const modelTotals = {};
+            asiaData.forEach(d => {
+                if (d.model && d.destination) {
+                    if (!modelTotals[d.model]) modelTotals[d.model] = 0;
+                    modelTotals[d.model] += d.quantity;
+
+                    const key = `${d.destination}|||${d.model}`;
+                    if (!modelMatrix[key]) modelMatrix[key] = { qty: 0, count: 0 };
+                    modelMatrix[key].qty += d.quantity;
+                    modelMatrix[key].count++;
+                }
+            });
+
+            const topAsiaModels = Object.entries(modelTotals)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 15)
+                .map(e => e[0]);
+
+            let maxModelQty = 0;
+            ASIA_5_COUNTRIES.forEach(c => {
+                topAsiaModels.forEach(m => {
+                    const key = `${c}|||${m}`;
+                    if (modelMatrix[key]) maxModelQty = Math.max(maxModelQty, modelMatrix[key].qty);
+                });
+            });
+            renderAsiaModelHeatmap('asiaCountryModelHeatmap', ASIA_5_COUNTRIES, topAsiaModels, modelMatrix, maxModelQty, 'rose');
+        }
+
+        function renderAsiaDateHeatmap(containerId, countries, months, matrix, maxValue, colorScheme, dateType) {
+            const container = document.getElementById(containerId);
+
+            const colorMap = {
+                'amber': ['bg-amber-50', 'bg-amber-100', 'bg-amber-200', 'bg-amber-300', 'bg-amber-400', 'bg-amber-500', 'bg-amber-600', 'bg-amber-700'],
+                'purple': ['bg-purple-50', 'bg-purple-100', 'bg-purple-200', 'bg-purple-300', 'bg-purple-400', 'bg-purple-500', 'bg-purple-600', 'bg-purple-700']
+            };
+            const textColorMap = {
+                'amber': ['text-amber-900', 'text-amber-900', 'text-amber-900', 'text-amber-900', 'text-white', 'text-white', 'text-white', 'text-white'],
+                'purple': ['text-purple-900', 'text-purple-900', 'text-purple-900', 'text-purple-900', 'text-white', 'text-white', 'text-white', 'text-white']
+            };
+
+            const colors = colorMap[colorScheme];
+            const textColors = textColorMap[colorScheme];
+
+            function getColorClass(value) {
+                if (value === 0 || maxValue === 0) return { bg: 'bg-gray-100', text: 'text-gray-400' };
+                const ratio = value / maxValue;
+                const idx = Math.min(Math.floor(ratio * 8), 7);
+                return { bg: colors[idx], text: textColors[idx] };
+            }
+
+            let html = '<table class="text-xs border-collapse">';
+
+            // Header
+            html += '<thead><tr><th class="px-3 py-2 text-left bg-gray-200 sticky left-0 z-10 min-w-[120px]">국가 \\ 월</th>';
+            months.forEach(m => {
+                html += `<th class="px-3 py-2 text-center bg-gray-200 min-w-[80px]">${m}</th>`;
+            });
+            html += '<th class="px-3 py-2 text-center bg-gray-300 min-w-[90px]">합계</th></tr></thead>';
+
+            // Rows
+            html += '<tbody>';
+            countries.forEach(country => {
+                const flag = ASIA_COUNTRIES[country] || '';
+                const displayName = country === 'South Korea' ? 'Korea' : country;
+                let rowTotal = 0;
+
+                html += `<tr><td class="px-3 py-2 font-medium bg-gray-100 sticky left-0">${flag} ${displayName}</td>`;
+
+                months.forEach(month => {
+                    const key = `${country}|||${month}`;
+                    const cellData = matrix[key] || { qty: 0, count: 0 };
+                    rowTotal += cellData.qty;
+                    const { bg, text } = getColorClass(cellData.qty);
+
+                    const clickHandler = cellData.qty > 0
+                        ? `onclick="openAsiaOrderModal('${country}', '${month}', '${dateType}')"`
+                        : '';
+                    const cursor = cellData.qty > 0 ? 'cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-blue-400' : '';
+
+                    html += `<td class="px-3 py-2 text-center ${bg} ${text} ${cursor}" ${clickHandler}>
+                        ${cellData.qty > 0 ? `<div>${formatNumber(cellData.qty)}</div><div class="text-[10px] opacity-70">(${cellData.count}건)</div>` : '-'}
+                    </td>`;
+                });
+
+                html += `<td class="px-3 py-2 text-center bg-gray-200 font-semibold">${formatNumber(rowTotal)}</td></tr>`;
+            });
+
+            // Footer
+            html += '<tr class="bg-gray-200 font-semibold"><td class="px-3 py-2 sticky left-0 bg-gray-300">합계</td>';
+            let grandTotal = 0;
+            months.forEach(month => {
+                let colTotal = 0;
+                countries.forEach(country => {
+                    const key = `${country}|||${month}`;
+                    if (matrix[key]) colTotal += matrix[key].qty;
+                });
+                grandTotal += colTotal;
+                html += `<td class="px-3 py-2 text-center">${formatNumber(colTotal)}</td>`;
+            });
+            html += `<td class="px-3 py-2 text-center bg-gray-300">${formatNumber(grandTotal)}</td></tr>`;
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderAsiaModelHeatmap(containerId, countries, models, matrix, maxValue, colorScheme) {
+            const container = document.getElementById(containerId);
+
+            const colors = ['bg-rose-50', 'bg-rose-100', 'bg-rose-200', 'bg-rose-300', 'bg-rose-400', 'bg-rose-500', 'bg-rose-600', 'bg-rose-700'];
+            const textColors = ['text-rose-900', 'text-rose-900', 'text-rose-900', 'text-rose-900', 'text-white', 'text-white', 'text-white', 'text-white'];
+
+            function getColorClass(value) {
+                if (value === 0 || maxValue === 0) return { bg: 'bg-gray-100', text: 'text-gray-400' };
+                const ratio = value / maxValue;
+                const idx = Math.min(Math.floor(ratio * 8), 7);
+                return { bg: colors[idx], text: textColors[idx] };
+            }
+
+            let html = '<table class="text-xs border-collapse">';
+
+            // Header
+            html += '<thead><tr><th class="px-3 py-2 text-left bg-gray-200 sticky left-0 z-10 min-w-[120px]">국가 \\ 모델</th>';
+            models.forEach(m => {
+                const shortName = m.length > 15 ? m.substring(0, 15) + '...' : m;
+                html += `<th class="px-2 py-2 text-center bg-gray-200 min-w-[90px] text-[10px]" title="${m}">${shortName}</th>`;
+            });
+            html += '<th class="px-3 py-2 text-center bg-gray-300 min-w-[90px]">합계</th></tr></thead>';
+
+            // Rows
+            html += '<tbody>';
+            countries.forEach(country => {
+                const flag = ASIA_COUNTRIES[country] || '';
+                const displayName = country === 'South Korea' ? 'Korea' : country;
+                let rowTotal = 0;
+
+                html += `<tr><td class="px-3 py-2 font-medium bg-gray-100 sticky left-0">${flag} ${displayName}</td>`;
+
+                models.forEach(model => {
+                    const key = `${country}|||${model}`;
+                    const cellData = matrix[key] || { qty: 0, count: 0 };
+                    rowTotal += cellData.qty;
+                    const { bg, text } = getColorClass(cellData.qty);
+
+                    const clickHandler = cellData.qty > 0
+                        ? `onclick="openOrderModal('${model.replace(/'/g, "\\'")}', '${country.replace(/'/g, "\\'")}')"`
+                        : '';
+                    const cursor = cellData.qty > 0 ? 'cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-blue-400' : '';
+
+                    html += `<td class="px-2 py-2 text-center ${bg} ${text} ${cursor}" ${clickHandler}>
+                        ${cellData.qty > 0 ? `<div>${formatNumber(cellData.qty)}</div><div class="text-[10px] opacity-70">(${cellData.count}건)</div>` : '-'}
+                    </td>`;
+                });
+
+                html += `<td class="px-3 py-2 text-center bg-gray-200 font-semibold">${formatNumber(rowTotal)}</td></tr>`;
+            });
+
+            // Footer
+            html += '<tr class="bg-gray-200 font-semibold"><td class="px-3 py-2 sticky left-0 bg-gray-300">합계</td>';
+            let grandTotal = 0;
+            models.forEach(model => {
+                let colTotal = 0;
+                countries.forEach(country => {
+                    const key = `${country}|||${model}`;
+                    if (matrix[key]) colTotal += matrix[key].qty;
+                });
+                grandTotal += colTotal;
+                html += `<td class="px-2 py-2 text-center">${formatNumber(colTotal)}</td>`;
+            });
+            html += `<td class="px-3 py-2 text-center bg-gray-300">${formatNumber(grandTotal)}</td></tr>`;
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderHeatmapTable(containerId, models, destinations, matrix, valueKey, maxValue, colorScheme) {
+            const container = document.getElementById(containerId);
+
+            const colors = colorScheme === 'blue'
+                ? ['bg-blue-50', 'bg-blue-100', 'bg-blue-200', 'bg-blue-300', 'bg-blue-400', 'bg-blue-500', 'bg-blue-600', 'bg-blue-700']
+                : ['bg-green-50', 'bg-green-100', 'bg-green-200', 'bg-green-300', 'bg-green-400', 'bg-green-500', 'bg-green-600', 'bg-green-700'];
+
+            const textColors = colorScheme === 'blue'
+                ? ['text-blue-900', 'text-blue-900', 'text-blue-900', 'text-blue-900', 'text-white', 'text-white', 'text-white', 'text-white']
+                : ['text-green-900', 'text-green-900', 'text-green-900', 'text-green-900', 'text-white', 'text-white', 'text-white', 'text-white'];
+
+            function getColorClass(value) {
+                if (value === 0 || maxValue === 0) return { bg: 'bg-gray-100', text: 'text-gray-400' };
+                const ratio = value / maxValue;
+                const idx = Math.min(Math.floor(ratio * 8), 7);
+                return { bg: colors[idx], text: textColors[idx] };
+            }
+
+            let html = '<table class="text-xs border-collapse">';
+
+            // Header row with destinations
+            html += '<thead><tr><th class="px-2 py-1 text-left bg-gray-200 sticky left-0 z-10 min-w-[180px]">모델 \\ 행선지</th>';
+            destinations.forEach(dest => {
+                const flag = ASIA_COUNTRIES[dest] || '';
+                const displayName = dest === 'South Korea' ? 'Korea' : dest;
+                html += `<th class="px-2 py-1 text-center bg-gray-200 min-w-[80px] whitespace-nowrap">${flag}${displayName}</th>`;
+            });
+            html += '<th class="px-2 py-1 text-center bg-gray-300 min-w-[80px]">합계</th></tr></thead>';
+
+            // Data rows
+            html += '<tbody>';
+            models.forEach(model => {
+                let rowTotal = 0;
+                html += `<tr><td class="px-2 py-1 font-medium bg-gray-100 sticky left-0 truncate max-w-[180px]" title="${model}">${model}</td>`;
+
+                destinations.forEach(dest => {
+                    const key = `${model}|||${dest}`;
+                    const value = matrix[key] ? matrix[key][valueKey] : 0;
+                    rowTotal += value;
+                    const { bg, text } = getColorClass(value);
+
+                    const displayValue = valueKey === 'qty' ? formatNumber(value) : value;
+                    const clickHandler = value > 0 ? `onclick="openOrderModal('${model.replace(/'/g, "\\'")}', '${dest.replace(/'/g, "\\'")}')"` : '';
+                    const cursor = value > 0 ? 'cursor-pointer hover:ring-2 hover:ring-offset-1 hover:ring-blue-400' : '';
+
+                    html += `<td class="px-2 py-1 text-center ${bg} ${text} ${cursor}" ${clickHandler}>${value > 0 ? displayValue : '-'}</td>`;
+                });
+
+                const displayTotal = valueKey === 'qty' ? formatNumber(rowTotal) : rowTotal;
+                html += `<td class="px-2 py-1 text-center bg-gray-200 font-semibold">${displayTotal}</td></tr>`;
+            });
+
+            // Footer row with column totals
+            html += '<tr class="bg-gray-200 font-semibold"><td class="px-2 py-1 sticky left-0 bg-gray-300">합계</td>';
+            let grandTotal = 0;
+            destinations.forEach(dest => {
+                let colTotal = 0;
+                models.forEach(model => {
+                    const key = `${model}|||${dest}`;
+                    if (matrix[key]) colTotal += matrix[key][valueKey];
+                });
+                grandTotal += colTotal;
+                const displayTotal = valueKey === 'qty' ? formatNumber(colTotal) : colTotal;
+                html += `<td class="px-2 py-1 text-center">${displayTotal}</td>`;
+            });
+            const displayGrand = valueKey === 'qty' ? formatNumber(grandTotal) : grandTotal;
+            html += `<td class="px-2 py-1 text-center bg-gray-300">${displayGrand}</td></tr>`;
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // =====================================================
+        // Order Detail Modal
+        // =====================================================
+        let currentModalData = [];
+
+        function openOrderModal(model, destination) {
+            currentModalData = filteredData.filter(d => d.model === model && d.destination === destination);
+
+            const modal = document.getElementById('orderDetailModal');
+            const title = document.getElementById('modalTitle');
+            const summary = document.getElementById('modalSummary');
+            const tbody = document.getElementById('modalOrderTable');
+            const pagination = document.getElementById('modalPagination');
+
+            const flag = ASIA_COUNTRIES[destination] || '';
+            const displayDest = destination === 'South Korea' ? 'Korea' : destination;
+            title.textContent = `📦 ${model} → ${flag}${displayDest}`;
+
+            // Summary stats
+            const totalQty = currentModalData.reduce((sum, d) => sum + d.quantity, 0);
+            const months = [...new Set(currentModalData.map(d => d.sddYearMonth).filter(Boolean))];
+            const factories = [...new Set(currentModalData.map(d => d.factory))];
+
+            summary.innerHTML = `
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">오더 건수</div>
+                    <div class="text-xl font-bold text-blue-600">${formatNumber(currentModalData.length)}건</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">총 수량</div>
+                    <div class="text-xl font-bold text-green-600">${formatNumber(totalQty)}족</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">SDD 월</div>
+                    <div class="text-lg font-semibold text-gray-700">${months.length > 0 ? months.sort().join(', ') : '-'}</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">공장</div>
+                    <div class="text-lg font-semibold text-gray-700">${factories.sort().map(f => `Factory ${f}`).join(', ')}</div>
+                </div>
+            `;
+
+            // Render table
+            tbody.innerHTML = currentModalData.map(d => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-3 py-2">${d.factory}</td>
+                    <td class="px-3 py-2">${d.unit || '-'}</td>
+                    <td class="px-3 py-2">${d.model}</td>
+                    <td class="px-3 py-2">${d.article || '-'}</td>
+                    <td class="px-3 py-2 text-xs">${d.pgsc || '-'}</td>
+                    <td class="px-3 py-2">${d.color || '-'}</td>
+                    <td class="px-3 py-2">${d.destination}</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatNumber(d.quantity)}</td>
+                    <td class="px-3 py-2 text-xs">${d.crd || '-'}</td>
+                    <td class="px-3 py-2">${d.sddDisplay}</td>
+                    <td class="px-3 py-2 text-xs">${d.poNumber || '-'}</td>
+                </tr>
+            `).join('');
+
+            pagination.textContent = `총 ${formatNumber(currentModalData.length)}건`;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openAsiaOrderModal(country, month, dateType) {
+            // Parse CRD to year-month for comparison
+            function parseCrdToYearMonth(crd) {
+                if (!crd) return null;
+                const str = String(crd).trim();
+                const match = str.match(/^(\d{4})[\.\-\/](\d{1,2})/);
+                if (match) return `${match[1]}-${String(match[2]).padStart(2, '0')}`;
+                return null;
+            }
+
+            // Filter data based on dateType (crd or sdd)
+            if (dateType === 'crd') {
+                currentModalData = filteredData.filter(d => {
+                    const crdMonth = parseCrdToYearMonth(d.crd);
+                    return d.destination === country && crdMonth === month;
+                });
+            } else {
+                currentModalData = filteredData.filter(d => {
+                    return d.destination === country && d.sddYearMonth === month;
+                });
+            }
+
+            const modal = document.getElementById('orderDetailModal');
+            const title = document.getElementById('modalTitle');
+            const summary = document.getElementById('modalSummary');
+            const tbody = document.getElementById('modalOrderTable');
+            const pagination = document.getElementById('modalPagination');
+
+            const flag = ASIA_COUNTRIES[country] || '';
+            const displayDest = country === 'South Korea' ? 'Korea' : country;
+            const dateLabel = dateType === 'crd' ? 'CRD' : 'SDD';
+            title.textContent = `📦 ${flag}${displayDest} - ${dateLabel} ${month}`;
+
+            // Summary stats
+            const totalQty = currentModalData.reduce((sum, d) => sum + d.quantity, 0);
+            const models = [...new Set(currentModalData.map(d => d.model).filter(Boolean))];
+            const factories = [...new Set(currentModalData.map(d => d.factory))];
+
+            summary.innerHTML = `
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">오더 건수</div>
+                    <div class="text-xl font-bold text-blue-600">${formatNumber(currentModalData.length)}건</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">총 수량</div>
+                    <div class="text-xl font-bold text-green-600">${formatNumber(totalQty)}족</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">모델 종류</div>
+                    <div class="text-lg font-semibold text-gray-700">${models.length}개</div>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                    <div class="text-gray-500 text-xs">공장</div>
+                    <div class="text-lg font-semibold text-gray-700">${factories.sort().map(f => `Factory ${f}`).join(', ')}</div>
+                </div>
+            `;
+
+            // Render table
+            tbody.innerHTML = currentModalData.map(d => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-3 py-2">${d.factory}</td>
+                    <td class="px-3 py-2">${d.unit || '-'}</td>
+                    <td class="px-3 py-2">${d.model}</td>
+                    <td class="px-3 py-2">${d.article || '-'}</td>
+                    <td class="px-3 py-2 text-xs">${d.pgsc || '-'}</td>
+                    <td class="px-3 py-2">${d.color || '-'}</td>
+                    <td class="px-3 py-2">${d.destination}</td>
+                    <td class="px-3 py-2 text-right font-medium">${formatNumber(d.quantity)}</td>
+                    <td class="px-3 py-2 text-xs">${d.crd || '-'}</td>
+                    <td class="px-3 py-2">${d.sddDisplay}</td>
+                    <td class="px-3 py-2 text-xs">${d.poNumber || '-'}</td>
+                </tr>
+            `).join('');
+
+            pagination.textContent = `총 ${formatNumber(currentModalData.length)}건`;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function exportModalToExcel() {
+            if (currentModalData.length === 0) return;
+
+            const exportData = currentModalData.map(d => ({
+                '공장': d.factory,
+                '라인': d.unit,
+                '모델': d.model,
+                '아티클': d.article,
+                'PGSC': d.pgsc,
+                '컬러': d.color,
+                '행선지': d.destination,
+                '수량': d.quantity,
+                'CRD': d.crd,
+                'SDD': d.sddDisplay,
+                'PO번호': d.poNumber
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+            XLSX.writeFile(wb, `order_detail_${Date.now()}.xlsx`);
+        }
+
+        // ESC key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeOrderModal();
+        });
+
+        // =====================================================
+        // Export to Excel
+        // =====================================================
+        function exportToExcel() {
+            const exportData = filteredData.map(d => ({
+                '공장': d.factory,
+                '라인': d.unit,
+                '시즌': d.season,
+                '모델': d.model,
+                '아티클': d.article,
+                '색상': d.color,
+                '등급': d.grade,
+                '행선지': d.destination,
+                '수량': d.quantity,
+                'SDD(원본)': d.sddOriginal,
+                'SDD(현재)': d.sddCurrent,
+                'SDD(월)': d.sddYearMonth,
+                'PO번호': d.poNumber
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Data');
+
+            const today = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `Rachgia_Loadplan_Export_${today}.xlsx`);
+        }
+
+        // =====================================================
+        // Utility Functions
+        // =====================================================
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+
+        // =====================================================
+        // GitHub Integration
+        // =====================================================
+        function openGithubModal() {
+            // Load saved settings
+            const saved = localStorage.getItem('githubSettings');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                document.getElementById('githubRepo').value = settings.repo || '';
+                document.getElementById('githubToken').value = settings.token || '';
+                document.getElementById('githubPath').value = settings.path || 'data/loadplan_data.json';
+                document.getElementById('githubRemember').checked = true;
+            }
+            document.getElementById('githubModal').classList.remove('hidden');
+            document.getElementById('githubStatus').classList.add('hidden');
+        }
+
+        function closeGithubModal() {
+            document.getElementById('githubModal').classList.add('hidden');
+        }
+
+        async function saveToGithub() {
+            const repo = document.getElementById('githubRepo').value.trim();
+            const token = document.getElementById('githubToken').value.trim();
+            const path = document.getElementById('githubPath').value.trim();
+            const remember = document.getElementById('githubRemember').checked;
+
+            const statusEl = document.getElementById('githubStatus');
+            const saveBtn = document.getElementById('githubSaveAction');
+
+            // Validation
+            if (!repo || !token || !path) {
+                showGithubStatus('error', '모든 필드를 입력해주세요.');
+                return;
+            }
+
+            if (!repo.includes('/')) {
+                showGithubStatus('error', '저장소 형식이 올바르지 않습니다. (예: username/repo)');
+                return;
+            }
+
+            // Save settings if requested
+            if (remember) {
+                localStorage.setItem('githubSettings', JSON.stringify({ repo, token, path }));
+            } else {
+                localStorage.removeItem('githubSettings');
+            }
+
+            // Prepare data
+            const dataToSave = {
+                exportedAt: new Date().toISOString(),
+                totalRecords: rawData.length,
+                factories: [...new Set(rawData.map(d => d.factory))],
+                data: rawData
+            };
+
+            const content = JSON.stringify(dataToSave, null, 2);
+            const encodedContent = btoa(unescape(encodeURIComponent(content)));
+
+            // Show loading
+            saveBtn.disabled = true;
+            saveBtn.textContent = '저장 중...';
+            showGithubStatus('info', 'GitHub에 저장하는 중...');
+
+            try {
+                // Check if file exists to get SHA
+                let sha = null;
+                try {
+                    const checkResponse = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    if (checkResponse.ok) {
+                        const existingFile = await checkResponse.json();
+                        sha = existingFile.sha;
+                    }
+                } catch (e) {
+                    // File doesn't exist, that's fine
+                }
+
+                // Create or update file
+                const body = {
+                    message: `Update loadplan data (${rawData.length} records) - ${new Date().toLocaleString('ko-KR')}`,
+                    content: encodedContent
+                };
+                if (sha) {
+                    body.sha = sha;
+                }
+
+                const response = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    showGithubStatus('success', `✓ 저장 완료! ${rawData.length}건의 데이터가 GitHub에 저장되었습니다.`);
+                    console.log('GitHub save successful:', result);
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || '저장 실패');
+                }
+            } catch (error) {
+                console.error('GitHub save error:', error);
+                showGithubStatus('error', `저장 실패: ${error.message}`);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = '저장';
+            }
+        }
+
+        function showGithubStatus(type, message) {
+            const statusEl = document.getElementById('githubStatus');
+            statusEl.classList.remove('hidden', 'bg-green-100', 'text-green-700', 'bg-red-100', 'text-red-700', 'bg-blue-100', 'text-blue-700');
+
+            if (type === 'success') {
+                statusEl.classList.add('bg-green-100', 'text-green-700');
+            } else if (type === 'error') {
+                statusEl.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                statusEl.classList.add('bg-blue-100', 'text-blue-700');
+            }
+
+            statusEl.textContent = message;
+        }
+
+        // Show GitHub save button when data is loaded
+        function showGithubButton() {
+            document.getElementById('githubSaveBtn').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
