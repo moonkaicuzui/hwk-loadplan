@@ -208,14 +208,6 @@
                 </div>
             </div>
 
-            <!-- Sample Data Option -->
-            <div class="mt-6 text-center">
-                <p class="text-blue-300/50 text-sm">또는</p>
-                <button onclick="loadSampleData()" class="text-blue-300 hover:text-white text-sm underline mt-2 transition-colors">
-                    샘플 데이터로 시작하기 (parsed_loadplan_v6.json)
-                </button>
-            </div>
-
             <!-- File Format Guide -->
             <div class="mt-8 bg-white/5 rounded-xl p-4 text-sm text-blue-200">
                 <h3 class="font-semibold text-white mb-2">📋 지원 파일 형식</h3>
@@ -507,6 +499,53 @@
                             <div class="text-xs text-emerald-600 dark:text-emerald-400" id="shippedOrderQty">0족</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 담당자 권고사항 (Action Recommendations) -->
+        <div id="actionRecommendations" class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-orange-500">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold flex items-center gap-2 text-orange-800 dark:text-orange-200">
+                    📋 담당자 권고사항
+                    <span class="text-xs bg-orange-500 text-white px-2 py-0.5 rounded">AI 분석</span>
+                </h2>
+                <div class="text-sm text-orange-600 dark:text-orange-400" id="recommendationTime">-</div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 계획 담당자 권고 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center gap-2">
+                        📅 계획 담당자
+                        <span class="text-xs font-normal text-gray-500">생산계획 최적화</span>
+                    </h3>
+                    <div id="planningRecommendations" class="space-y-2 text-sm">
+                        <div class="text-gray-400">데이터 로딩 중...</div>
+                    </div>
+                </div>
+
+                <!-- 품질 담당자 권고 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-green-700 dark:text-green-300 mb-3 flex items-center gap-2">
+                        ✅ 품질 담당자
+                        <span class="text-xs font-normal text-gray-500">품질 리스크 관리</span>
+                    </h3>
+                    <div id="qualityRecommendations" class="space-y-2 text-sm">
+                        <div class="text-gray-400">데이터 로딩 중...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 리스크 스코어 -->
+            <div class="mt-4 pt-4 border-t border-orange-200 dark:border-orange-700">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">종합 리스크 점수</div>
+                        <div id="riskScore" class="text-2xl font-bold text-orange-600">-</div>
+                        <div id="riskLevel" class="text-xs px-2 py-1 rounded">-</div>
+                    </div>
+                    <div id="riskBreakdown" class="text-xs text-gray-500 dark:text-gray-400"></div>
                 </div>
             </div>
         </div>
@@ -1572,38 +1611,6 @@ function calculateVendorScore(vendor) {
             const diffDays = (sdd - today) / (1000 * 60 * 60 * 24);
 
             return diffDays >= 0 && diffDays <= 3;
-        }
-
-        // 샘플 데이터 로드 (JSON)
-        async function loadSampleData() {
-            const uploadContent = document.getElementById('uploadContent');
-            const uploadLoading = document.getElementById('uploadLoading');
-
-            uploadContent.classList.add('hidden');
-            uploadLoading.classList.remove('hidden');
-
-            try {
-                const response = await fetch('parsed_loadplan_v6.json');
-                if (!response.ok) throw new Error('샘플 파일을 찾을 수 없습니다.');
-
-                const data = await response.json();
-                allData = data;
-
-                // 지연/경고 상태 재계산
-                allData.forEach(d => {
-                    d.isDelayed = calculateIsDelayed(d);
-                    d.isWarning = calculateIsWarning(d);
-                });
-
-                initApp();
-                document.getElementById('uploadOverlay').classList.add('hidden');
-                showNotification(`✅ 샘플 데이터 ${formatNumber(allData.length)}건 로드 완료`, 'success');
-            } catch (error) {
-                console.error('샘플 데이터 로드 오류:', error);
-                showNotification('❌ ' + error.message, 'error');
-                uploadContent.classList.remove('hidden');
-                uploadLoading.classList.add('hidden');
-            }
         }
 
         // 알림 표시
@@ -3371,6 +3378,306 @@ function calculateVendorScore(vendor) {
 
             // Vendor Performance List - HTML ID: vendorPerformanceList
             updateVendorPerformanceList(vendors);
+
+            // 담당자 권고사항 업데이트
+            updateActionRecommendations();
+        }
+
+        // ========================================
+        // 담당자 권고사항 시스템
+        // ========================================
+
+        function updateActionRecommendations() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('recommendationTime').textContent = `업데이트: ${timeStr}`;
+
+            // 데이터 분석
+            const bottleneck = predictBottleneck();
+            const delayedOrders = filteredData.filter(d => d.isDelayed);
+            const severity = calculateDelaySeverity();
+            const vendors = calculateVendorPerformance();
+            const otd = calculateOTDRate();
+            const aql = calculateAQLStats();
+
+            // 계획 담당자 권고 생성
+            const planningRecs = generatePlanningRecommendations(bottleneck, delayedOrders, severity, vendors, otd);
+            document.getElementById('planningRecommendations').innerHTML = planningRecs.html;
+
+            // 품질 담당자 권고 생성
+            const qualityRecs = generateQualityRecommendations(delayedOrders, aql, bottleneck, vendors);
+            document.getElementById('qualityRecommendations').innerHTML = qualityRecs.html;
+
+            // 리스크 점수 계산 및 표시
+            const riskScore = calculateRiskScore(delayedOrders, severity, bottleneck, vendors, aql);
+            updateRiskScoreDisplay(riskScore);
+        }
+
+        function generatePlanningRecommendations(bottleneck, delayedOrders, severity, vendors, otd) {
+            const recs = [];
+
+            // 1. 병목 공정 권고
+            if (bottleneck.completionRate < 80) {
+                recs.push({
+                    priority: 'high',
+                    icon: '🔴',
+                    text: `[${bottleneck.process}] 병목 공정 (${bottleneck.completionRate.toFixed(1)}%)`,
+                    action: '→ 리소스 추가 배치 권고'
+                });
+            }
+
+            // 2. 지연 오더 권고
+            if (delayedOrders.length > 0) {
+                const severeDelays = severity.severe;
+                if (severeDelays > 0) {
+                    recs.push({
+                        priority: 'high',
+                        icon: '🚨',
+                        text: `심각 지연 ${severeDelays}건 (7일 이상)`,
+                        action: '→ 긴급 복구 계획 수립 필요'
+                    });
+                } else if (delayedOrders.length >= 5) {
+                    recs.push({
+                        priority: 'medium',
+                        icon: '⚠️',
+                        text: `지연 오더 ${delayedOrders.length}건 발생`,
+                        action: '→ 원인 분석 및 우선순위 재조정'
+                    });
+                }
+            }
+
+            // 3. 중요 거래처 지연 권고
+            const importantDelays = delayedOrders.filter(d =>
+                ['Japan', 'South Korea', 'USA'].includes(d.destination)
+            );
+            if (importantDelays.length > 0) {
+                recs.push({
+                    priority: 'high',
+                    icon: '🎯',
+                    text: `중요 거래처 지연 ${importantDelays.length}건`,
+                    action: '→ 최우선 생산라인 배정'
+                });
+            }
+
+            // 4. 저성과 벤더 권고
+            const lowPerformVendors = vendors.filter(v => v.score < 60);
+            if (lowPerformVendors.length > 0) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '🏭',
+                    text: `저성과 벤더 ${lowPerformVendors.length}개`,
+                    action: '→ 벤더 미팅 및 개선 요구'
+                });
+            }
+
+            // 5. OTD 미달 권고
+            if (otd.rate < 85) {
+                recs.push({
+                    priority: 'high',
+                    icon: '📉',
+                    text: `정시납기율 ${otd.rate.toFixed(1)}% (목표 95%)`,
+                    action: '→ 긴급 대응 체계 가동'
+                });
+            } else if (otd.rate < 95) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '📊',
+                    text: `정시납기율 ${otd.rate.toFixed(1)}% (목표 95%)`,
+                    action: '→ 개선 방안 검토 필요'
+                });
+            }
+
+            // 결과가 없으면 양호 메시지
+            if (recs.length === 0) {
+                recs.push({
+                    priority: 'good',
+                    icon: '✅',
+                    text: '현재 특이사항 없음',
+                    action: '생산 계획 정상 진행 중'
+                });
+            }
+
+            const html = recs.map(r => `
+                <div class="flex items-start gap-2 p-2 rounded ${
+                    r.priority === 'high' ? 'bg-red-50 dark:bg-red-900/30' :
+                    r.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/30' :
+                    'bg-green-50 dark:bg-green-900/30'
+                }">
+                    <span>${r.icon}</span>
+                    <div>
+                        <div class="font-medium ${
+                            r.priority === 'high' ? 'text-red-700 dark:text-red-300' :
+                            r.priority === 'medium' ? 'text-yellow-700 dark:text-yellow-300' :
+                            'text-green-700 dark:text-green-300'
+                        }">${escapeHtml(r.text)}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(r.action)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return { html, count: recs.length };
+        }
+
+        function generateQualityRecommendations(delayedOrders, aql, bottleneck, vendors) {
+            const recs = [];
+
+            // 1. AQL 합격률 권고
+            if (aql.passRate < 95) {
+                recs.push({
+                    priority: 'high',
+                    icon: '🔴',
+                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}% (목표 98%)`,
+                    action: '→ 불량 원인 긴급 분석'
+                });
+            } else if (aql.passRate < 98) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '⚠️',
+                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}%`,
+                    action: '→ 품질 개선 조치 검토'
+                });
+            }
+
+            // 2. 품질 위험 오더 (지연 + AQL 불합격)
+            const qualityRiskOrders = delayedOrders.filter(d => d.aql === false);
+            if (qualityRiskOrders.length > 0) {
+                recs.push({
+                    priority: 'high',
+                    icon: '🚨',
+                    text: `품질 위험 오더 ${qualityRiskOrders.length}건`,
+                    action: '→ 지연+불합격 교집합 집중 관리'
+                });
+            }
+
+            // 3. 병목 공정 품질 리스크
+            if (bottleneck.completionRate < 70) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '⚡',
+                    text: `[${bottleneck.process}] 품질 리스크`,
+                    action: '→ 납기 압박으로 품질 타협 주의'
+                });
+            }
+
+            // 4. 지연 심각도별 품질 권고
+            const severeDelays = delayedOrders.filter(d => {
+                const today = new Date();
+                const sdd = new Date(d.sdd);
+                return (today - sdd) / (1000 * 60 * 60 * 24) > 7;
+            });
+            if (severeDelays.length > 0) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '📋',
+                    text: `7일+ 지연 ${severeDelays.length}건 품질 검수 강화`,
+                    action: '→ AQL 검사 우선 실시'
+                });
+            }
+
+            // 5. 저성과 벤더 품질 권고
+            const lowQualityVendors = vendors.filter(v => v.score < 50);
+            if (lowQualityVendors.length > 0) {
+                recs.push({
+                    priority: 'medium',
+                    icon: '🏭',
+                    text: `저성과 벤더 ${lowQualityVendors.length}개 품질 감사`,
+                    action: '→ 납품 건 AQL 검사 강화'
+                });
+            }
+
+            // 결과가 없으면 양호 메시지
+            if (recs.length === 0) {
+                recs.push({
+                    priority: 'good',
+                    icon: '✅',
+                    text: '품질 상태 양호',
+                    action: '정상 품질 관리 유지'
+                });
+            }
+
+            const html = recs.map(r => `
+                <div class="flex items-start gap-2 p-2 rounded ${
+                    r.priority === 'high' ? 'bg-red-50 dark:bg-red-900/30' :
+                    r.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/30' :
+                    'bg-green-50 dark:bg-green-900/30'
+                }">
+                    <span>${r.icon}</span>
+                    <div>
+                        <div class="font-medium ${
+                            r.priority === 'high' ? 'text-red-700 dark:text-red-300' :
+                            r.priority === 'medium' ? 'text-yellow-700 dark:text-yellow-300' :
+                            'text-green-700 dark:text-green-300'
+                        }">${escapeHtml(r.text)}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(r.action)}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return { html, count: recs.length };
+        }
+
+        function calculateRiskScore(delayedOrders, severity, bottleneck, vendors, aql) {
+            let score = 0;
+
+            // 지연 위험 (40점 만점)
+            const delayScore = Math.min(40, delayedOrders.length * 3 + severity.severe * 5);
+            score += delayScore;
+
+            // 병목 위험 (30점 만점)
+            const bottleneckScore = bottleneck.completionRate < 50 ? 30 :
+                                    bottleneck.completionRate < 70 ? 20 :
+                                    bottleneck.completionRate < 80 ? 10 : 0;
+            score += bottleneckScore;
+
+            // 벤더 위험 (20점 만점)
+            const lowVendors = vendors.filter(v => v.score < 60).length;
+            const vendorScore = Math.min(20, lowVendors * 5);
+            score += vendorScore;
+
+            // 품질 위험 (10점 만점)
+            const qualityScore = aql.passRate >= 98 ? 0 :
+                                 aql.passRate >= 95 ? 5 : 10;
+            score += qualityScore;
+
+            return {
+                total: Math.min(100, score),
+                breakdown: {
+                    delay: delayScore,
+                    bottleneck: bottleneckScore,
+                    vendor: vendorScore,
+                    quality: qualityScore
+                }
+            };
+        }
+
+        function updateRiskScoreDisplay(riskData) {
+            const scoreEl = document.getElementById('riskScore');
+            const levelEl = document.getElementById('riskLevel');
+            const breakdownEl = document.getElementById('riskBreakdown');
+
+            if (!scoreEl) return;
+
+            scoreEl.textContent = riskData.total + '점';
+
+            let level, levelClass;
+            if (riskData.total >= 70) {
+                level = '위험';
+                levelClass = 'bg-red-500 text-white';
+                scoreEl.className = 'text-2xl font-bold text-red-600';
+            } else if (riskData.total >= 40) {
+                level = '주의';
+                levelClass = 'bg-yellow-500 text-white';
+                scoreEl.className = 'text-2xl font-bold text-yellow-600';
+            } else {
+                level = '양호';
+                levelClass = 'bg-green-500 text-white';
+                scoreEl.className = 'text-2xl font-bold text-green-600';
+            }
+
+            levelEl.textContent = level;
+            levelEl.className = `text-xs px-2 py-1 rounded ${levelClass}`;
+
+            breakdownEl.textContent = `지연:${riskData.breakdown.delay} | 병목:${riskData.breakdown.bottleneck} | 벤더:${riskData.breakdown.vendor} | 품질:${riskData.breakdown.quality}`;
         }
 
         // 지연 심각도 도넛 차트
