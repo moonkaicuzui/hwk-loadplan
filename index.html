@@ -193,11 +193,12 @@
                     <div class="text-6xl mb-4">📁</div>
                     <h2 class="text-2xl font-bold text-white mb-2">BAL 엑셀 파일 업로드</h2>
                     <p class="text-blue-200 mb-6">파일을 드래그하거나 클릭하여 선택하세요</p>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden">
                     <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
-                        📂 파일 선택
+                        📂 파일 선택 (다중 선택 가능)
                     </button>
-                    <p class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일)</p>
+                    <p class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일) - 여러 파일 동시 업로드 가능</p>
+                    <div id="fileList" class="mt-4 text-left max-h-32 overflow-y-auto hidden"></div>
                 </div>
 
                 <!-- Loading State -->
@@ -1279,9 +1280,11 @@ function calculateVendorScore(vendor) {
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('border-blue-400', 'bg-white/30');
-                const files = e.dataTransfer.files;
+                const files = Array.from(e.dataTransfer.files).filter(f =>
+                    f.name.endsWith('.xlsx') || f.name.endsWith('.xls')
+                );
                 if (files.length > 0) {
-                    handleFileUpload(files[0]);
+                    handleMultipleFileUpload(files);
                 }
             });
 
@@ -1295,58 +1298,129 @@ function calculateVendorScore(vendor) {
             // 파일 입력 변경
             fileInput.addEventListener('change', (e) => {
                 if (e.target.files.length > 0) {
-                    handleFileUpload(e.target.files[0]);
+                    handleMultipleFileUpload(Array.from(e.target.files));
                 }
             });
         }
 
-        // 파일 업로드 처리
-        function handleFileUpload(file) {
+        // 다중 파일 업로드 처리
+        function handleMultipleFileUpload(files) {
             const uploadContent = document.getElementById('uploadContent');
             const uploadLoading = document.getElementById('uploadLoading');
+            const fileListDiv = document.getElementById('fileList');
+
+            // 파일 목록 표시
+            fileListDiv.innerHTML = files.map((f, i) =>
+                `<div class="flex items-center gap-2 text-blue-200 text-sm py-1">
+                    <span id="fileStatus${i}" class="text-yellow-400">⏳</span>
+                    <span>${escapeHtml(f.name)}</span>
+                    <span class="text-blue-400/60 text-xs">(${(f.size / 1024).toFixed(1)} KB)</span>
+                </div>`
+            ).join('');
+            fileListDiv.classList.remove('hidden');
 
             // 로딩 상태 표시
+            uploadLoading.querySelector('p')?.remove();
+            const loadingText = document.createElement('p');
+            loadingText.className = 'text-blue-200 mt-4';
+            loadingText.textContent = `0 / ${files.length} 파일 처리 중...`;
+            uploadLoading.appendChild(loadingText);
+
             uploadContent.classList.add('hidden');
             uploadLoading.classList.remove('hidden');
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+            let allParsedData = [];
+            let processedCount = 0;
+            let successCount = 0;
+            let errorFiles = [];
 
-                    // BAL 시트 파싱
-                    const parsedData = parseBALWorkbook(workbook, file.name);
+            // 각 파일을 순차적으로 처리
+            function processNextFile(index) {
+                if (index >= files.length) {
+                    // 모든 파일 처리 완료
+                    finishMultipleUpload(allParsedData, successCount, errorFiles, files.length);
+                    return;
+                }
 
-                    if (parsedData.length === 0) {
-                        throw new Error('파싱된 데이터가 없습니다. BAL 파일 형식을 확인해주세요.');
+                const file = files[index];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const parsedData = parseBALWorkbook(workbook, file.name);
+
+                        if (parsedData.length > 0) {
+                            allParsedData = allParsedData.concat(parsedData);
+                            successCount++;
+                            document.getElementById(`fileStatus${index}`).textContent = '✅';
+                            document.getElementById(`fileStatus${index}`).className = 'text-green-400';
+                        } else {
+                            errorFiles.push(file.name + ' (데이터 없음)');
+                            document.getElementById(`fileStatus${index}`).textContent = '⚠️';
+                            document.getElementById(`fileStatus${index}`).className = 'text-yellow-400';
+                        }
+                    } catch (error) {
+                        console.error(`파일 파싱 오류 (${file.name}):`, error);
+                        errorFiles.push(file.name);
+                        document.getElementById(`fileStatus${index}`).textContent = '❌';
+                        document.getElementById(`fileStatus${index}`).className = 'text-red-400';
                     }
 
-                    allData = parsedData;
-                    initApp();
+                    processedCount++;
+                    loadingText.textContent = `${processedCount} / ${files.length} 파일 처리 중...`;
 
-                    // 업로드 오버레이 숨기기
-                    document.getElementById('uploadOverlay').classList.add('hidden');
+                    // 다음 파일 처리
+                    processNextFile(index + 1);
+                };
 
-                    // 성공 알림
-                    showNotification(`✅ ${formatNumber(allData.length)}건 데이터 로드 완료`, 'success');
-                } catch (error) {
-                    console.error('파일 파싱 오류:', error);
-                    showNotification('❌ 파일 파싱 오류: ' + error.message, 'error');
+                reader.onerror = function() {
+                    errorFiles.push(file.name + ' (읽기 오류)');
+                    document.getElementById(`fileStatus${index}`).textContent = '❌';
+                    document.getElementById(`fileStatus${index}`).className = 'text-red-400';
+                    processedCount++;
+                    loadingText.textContent = `${processedCount} / ${files.length} 파일 처리 중...`;
+                    processNextFile(index + 1);
+                };
 
-                    // 업로드 UI 복구
-                    uploadContent.classList.remove('hidden');
-                    uploadLoading.classList.add('hidden');
-                }
-            };
+                reader.readAsArrayBuffer(file);
+            }
 
-            reader.onerror = function() {
-                showNotification('❌ 파일 읽기 오류', 'error');
+            // 첫 번째 파일부터 시작
+            processNextFile(0);
+        }
+
+        // 다중 파일 업로드 완료 처리
+        function finishMultipleUpload(parsedData, successCount, errorFiles, totalFiles) {
+            const uploadContent = document.getElementById('uploadContent');
+            const uploadLoading = document.getElementById('uploadLoading');
+            const fileListDiv = document.getElementById('fileList');
+
+            if (parsedData.length === 0) {
+                showNotification('❌ 파싱된 데이터가 없습니다. BAL 파일 형식을 확인해주세요.', 'error');
                 uploadContent.classList.remove('hidden');
                 uploadLoading.classList.add('hidden');
-            };
+                fileListDiv.classList.add('hidden');
+                return;
+            }
 
-            reader.readAsArrayBuffer(file);
+            allData = parsedData;
+            initApp();
+
+            // 업로드 오버레이 숨기기
+            document.getElementById('uploadOverlay').classList.add('hidden');
+
+            // 결과 알림
+            let message = `✅ ${successCount}개 파일에서 ${formatNumber(allData.length)}건 데이터 로드 완료`;
+            if (errorFiles.length > 0) {
+                message += ` (${errorFiles.length}개 파일 오류)`;
+            }
+            showNotification(message, errorFiles.length > 0 ? 'warning' : 'success');
+
+            // 파일 목록 초기화
+            fileListDiv.innerHTML = '';
+            fileListDiv.classList.add('hidden');
         }
 
         // BAL 워크북 파싱
