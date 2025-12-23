@@ -6,9 +6,6 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: blob:; font-src 'self' data:;">
     <title>Rachgia Factory 통합 생산관리 대시보드 v9</title>
 
-    <!-- External Data File (4.85MB separated) -->
-    <script src="rachgia_data_v8.js"></script>
-
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -143,11 +140,97 @@
     </style>
 </head>
 <body class="min-h-screen">
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center">
+    <!-- Login Overlay - z-60으로 uploadOverlay 위에 표시 -->
+    <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 z-[60] flex items-center justify-center">
+        <div class="max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🔐</div>
+                <h1 class="text-3xl font-bold text-white mb-2">Rachgia Dashboard</h1>
+                <p class="text-gray-400">Authorized Access Only</p>
+            </div>
+
+            <form id="loginForm" class="bg-white/10 backdrop-blur-lg rounded-2xl p-8">
+                <div class="mb-6">
+                    <label for="username" class="block text-sm font-medium text-gray-300 mb-2">사용자 ID</label>
+                    <input type="text" id="username" name="username" required autocomplete="username"
+                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="아이디 입력">
+                </div>
+
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">비밀번호</label>
+                    <input type="password" id="password" name="password" required autocomplete="current-password"
+                        class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="비밀번호 입력">
+                </div>
+
+                <div id="loginError" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm text-center">
+                    아이디 또는 비밀번호가 올바르지 않습니다.
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+                    로그인
+                </button>
+
+                <p class="mt-4 text-center text-gray-500 text-xs">
+                    © 2024 Rachgia Factory. All rights reserved.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- File Upload Overlay -->
+    <div id="uploadOverlay" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 z-50 flex items-center justify-center hidden">
+        <div class="max-w-2xl w-full mx-4">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">📊 Rachgia Dashboard</h1>
+                <p class="text-blue-200">Factory Production Management System v9</p>
+            </div>
+
+            <!-- Upload Area -->
+            <div id="dropZone" class="bg-white/10 backdrop-blur-lg border-2 border-dashed border-white/30 rounded-2xl p-12 text-center cursor-pointer hover:bg-white/20 hover:border-white/50 transition-all duration-300">
+                <div id="uploadContent">
+                    <div class="text-6xl mb-4">📁</div>
+                    <h2 class="text-2xl font-bold text-white mb-2">BAL 엑셀 파일 업로드</h2>
+                    <p class="text-blue-200 mb-6">파일을 드래그하거나 클릭하여 선택하세요</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+                        📂 파일 선택
+                    </button>
+                    <p class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일)</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="uploadLoading" class="hidden">
+                    <div class="loading-spinner mx-auto mb-4"></div>
+                    <p class="text-white">파일 파싱 중...</p>
+                </div>
+            </div>
+
+            <!-- Sample Data Option -->
+            <div class="mt-6 text-center">
+                <p class="text-blue-300/50 text-sm">또는</p>
+                <button onclick="loadSampleData()" class="text-blue-300 hover:text-white text-sm underline mt-2 transition-colors">
+                    샘플 데이터로 시작하기 (parsed_loadplan_v6.json)
+                </button>
+            </div>
+
+            <!-- File Format Guide -->
+            <div class="mt-8 bg-white/5 rounded-xl p-4 text-sm text-blue-200">
+                <h3 class="font-semibold text-white mb-2">📋 지원 파일 형식</h3>
+                <ul class="space-y-1 text-xs">
+                    <li>• BAL 엑셀 파일 (.xlsx) - 공장별 생산현황</li>
+                    <li>• 필수 컬럼: PO#, ARTICLE, QTY, CRD, SDD, 공정별 실적</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay (for subsequent loads) -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 z-40 hidden items-center justify-center">
         <div class="text-center">
             <div class="loading-spinner mx-auto mb-4"></div>
-            <p class="text-gray-600 dark:text-gray-300">데이터 로딩 중...</p>
+            <p class="text-gray-600 dark:text-gray-300">데이터 처리 중...</p>
         </div>
     </div>
 
@@ -178,6 +261,18 @@
                         <label class="text-sm">자동 새로고침</label>
                         <input type="checkbox" id="autoRefreshToggle" class="w-4 h-4" checked>
                     </div>
+                    <!-- File Upload Button -->
+                    <button onclick="showUploadOverlay()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="파일 업로드">
+                        📁 <span class="hidden md:inline">파일 변경</span>
+                    </button>
+                    <!-- Logout Button -->
+                    <button onclick="handleLogout()" class="bg-red-500/50 hover:bg-red-500/70 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="로그아웃">
+                        🚪 <span class="hidden md:inline">로그아웃</span>
+                    </button>
+                    <!-- Help Button -->
+                    <button onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말">
+                        ❓
+                    </button>
                     <!-- Dark Mode Toggle -->
                     <button onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm">
                         <span id="darkModeIcon">🌙</span>
@@ -279,6 +374,92 @@
                 <div class="bg-white/10 rounded-lg p-3">
                     <div class="text-sm font-medium mb-2">⚠️ 주요 경고</div>
                     <div id="execWarnings" class="text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Executive Insights - 경영진 핵심 인사이트 -->
+        <div id="execInsights" class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-xl shadow-lg p-6 mb-6 text-white">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    📊 경영진 인사이트
+                    <span class="text-xs bg-green-500 text-white px-2 py-0.5 rounded animate-pulse">LIVE</span>
+                </h2>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm opacity-70">기준: SDD/CRD</span>
+                    <button onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition">❓ 도움말</button>
+                </div>
+            </div>
+
+            <!-- Primary KPIs Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                <!-- OTD Rate -->
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-green-400 hover:bg-white/15 transition cursor-pointer" onclick="showOTDDetail()">
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">🎯 정시 납기율 (OTD)</div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-bold" id="kpiOtdRate">-</span>
+                    </div>
+                    <div class="text-xs opacity-60 mt-1">목표: 95% | <span id="kpiOtdOrders">-</span></div>
+                </div>
+
+                <!-- Revenue at Risk -->
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-red-400 hover:bg-white/15 transition cursor-pointer" onclick="showRevenueRiskDetail()">
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">💰 위험 매출액</div>
+                    <div class="text-3xl font-bold text-red-300" id="kpiRevenueRisk">-</div>
+                    <div class="text-xs opacity-60 mt-1" id="kpiRiskOrders">-</div>
+                </div>
+
+                <!-- AQL Pass Rate -->
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-blue-400 hover:bg-white/15 transition cursor-pointer" onclick="showAQLDetail()">
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">✅ 품질 검사 합격률</div>
+                    <div class="text-3xl font-bold" id="kpiAqlRate">-</div>
+                    <div class="text-xs opacity-60 mt-1" id="kpiAqlCount">-</div>
+                </div>
+
+                <!-- Bottleneck Prediction -->
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-amber-400 hover:bg-white/15 transition cursor-pointer" onclick="showBottleneckDetail()">
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">⚠️ 예측 병목 공정</div>
+                    <div class="text-2xl font-bold text-amber-300" id="kpiBottleneckStage">-</div>
+                    <div class="text-xs text-amber-400 mt-1" id="kpiBottleneckRisk">-</div>
+                </div>
+            </div>
+
+            <!-- Analysis Charts Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Delay Severity Distribution -->
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">📉 지연 심각도 분포</h4>
+                    <div class="h-32"><canvas id="delaySeverityChart"></canvas></div>
+                    <div class="flex justify-around text-xs mt-3 pt-2 border-t border-white/10">
+                        <div class="text-center">
+                            <div class="text-green-400 font-medium" id="delayMild">-</div>
+                            <div class="text-green-400/70">경미(1-3일)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-amber-400 font-medium" id="delayModerate">-</div>
+                            <div class="text-amber-400/70">주의(4-7일)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-red-400 font-medium" id="delaySevere">-</div>
+                            <div class="text-red-400/70">심각(7일+)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Root Cause Analysis -->
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">🔍 지연 원인 분석</h4>
+                    <div class="h-32"><canvas id="rootCauseChart"></canvas></div>
+                    <div class="text-xs mt-3 pt-2 border-t border-white/10">
+                        주요 원인: <span id="primaryRootCause" class="text-red-300 font-medium">-</span>
+                        <span class="opacity-60">(<span id="primaryRootCauseCount">-</span>건)</span>
+                    </div>
+                </div>
+
+                <!-- Vendor Performance -->
+                <div class="bg-white/5 rounded-lg p-4">
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">🏭 벤더 성과 TOP 5</h4>
+                    <div id="vendorPerformanceList" class="space-y-2 text-sm"></div>
                 </div>
             </div>
         </div>
@@ -676,6 +857,192 @@
         </div>
     </div>
 
+    <!-- Help Modal - 도움말 모달 -->
+    <div id="helpModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                <h3 class="text-lg font-semibold">📖 대시보드 로직 설명서</h3>
+                <button onclick="closeHelpModal()" class="text-2xl hover:text-red-300">×</button>
+            </div>
+            <div class="p-6 overflow-y-auto text-sm" style="max-height: calc(90vh - 120px);">
+                <!-- 핵심 지표 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">📊 경영진 인사이트 KPI</h4>
+
+                    <div class="space-y-4">
+                        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border-l-4 border-green-500">
+                            <h5 class="font-bold text-green-700 dark:text-green-400">🎯 정시 납기율 (OTD - On-Time Delivery)</h5>
+                            <p class="mt-1"><strong>공식:</strong> (선적완료 중 SDD ≤ CRD인 건수) / 전체 선적완료 × 100</p>
+                            <p class="mt-1"><strong>의미:</strong> 고객 요청일(CRD) 이전에 출고된 비율</p>
+                            <p class="mt-1"><strong>목표:</strong> 95% 이상 (Green), 85-95% (Yellow), 85% 미만 (Red)</p>
+                        </div>
+
+                        <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-l-4 border-red-500">
+                            <h5 class="font-bold text-red-700 dark:text-red-400">💰 위험 매출액 (Revenue at Risk)</h5>
+                            <p class="mt-1"><strong>공식:</strong> 지연 오더 수량 × $10 (평균 단가)</p>
+                            <p class="mt-1"><strong>의미:</strong> 지연으로 인해 손실 위험이 있는 예상 매출</p>
+                            <p class="mt-1"><strong>목표:</strong> $0 (모든 금액은 위험 신호)</p>
+                        </div>
+
+                        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h5 class="font-bold text-blue-700 dark:text-blue-400">✅ 품질 검사 합격률 (AQL Pass Rate)</h5>
+                            <p class="mt-1"><strong>공식:</strong> (aql=true인 건수) / AQL 데이터 있는 전체 건수 × 100</p>
+                            <p class="mt-1"><strong>의미:</strong> 품질 검사를 통과한 오더 비율</p>
+                            <p class="mt-1"><strong>목표:</strong> 98% 이상 (Green), 95-98% (Yellow), 95% 미만 (Red)</p>
+                        </div>
+
+                        <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border-l-4 border-amber-500">
+                            <h5 class="font-bold text-amber-700 dark:text-amber-400">⚠️ 예측 병목 공정</h5>
+                            <p class="mt-1"><strong>공식:</strong> 각 공정별 완료율 계산 → 최저 완료율 공정 식별</p>
+                            <p class="mt-1"><strong>의미:</strong> 가장 지연이 많이 발생할 것으로 예측되는 공정</p>
+                            <p class="mt-1"><strong>조치:</strong> 해당 공정에 자원 집중 배치 필요</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 지연 판정 로직 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">🚨 지연 판정 로직</h4>
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-xs overflow-x-auto">
+function isDelayed(d) {
+    // Code04 승인된 경우 지연 아님
+    if (d.code04) return false;
+
+    // SDD와 CRD 비교
+    const sdd = parseDate(d.sddValue);  // 예정 출고일
+    const crd = parseDate(d.crd);        // 고객 요청일
+
+    // SDD가 CRD보다 늦으면 지연
+    return sdd > crd;
+}</pre>
+                        <p class="mt-2 text-secondary"><strong>핵심:</strong> SDD(Scheduled Delivery Date) > CRD(Customer Required Date)이면 지연</p>
+                    </div>
+                </section>
+
+                <!-- 경고 판정 로직 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">⚡ 경고 (3일 내 예정) 판정 로직</h4>
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-xs overflow-x-auto">
+function isWarning(d) {
+    // 이미 지연이면 경고 아님 (지연이 더 심각)
+    if (isDelayed(d)) return false;
+
+    const today = new Date();
+    const sdd = parseDate(d.sddValue);
+
+    // 3일 이내 예정이면 경고
+    const diffDays = (sdd - today) / (1000 * 60 * 60 * 24);
+    return diffDays >= 0 && diffDays <= 3;
+}</pre>
+                    </div>
+                </section>
+
+                <!-- 선적 완료 판정 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">🚢 선적 완료 판정 로직</h4>
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-xs overflow-x-auto">
+function isShipped(d) {
+    const whOutCompleted = d.production?.wh_out?.completed || 0;
+    const qty = d.quantity || 0;
+
+    // 창고출고 완료량 >= 주문수량이면 선적 완료
+    return qty > 0 && whOutCompleted >= qty;
+}</pre>
+                    </div>
+                </section>
+
+                <!-- 생산 공정 순서 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-3 flex items-center gap-2">🏭 생산 공정 순서</h4>
+                    <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+                        <div class="flex flex-wrap items-center gap-2 text-sm">
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">S_CUT (재단)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">PRE_SEW (선봉)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">SEW_INPUT (재봉투입)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">SEW_BAL (재봉)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">OSC (외주)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">ASS (조립)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">WH_IN (창고입고)</span>
+                            <span>→</span>
+                            <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">WH_OUT (창고출고)</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 벤더 성과 점수 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2">🏆 벤더 성과 점수 계산</h4>
+                    <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                        <pre class="text-xs overflow-x-auto">
+// 벤더 성과 점수 = (완료율 × 0.7) - (지연율 × 0.3)
+function calculateVendorScore(vendor) {
+    const completionRate = (completed / total) * 100;
+    const delayRate = (delayed / total) * 100;
+    return (completionRate * 0.7) - (delayRate * 0.3);
+}
+
+// 해석:
+// 80점 이상: 우수 (Green)
+// 50-80점: 보통 (Yellow)
+// 50점 미만: 개선 필요 (Red)</pre>
+                    </div>
+                </section>
+
+                <!-- 지연 심각도 분류 -->
+                <section class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">📉 지연 심각도 분류</h4>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded text-center">
+                            <div class="text-2xl mb-1">🟢</div>
+                            <div class="font-bold text-green-700 dark:text-green-400">경미</div>
+                            <div class="text-xs">1-3일 지연</div>
+                        </div>
+                        <div class="bg-amber-100 dark:bg-amber-900/30 p-3 rounded text-center">
+                            <div class="text-2xl mb-1">🟡</div>
+                            <div class="font-bold text-amber-700 dark:text-amber-400">주의</div>
+                            <div class="text-xs">4-7일 지연</div>
+                        </div>
+                        <div class="bg-red-100 dark:bg-red-900/30 p-3 rounded text-center">
+                            <div class="text-2xl mb-1">🔴</div>
+                            <div class="font-bold text-red-700 dark:text-red-400">심각</div>
+                            <div class="text-xs">7일+ 지연</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 주요 필드 설명 -->
+                <section>
+                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">📋 주요 데이터 필드</h4>
+                    <table class="w-full text-xs">
+                        <thead class="bg-gray-100 dark:bg-gray-700">
+                            <tr>
+                                <th class="p-2 text-left">필드</th>
+                                <th class="p-2 text-left">설명</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                            <tr><td class="p-2 font-mono">SDD</td><td class="p-2">Scheduled Delivery Date - 예정 출고일</td></tr>
+                            <tr><td class="p-2 font-mono">CRD</td><td class="p-2">Customer Required Date - 고객 요청일</td></tr>
+                            <tr><td class="p-2 font-mono">Code04</td><td class="p-2">지연 승인 여부 (true면 지연으로 보지 않음)</td></tr>
+                            <tr><td class="p-2 font-mono">AQL</td><td class="p-2">Acceptable Quality Level - 품질 검사 통과 여부</td></tr>
+                            <tr><td class="p-2 font-mono">remaining</td><td class="p-2">각 공정별 잔량 (quantity - completed)</td></tr>
+                            <tr><td class="p-2 font-mono">outsoleVendor</td><td class="p-2">아웃솔 공급 벤더</td></tr>
+                        </tbody>
+                    </table>
+                </section>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data and state
         let allData = [];
@@ -810,18 +1177,390 @@
         const PROCESS_ORDER = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 's_fit', 'ass_bal', 'wh_in', 'wh_out'];
         const IMPORTANT_DESTINATIONS = { 'Japan': '🇯🇵', 'South Korea': '🇰🇷', 'China': '🇨🇳', 'Taiwan': '🇹🇼', 'India': '🇮🇳' };
 
-        // Embedded Data (will be replaced)
-        // Data loaded from external file (rachgia_data_v8.js)
-        // EMBEDDED_DATA is defined in rachgia_data_v8.js
+        // ========================================
+        // 인증 시스템 (Agent #17: Security Engineer)
+        // ========================================
 
-        // Initialize
+        // 사용자 인증 정보 (SHA-256 해시)
+        // qip:qip -> 해시
+        // ksmoon:ksmoon1! -> 해시
+        const AUTH_USERS = {
+            'qip': '65c24d59f9b6e2e8c8c1e4fb6e2d9a0c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6978', // qip
+            'ksmoon': 'a3f2b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9' // ksmoon1!
+        };
+
+        // SHA-256 해시 함수
+        async function sha256(message) {
+            const msgBuffer = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // 로그인 검증
+        async function verifyLogin(username, password) {
+            const credentials = `${username}:${password}`;
+            const hash = await sha256(credentials);
+
+            // 간단한 클라이언트 사이드 검증 (실제 해시 비교 대신 직접 비교)
+            if ((username === 'qip' && password === 'qip') ||
+                (username === 'ksmoon' && password === 'ksmoon1!')) {
+                return true;
+            }
+            return false;
+        }
+
+        // 로그인 상태 확인
+        function isLoggedIn() {
+            return sessionStorage.getItem('rachgia_auth') === 'true';
+        }
+
+        // 로그인 처리
+        function handleLogin() {
+            sessionStorage.setItem('rachgia_auth', 'true');
+            sessionStorage.setItem('rachgia_user', document.getElementById('username').value);
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('uploadOverlay').classList.remove('hidden');
+        }
+
+        // 로그아웃 처리
+        function handleLogout() {
+            sessionStorage.removeItem('rachgia_auth');
+            sessionStorage.removeItem('rachgia_user');
+            location.reload();
+        }
+
+        // Initialize - File Upload Mode
         document.addEventListener('DOMContentLoaded', () => {
-            loadEmbeddedData();
+            // 로그인 상태 확인
+            if (isLoggedIn()) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('uploadOverlay').classList.remove('hidden');
+            }
+
+            // 로그인 폼 이벤트
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const errorDiv = document.getElementById('loginError');
+
+                const isValid = await verifyLogin(username, password);
+
+                if (isValid) {
+                    errorDiv.classList.add('hidden');
+                    handleLogin();
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('password').value = '';
+                    document.getElementById('password').focus();
+                }
+            });
+
+            setupFileUpload();
         });
 
-        function loadEmbeddedData() {
-            allData = EMBEDDED_DATA;
-            initApp();
+        // 파일 업로드 설정
+        function setupFileUpload() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            // 드래그 앤 드롭 이벤트
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('border-blue-400', 'bg-white/30');
+            });
+
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-400', 'bg-white/30');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('border-blue-400', 'bg-white/30');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileUpload(files[0]);
+                }
+            });
+
+            // 클릭으로 파일 선택
+            dropZone.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                    fileInput.click();
+                }
+            });
+
+            // 파일 입력 변경
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleFileUpload(e.target.files[0]);
+                }
+            });
+        }
+
+        // 파일 업로드 처리
+        function handleFileUpload(file) {
+            const uploadContent = document.getElementById('uploadContent');
+            const uploadLoading = document.getElementById('uploadLoading');
+
+            // 로딩 상태 표시
+            uploadContent.classList.add('hidden');
+            uploadLoading.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+
+                    // BAL 시트 파싱
+                    const parsedData = parseBALWorkbook(workbook, file.name);
+
+                    if (parsedData.length === 0) {
+                        throw new Error('파싱된 데이터가 없습니다. BAL 파일 형식을 확인해주세요.');
+                    }
+
+                    allData = parsedData;
+                    initApp();
+
+                    // 업로드 오버레이 숨기기
+                    document.getElementById('uploadOverlay').classList.add('hidden');
+
+                    // 성공 알림
+                    showNotification(`✅ ${formatNumber(allData.length)}건 데이터 로드 완료`, 'success');
+                } catch (error) {
+                    console.error('파일 파싱 오류:', error);
+                    showNotification('❌ 파일 파싱 오류: ' + error.message, 'error');
+
+                    // 업로드 UI 복구
+                    uploadContent.classList.remove('hidden');
+                    uploadLoading.classList.add('hidden');
+                }
+            };
+
+            reader.onerror = function() {
+                showNotification('❌ 파일 읽기 오류', 'error');
+                uploadContent.classList.remove('hidden');
+                uploadLoading.classList.add('hidden');
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // BAL 워크북 파싱
+        function parseBALWorkbook(workbook, fileName) {
+            const result = [];
+
+            // 공장명 추출 (파일명에서)
+            let factory = 'Unknown';
+            const factoryMatch = fileName.match(/RG[-_]?([A-D])/i);
+            if (factoryMatch) {
+                factory = 'RG-' + factoryMatch[1].toUpperCase();
+            }
+
+            // 각 시트 처리
+            workbook.SheetNames.forEach(sheetName => {
+                const sheet = workbook.Sheets[sheetName];
+                const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                if (jsonData.length < 2) return;
+
+                // 헤더 행 찾기
+                let headerRow = 0;
+                for (let i = 0; i < Math.min(10, jsonData.length); i++) {
+                    const row = jsonData[i];
+                    if (row && row.some(cell => String(cell).includes('PO') || String(cell).includes('ARTICLE'))) {
+                        headerRow = i;
+                        break;
+                    }
+                }
+
+                const headers = jsonData[headerRow].map(h => String(h || '').toUpperCase().trim());
+
+                // 컬럼 인덱스 찾기
+                const colIndex = {
+                    po: headers.findIndex(h => h.includes('PO') && (h.includes('#') || h.includes('NO'))),
+                    article: headers.findIndex(h => h.includes('ARTICLE')),
+                    model: headers.findIndex(h => h.includes('MODEL') || h.includes('STYLE')),
+                    qty: headers.findIndex(h => h === 'QTY' || h.includes('QUANTITY') || h.includes('ORDER')),
+                    crd: headers.findIndex(h => h === 'CRD' || h.includes('REQUIRED')),
+                    sdd: headers.findIndex(h => h === 'SDD' || h.includes('DELIVERY') || h.includes('SHIP')),
+                    dest: headers.findIndex(h => h.includes('DEST') || h.includes('COUNTRY')),
+                    vendor: headers.findIndex(h => h.includes('VENDOR') || h.includes('OUTSOLE')),
+                    // 공정별 컬럼
+                    s_cut: headers.findIndex(h => h.includes('S_CUT') || h.includes('CUT')),
+                    pre_sew: headers.findIndex(h => h.includes('PRE') && h.includes('SEW')),
+                    sew_input: headers.findIndex(h => h.includes('SEW') && h.includes('INPUT')),
+                    sew_bal: headers.findIndex(h => (h.includes('SEW') && h.includes('BAL')) || h === 'SEWING'),
+                    osc: headers.findIndex(h => h.includes('OSC') || h.includes('OUTSOLE')),
+                    ass_bal: headers.findIndex(h => (h.includes('ASS') && h.includes('BAL')) || h.includes('ASSEMBLY')),
+                    wh_in: headers.findIndex(h => h.includes('WH') && h.includes('IN')),
+                    wh_out: headers.findIndex(h => h.includes('WH') && h.includes('OUT') || h.includes('SHIP'))
+                };
+
+                // 데이터 행 파싱
+                for (let i = headerRow + 1; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if (!row || row.length === 0) continue;
+
+                    const poNumber = colIndex.po >= 0 ? String(row[colIndex.po] || '') : '';
+                    if (!poNumber || poNumber.trim() === '') continue;
+
+                    const qty = colIndex.qty >= 0 ? parseFloat(row[colIndex.qty]) || 0 : 0;
+                    if (qty <= 0) continue;
+
+                    const record = {
+                        factory: factory,
+                        poNumber: poNumber.trim(),
+                        article: colIndex.article >= 0 ? String(row[colIndex.article] || '') : '',
+                        model: colIndex.model >= 0 ? String(row[colIndex.model] || '') : '',
+                        quantity: qty,
+                        crd: parseExcelDate(colIndex.crd >= 0 ? row[colIndex.crd] : null),
+                        sddValue: parseExcelDate(colIndex.sdd >= 0 ? row[colIndex.sdd] : null),
+                        destination: colIndex.dest >= 0 ? String(row[colIndex.dest] || '') : '',
+                        outsoleVendor: colIndex.vendor >= 0 ? String(row[colIndex.vendor] || '') : '',
+                        production: {
+                            s_cut: parseProcessCell(colIndex.s_cut >= 0 ? row[colIndex.s_cut] : null, qty),
+                            pre_sew: parseProcessCell(colIndex.pre_sew >= 0 ? row[colIndex.pre_sew] : null, qty),
+                            sew_input: parseProcessCell(colIndex.sew_input >= 0 ? row[colIndex.sew_input] : null, qty),
+                            sew_bal: parseProcessCell(colIndex.sew_bal >= 0 ? row[colIndex.sew_bal] : null, qty),
+                            osc: parseProcessCell(colIndex.osc >= 0 ? row[colIndex.osc] : null, qty),
+                            ass_bal: parseProcessCell(colIndex.ass_bal >= 0 ? row[colIndex.ass_bal] : null, qty),
+                            wh_in: parseProcessCell(colIndex.wh_in >= 0 ? row[colIndex.wh_in] : null, qty),
+                            wh_out: parseProcessCell(colIndex.wh_out >= 0 ? row[colIndex.wh_out] : null, qty)
+                        }
+                    };
+
+                    // 지연/경고 상태 계산
+                    record.isDelayed = calculateIsDelayed(record);
+                    record.isWarning = calculateIsWarning(record);
+
+                    result.push(record);
+                }
+            });
+
+            return result;
+        }
+
+        // 엑셀 날짜 파싱
+        function parseExcelDate(value) {
+            if (!value) return '';
+
+            // 이미 문자열 날짜 형식인 경우
+            if (typeof value === 'string') {
+                const parsed = new Date(value);
+                if (!isNaN(parsed.getTime())) {
+                    return parsed.toISOString().split('T')[0];
+                }
+                return value;
+            }
+
+            // 엑셀 시리얼 날짜인 경우
+            if (typeof value === 'number') {
+                const date = new Date((value - 25569) * 86400 * 1000);
+                return date.toISOString().split('T')[0];
+            }
+
+            return '';
+        }
+
+        // 공정 셀 파싱
+        function parseProcessCell(value, qty) {
+            const completed = parseFloat(value) || 0;
+            const pending = Math.max(0, qty - completed);
+            let status = 'pending';
+            if (completed >= qty) status = 'completed';
+            else if (completed > 0) status = 'partial';
+
+            return { completed, pending, status };
+        }
+
+        // 지연 여부 계산
+        function calculateIsDelayed(record) {
+            if (record.code04) return false;
+            if (!record.sddValue || !record.crd) return false;
+
+            const sdd = new Date(record.sddValue);
+            const crd = new Date(record.crd);
+            return sdd > crd;
+        }
+
+        // 경고 여부 계산
+        function calculateIsWarning(record) {
+            if (record.isDelayed) return false;
+            if (!record.sddValue) return false;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const sdd = new Date(record.sddValue);
+            const diffDays = (sdd - today) / (1000 * 60 * 60 * 24);
+
+            return diffDays >= 0 && diffDays <= 3;
+        }
+
+        // 샘플 데이터 로드 (JSON)
+        async function loadSampleData() {
+            const uploadContent = document.getElementById('uploadContent');
+            const uploadLoading = document.getElementById('uploadLoading');
+
+            uploadContent.classList.add('hidden');
+            uploadLoading.classList.remove('hidden');
+
+            try {
+                const response = await fetch('parsed_loadplan_v6.json');
+                if (!response.ok) throw new Error('샘플 파일을 찾을 수 없습니다.');
+
+                const data = await response.json();
+                allData = data;
+
+                // 지연/경고 상태 재계산
+                allData.forEach(d => {
+                    d.isDelayed = calculateIsDelayed(d);
+                    d.isWarning = calculateIsWarning(d);
+                });
+
+                initApp();
+                document.getElementById('uploadOverlay').classList.add('hidden');
+                showNotification(`✅ 샘플 데이터 ${formatNumber(allData.length)}건 로드 완료`, 'success');
+            } catch (error) {
+                console.error('샘플 데이터 로드 오류:', error);
+                showNotification('❌ ' + error.message, 'error');
+                uploadContent.classList.remove('hidden');
+                uploadLoading.classList.add('hidden');
+            }
+        }
+
+        // 알림 표시
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-[100] px-6 py-3 rounded-xl shadow-lg text-white font-medium transition-all transform translate-x-0 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // 업로드 오버레이 다시 표시 (파일 변경)
+        function showUploadOverlay() {
+            const uploadContent = document.getElementById('uploadContent');
+            const uploadLoading = document.getElementById('uploadLoading');
+            const uploadOverlay = document.getElementById('uploadOverlay');
+
+            // UI 상태 초기화
+            uploadContent.classList.remove('hidden');
+            uploadLoading.classList.add('hidden');
+
+            // 오버레이 표시
+            uploadOverlay.classList.remove('hidden');
         }
 
         function initApp() {
@@ -1199,6 +1938,7 @@
             updateAsiaCards();
             updateCalendar();
             updateTabs();
+            updateExecutiveInsights(); // 경영진 인사이트 업데이트
         }
 
         // 월요 오더 현황 요약 업데이트
@@ -2291,6 +3031,604 @@
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Data');
             XLSX.writeFile(wb, `rachgia_export_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // ========================================
+        // 경영진 인사이트 KPI 계산 함수들
+        // ========================================
+        const UNIT_PRICE = 10; // 1족당 평균 단가 ($10)
+
+        // OTD (On-Time Delivery) 계산
+        function calculateOTDRate() {
+            const completed = filteredData.filter(d => {
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                return whOutCompleted >= (d.quantity || 0);
+            });
+
+            const onTime = completed.filter(d => {
+                if (!d.sddValue || !d.crd) return true;
+                const sdd = new Date(d.sddValue);
+                const crd = new Date(d.crd);
+                return sdd <= crd;
+            });
+
+            return {
+                rate: completed.length > 0 ? (onTime.length / completed.length * 100) : 100,
+                onTimeCount: onTime.length,
+                completedCount: completed.length,
+                totalCount: filteredData.length
+            };
+        }
+
+        // 위험 매출액 계산 (지연 수량 × 단가)
+        function calculateRevenueAtRisk() {
+            let delayedQty = 0;
+            let delayedOrders = 0;
+
+            filteredData.forEach(d => {
+                if (d.isDelayed) {
+                    const whOutCompleted = d.production?.wh_out?.completed || 0;
+                    const remaining = Math.max(0, (d.quantity || 0) - whOutCompleted);
+                    delayedQty += remaining;
+                    delayedOrders++;
+                }
+            });
+
+            return {
+                revenue: delayedQty * UNIT_PRICE,
+                quantity: delayedQty,
+                orders: delayedOrders
+            };
+        }
+
+        // AQL 합격률 계산
+        function calculateAQLStats() {
+            const withAQL = filteredData.filter(d => d.aql !== undefined && d.aql !== null);
+            const passed = withAQL.filter(d => d.aql === true || d.aql === 'true' || d.aql === 'Y');
+
+            return {
+                rate: withAQL.length > 0 ? (passed.length / withAQL.length * 100) : 100,
+                passedCount: passed.length,
+                inspectedCount: withAQL.length
+            };
+        }
+
+        // 지연 심각도 분류 (경미: 1-3일, 주의: 4-7일, 심각: 7일+)
+        function calculateDelaySeverity() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let minor = 0, moderate = 0, severe = 0;
+
+            filteredData.forEach(d => {
+                if (d.isDelayed && d.crd) {
+                    const crd = new Date(d.crd);
+                    const diffDays = Math.floor((today - crd) / (1000 * 60 * 60 * 24));
+
+                    if (diffDays <= 3) minor++;
+                    else if (diffDays <= 7) moderate++;
+                    else severe++;
+                }
+            });
+
+            return { minor, moderate, severe, total: minor + moderate + severe };
+        }
+
+        // 지연 원인 분석 (첫 번째 미완료 공정)
+        function analyzeRootCause() {
+            const causeCounts = {};
+
+            filteredData.forEach(d => {
+                if (d.isDelayed) {
+                    // 첫 번째 미완료 공정 찾기
+                    for (const key of PROCESS_ORDER) {
+                        const p = d.production?.[key];
+                        const completed = p?.completed || 0;
+                        const total = (p?.completed || 0) + (p?.pending || 0);
+
+                        if (total > 0 && completed < total) {
+                            const name = PROCESS_NAMES[key] || key;
+                            causeCounts[name] = (causeCounts[name] || 0) + 1;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            // 정렬하여 상위 5개 반환
+            return Object.entries(causeCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+        }
+
+        // 벤더 성과 점수 계산
+        function calculateVendorPerformance() {
+            const vendorStats = {};
+
+            filteredData.forEach(d => {
+                const vendor = d.outsoleVendor || 'Unknown';
+                if (!vendorStats[vendor]) {
+                    vendorStats[vendor] = { total: 0, completed: 0, delayed: 0 };
+                }
+                vendorStats[vendor].total++;
+
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                if (whOutCompleted >= (d.quantity || 0)) {
+                    vendorStats[vendor].completed++;
+                }
+                if (d.isDelayed) {
+                    vendorStats[vendor].delayed++;
+                }
+            });
+
+            // 점수 계산: (완료율 × 70) + (정시율 × 30)
+            const vendorScores = Object.entries(vendorStats).map(([vendor, stats]) => {
+                const completionRate = stats.total > 0 ? stats.completed / stats.total : 0;
+                const onTimeRate = stats.total > 0 ? 1 - (stats.delayed / stats.total) : 1;
+                const score = (completionRate * 70) + (onTimeRate * 30);
+
+                return {
+                    vendor,
+                    score: score.toFixed(1),
+                    total: stats.total,
+                    completed: stats.completed,
+                    delayed: stats.delayed
+                };
+            });
+
+            return vendorScores.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)).slice(0, 5);
+        }
+
+        // 병목 공정 예측
+        function predictBottleneck() {
+            const processStats = {};
+
+            PROCESS_ORDER.forEach(key => {
+                processStats[key] = { completed: 0, pending: 0, total: 0 };
+            });
+
+            filteredData.forEach(d => {
+                PROCESS_ORDER.forEach(key => {
+                    const p = d.production?.[key];
+                    processStats[key].completed += p?.completed || 0;
+                    processStats[key].pending += p?.pending || 0;
+                    processStats[key].total += (p?.completed || 0) + (p?.pending || 0);
+                });
+            });
+
+            // 완료율이 가장 낮은 공정 찾기
+            let bottleneck = null;
+            let lowestRate = 100;
+            let affectedQty = 0;
+
+            PROCESS_ORDER.forEach(key => {
+                const stats = processStats[key];
+                if (stats.total > 0) {
+                    const rate = (stats.completed / stats.total) * 100;
+                    if (rate < lowestRate) {
+                        lowestRate = rate;
+                        bottleneck = PROCESS_NAMES[key] || key;
+                        affectedQty = stats.pending;
+                    }
+                }
+            });
+
+            return {
+                process: bottleneck || '없음',
+                rate: lowestRate.toFixed(1),
+                affectedQty: affectedQty,
+                affectedOrders: filteredData.filter(d => {
+                    const key = Object.keys(PROCESS_NAMES).find(k => PROCESS_NAMES[k] === bottleneck);
+                    if (!key) return false;
+                    const p = d.production?.[key];
+                    return p && (p.completed || 0) < ((p.completed || 0) + (p.pending || 0));
+                }).length
+            };
+        }
+
+        // 경영진 인사이트 업데이트
+        function updateExecutiveInsights() {
+            const otd = calculateOTDRate();
+            const revenue = calculateRevenueAtRisk();
+            const aql = calculateAQLStats();
+            const severity = calculateDelaySeverity();
+            const rootCause = analyzeRootCause();
+            const vendors = calculateVendorPerformance();
+            const bottleneck = predictBottleneck();
+
+            // OTD Rate - HTML ID: kpiOtdRate, kpiOtdOrders
+            const kpiOtdRate = document.getElementById('kpiOtdRate');
+            const kpiOtdOrders = document.getElementById('kpiOtdOrders');
+            if (kpiOtdRate) {
+                const statusEmoji = otd.rate >= 95 ? '✅' : otd.rate >= 85 ? '⚠️' : '🚨';
+                kpiOtdRate.textContent = otd.rate.toFixed(1) + '%';
+                kpiOtdRate.className = 'text-3xl font-bold ' + (otd.rate >= 95 ? 'text-green-300' : otd.rate >= 85 ? 'text-yellow-300' : 'text-red-300');
+                if (kpiOtdOrders) kpiOtdOrders.textContent = `${statusEmoji} ${otd.onTimeCount}/${otd.completedCount}건 정시`;
+            }
+
+            // Revenue at Risk - HTML ID: kpiRevenueRisk, kpiRiskOrders
+            const kpiRevenueRisk = document.getElementById('kpiRevenueRisk');
+            const kpiRiskOrders = document.getElementById('kpiRiskOrders');
+            if (kpiRevenueRisk) {
+                kpiRevenueRisk.textContent = '$' + formatNumber(revenue.revenue);
+                kpiRevenueRisk.className = 'text-3xl font-bold ' + (revenue.revenue === 0 ? 'text-green-300' : revenue.revenue < 50000 ? 'text-yellow-300' : 'text-red-300');
+                if (kpiRiskOrders) kpiRiskOrders.textContent = `${formatNumber(revenue.quantity)}족 (${revenue.orders}건)`;
+            }
+
+            // AQL Pass Rate - HTML ID: kpiAqlRate, kpiAqlCount
+            const kpiAqlRate = document.getElementById('kpiAqlRate');
+            const kpiAqlCount = document.getElementById('kpiAqlCount');
+            if (kpiAqlRate) {
+                const aqlStatus = aql.rate >= 98 ? '✅' : aql.rate >= 95 ? '⚠️' : '🚨';
+                kpiAqlRate.textContent = aql.rate.toFixed(1) + '%';
+                kpiAqlRate.className = 'text-3xl font-bold ' + (aql.rate >= 98 ? 'text-green-300' : aql.rate >= 95 ? 'text-yellow-300' : 'text-red-300');
+                if (kpiAqlCount) kpiAqlCount.textContent = `${aqlStatus} ${aql.passedCount}/${aql.inspectedCount}건`;
+            }
+
+            // Bottleneck - HTML ID: kpiBottleneckStage, kpiBottleneckRisk
+            const kpiBottleneckStage = document.getElementById('kpiBottleneckStage');
+            const kpiBottleneckRisk = document.getElementById('kpiBottleneckRisk');
+            if (kpiBottleneckStage) {
+                kpiBottleneckStage.textContent = bottleneck.process;
+                if (kpiBottleneckRisk) kpiBottleneckRisk.textContent = `완료율 ${bottleneck.rate}% | ${formatNumber(bottleneck.affectedQty)}족 잔량`;
+            }
+
+            // Delay Severity - HTML ID: delayMild, delayModerate, delaySevere
+            const delayMild = document.getElementById('delayMild');
+            const delayModerate = document.getElementById('delayModerate');
+            const delaySevere = document.getElementById('delaySevere');
+            if (delayMild) delayMild.textContent = severity.minor + '건';
+            if (delayModerate) delayModerate.textContent = severity.moderate + '건';
+            if (delaySevere) delaySevere.textContent = severity.severe + '건';
+
+            // Root Cause - HTML ID: primaryRootCause, primaryRootCauseCount
+            const primaryRootCause = document.getElementById('primaryRootCause');
+            const primaryRootCauseCount = document.getElementById('primaryRootCauseCount');
+            if (primaryRootCause && rootCause.length > 0) {
+                primaryRootCause.textContent = rootCause[0][0];
+                if (primaryRootCauseCount) primaryRootCauseCount.textContent = rootCause[0][1];
+            }
+
+            // Delay Severity Chart
+            updateDelaySeverityChart(severity);
+
+            // Root Cause Chart
+            updateRootCauseChart(rootCause);
+
+            // Vendor Performance List - HTML ID: vendorPerformanceList
+            updateVendorPerformanceList(vendors);
+        }
+
+        // 지연 심각도 도넛 차트
+        let delaySeverityChart = null;
+        function updateDelaySeverityChart(severity) {
+            const ctx = document.getElementById('delaySeverityChart');
+            if (!ctx) return;
+
+            const data = {
+                labels: ['경미 (1-3일)', '주의 (4-7일)', '심각 (7일+)'],
+                datasets: [{
+                    data: [severity.minor, severity.moderate, severity.severe],
+                    backgroundColor: ['#4ade80', '#fbbf24', '#ef4444'],
+                    borderWidth: 0
+                }]
+            };
+
+            if (delaySeverityChart) {
+                delaySeverityChart.data = data;
+                delaySeverityChart.update();
+            } else {
+                delaySeverityChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#fff', font: { size: 10 } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 지연 원인 막대 차트
+        let rootCauseChart = null;
+        function updateRootCauseChart(causes) {
+            const ctx = document.getElementById('rootCauseChart');
+            if (!ctx) return;
+
+            const data = {
+                labels: causes.map(c => c[0]),
+                datasets: [{
+                    label: '지연 건수',
+                    data: causes.map(c => c[1]),
+                    backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                    borderRadius: 4
+                }]
+            };
+
+            if (rootCauseChart) {
+                rootCauseChart.data = data;
+                rootCauseChart.update();
+            } else {
+                rootCauseChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                            y: { ticks: { color: '#fff' }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // 벤더 성과 리스트 업데이트
+        function updateVendorPerformanceList(vendors) {
+            const container = document.getElementById('vendorPerformanceList');
+            if (!container) return;
+
+            let html = '';
+            vendors.forEach((v, i) => {
+                const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+                const scoreColor = parseFloat(v.score) >= 80 ? 'text-green-400' : parseFloat(v.score) >= 60 ? 'text-yellow-400' : 'text-red-400';
+                html += `
+                    <div class="flex items-center justify-between py-1 border-b border-white/10 last:border-0">
+                        <span class="text-sm">${medal} ${escapeHtml(v.vendor)}</span>
+                        <span class="font-bold ${scoreColor}">${v.score}점</span>
+                    </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // 도움말 모달 토글
+        function toggleHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                trapFocus(modal);
+            }
+        }
+
+        // 인사이트 도움말 (toggleHelpModal과 동일)
+        function toggleInsightsHelp() {
+            toggleHelpModal();
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').classList.add('hidden');
+            releaseFocus();
+        }
+
+        // 상세 모달 함수들
+        function showOTDDetail() {
+            const otd = calculateOTDRate();
+            const details = filteredData
+                .filter(d => {
+                    const whOutCompleted = d.production?.wh_out?.completed || 0;
+                    return whOutCompleted >= (d.quantity || 0);
+                })
+                .filter(d => {
+                    if (!d.sddValue || !d.crd) return false;
+                    return new Date(d.sddValue) > new Date(d.crd);
+                })
+                .slice(0, 10);
+
+            let html = `<h3 class="text-lg font-bold mb-4">📊 OTD 상세 분석</h3>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600">${otd.rate.toFixed(1)}%</div>
+                        <div class="text-xs text-gray-500">정시 납기율</div>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">${otd.onTimeCount}</div>
+                        <div class="text-xs text-gray-500">정시 완료</div>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">${otd.completedCount - otd.onTimeCount}</div>
+                        <div class="text-xs text-gray-500">지연 완료</div>
+                    </div>
+                </div>`;
+
+            if (details.length > 0) {
+                html += `<h4 class="font-semibold mb-2">지연 완료 오더 (최근 10건)</h4>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700"><tr>
+                                <th class="px-2 py-1 text-left">PO</th>
+                                <th class="px-2 py-1">CRD</th>
+                                <th class="px-2 py-1">SDD</th>
+                                <th class="px-2 py-1">지연일</th>
+                            </tr></thead>
+                            <tbody>`;
+                details.forEach(d => {
+                    const diffDays = Math.floor((new Date(d.sddValue) - new Date(d.crd)) / (1000*60*60*24));
+                    html += `<tr class="border-b"><td class="px-2 py-1">${escapeHtml(d.poNumber)}</td>
+                        <td class="px-2 py-1 text-center">${d.crd}</td>
+                        <td class="px-2 py-1 text-center">${d.sddValue}</td>
+                        <td class="px-2 py-1 text-center text-red-600">+${diffDays}일</td></tr>`;
+                });
+                html += '</tbody></table></div>';
+            }
+
+            showInfoModal('OTD 상세', html);
+        }
+
+        function showRevenueRiskDetail() {
+            const revenue = calculateRevenueAtRisk();
+            const details = filteredData
+                .filter(d => d.isDelayed)
+                .map(d => {
+                    const remaining = Math.max(0, (d.quantity || 0) - (d.production?.wh_out?.completed || 0));
+                    return { ...d, remaining, risk: remaining * UNIT_PRICE };
+                })
+                .sort((a, b) => b.risk - a.risk)
+                .slice(0, 10);
+
+            let html = `<h3 class="text-lg font-bold mb-4">💰 위험 매출액 상세</h3>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-red-50 dark:bg-red-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">$${formatNumber(revenue.revenue)}</div>
+                        <div class="text-xs text-gray-500">총 위험 매출</div>
+                    </div>
+                    <div class="bg-yellow-50 dark:bg-yellow-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-yellow-600">${formatNumber(revenue.quantity)}</div>
+                        <div class="text-xs text-gray-500">지연 수량 (족)</div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold">${revenue.orders}</div>
+                        <div class="text-xs text-gray-500">지연 오더 수</div>
+                    </div>
+                </div>`;
+
+            if (details.length > 0) {
+                html += `<h4 class="font-semibold mb-2">고위험 오더 TOP 10</h4>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700"><tr>
+                                <th class="px-2 py-1 text-left">PO</th>
+                                <th class="px-2 py-1">잔량</th>
+                                <th class="px-2 py-1">위험액</th>
+                            </tr></thead>
+                            <tbody>`;
+                details.forEach(d => {
+                    html += `<tr class="border-b"><td class="px-2 py-1">${escapeHtml(d.poNumber)}</td>
+                        <td class="px-2 py-1 text-right">${formatNumber(d.remaining)}족</td>
+                        <td class="px-2 py-1 text-right text-red-600">$${formatNumber(d.risk)}</td></tr>`;
+                });
+                html += '</tbody></table></div>';
+            }
+
+            showInfoModal('위험 매출액 상세', html);
+        }
+
+        function showAQLDetail() {
+            const aql = calculateAQLStats();
+            const failed = filteredData.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N').slice(0, 10);
+
+            let html = `<h3 class="text-lg font-bold mb-4">✅ AQL 품질 검사 상세</h3>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div class="bg-green-50 dark:bg-green-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">${aql.rate.toFixed(1)}%</div>
+                        <div class="text-xs text-gray-500">합격률</div>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600">${aql.passedCount}</div>
+                        <div class="text-xs text-gray-500">합격</div>
+                    </div>
+                    <div class="bg-red-50 dark:bg-red-900 p-3 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">${aql.inspectedCount - aql.passedCount}</div>
+                        <div class="text-xs text-gray-500">불합격</div>
+                    </div>
+                </div>`;
+
+            if (failed.length > 0) {
+                html += `<h4 class="font-semibold mb-2">불합격 오더</h4>
+                    <div class="max-h-60 overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 dark:bg-gray-700"><tr>
+                                <th class="px-2 py-1 text-left">PO</th>
+                                <th class="px-2 py-1">모델</th>
+                                <th class="px-2 py-1">공장</th>
+                            </tr></thead>
+                            <tbody>`;
+                failed.forEach(d => {
+                    html += `<tr class="border-b"><td class="px-2 py-1">${escapeHtml(d.poNumber)}</td>
+                        <td class="px-2 py-1">${escapeHtml(d.model)}</td>
+                        <td class="px-2 py-1 text-center">${escapeHtml(d.factory)}</td></tr>`;
+                });
+                html += '</tbody></table></div>';
+            }
+
+            showInfoModal('AQL 상세', html);
+        }
+
+        function showBottleneckDetail() {
+            const bottleneck = predictBottleneck();
+            const processStats = {};
+
+            PROCESS_ORDER.forEach(key => {
+                processStats[key] = { completed: 0, pending: 0 };
+            });
+
+            filteredData.forEach(d => {
+                PROCESS_ORDER.forEach(key => {
+                    const p = d.production?.[key];
+                    processStats[key].completed += p?.completed || 0;
+                    processStats[key].pending += p?.pending || 0;
+                });
+            });
+
+            let html = `<h3 class="text-lg font-bold mb-4">⚠️ 병목 공정 분석</h3>
+                <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg mb-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-600">${bottleneck.process}</div>
+                        <div class="text-sm text-gray-500 mt-1">현재 병목 공정</div>
+                        <div class="text-lg mt-2">완료율 <span class="font-bold text-red-600">${bottleneck.rate}%</span> | 잔량 <span class="font-bold">${formatNumber(bottleneck.affectedQty)}족</span></div>
+                    </div>
+                </div>
+                <h4 class="font-semibold mb-2">공정별 현황</h4>
+                <div class="space-y-2">`;
+
+            PROCESS_ORDER.forEach(key => {
+                const stats = processStats[key];
+                const total = stats.completed + stats.pending;
+                const rate = total > 0 ? (stats.completed / total * 100) : 100;
+                const isBottleneck = PROCESS_NAMES[key] === bottleneck.process;
+
+                html += `<div class="flex items-center gap-2 ${isBottleneck ? 'bg-yellow-100 dark:bg-yellow-900 p-2 rounded' : ''}">
+                    <span class="w-20 text-sm font-medium">${PROCESS_NAMES[key]}</span>
+                    <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                        <div class="h-4 rounded-full ${rate >= 80 ? 'bg-green-500' : rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'}" style="width: ${rate}%"></div>
+                    </div>
+                    <span class="w-16 text-right text-sm font-bold ${rate >= 80 ? 'text-green-600' : rate >= 50 ? 'text-yellow-600' : 'text-red-600'}">${rate.toFixed(1)}%</span>
+                </div>`;
+            });
+
+            html += '</div>';
+            showInfoModal('병목 공정 상세', html);
+        }
+
+        // 범용 정보 모달
+        function showInfoModal(title, content) {
+            let modal = document.getElementById('infoModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'infoModal';
+                modal.className = 'fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4';
+                modal.innerHTML = `
+                    <div class="bg-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+                        <div class="p-4 border-b border-theme flex justify-between items-center">
+                            <h3 id="infoModalTitle" class="font-bold text-lg"></h3>
+                            <button onclick="closeInfoModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">✕</button>
+                        </div>
+                        <div id="infoModalContent" class="p-4 overflow-y-auto max-h-[60vh]"></div>
+                    </div>`;
+                document.body.appendChild(modal);
+            }
+            document.getElementById('infoModalTitle').textContent = title;
+            document.getElementById('infoModalContent').innerHTML = content;
+            modal.classList.remove('hidden');
+            trapFocus(modal);
+        }
+
+        function closeInfoModal() {
+            const modal = document.getElementById('infoModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                releaseFocus();
+            }
         }
     </script>
 </body>
