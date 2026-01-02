@@ -2177,7 +2177,7 @@ function calculateVendorScore(vendor) {
                 sidebarToggle?.setAttribute('aria-expanded', open.toString());
                 sidebarOverlay?.classList.toggle('active', open);
                 mainContent?.classList.toggle('sidebar-open', open);
-                toggleIcon.textContent = open ? '✕' : '☰';
+                toggleIcon.innerHTML = open ? '<span aria-hidden="true">✕</span>' : '<span aria-hidden="true">☰</span>';
                 // Prevent body scroll when sidebar is open on mobile
                 if (window.innerWidth < 1024) {
                     document.body.style.overflow = open ? 'hidden' : '';
@@ -4383,7 +4383,7 @@ function calculateVendorScore(vendor) {
         function toggleDarkMode() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('darkModeIcon').textContent = isDark ? '☀️' : '🌙';
+            document.getElementById('darkModeIcon').innerHTML = isDark ? '<span aria-hidden="true">☀️</span>' : '<span aria-hidden="true">🌙</span>';
             document.getElementById('darkModeToggle')?.setAttribute('aria-pressed', isDark.toString());
 
             // 차트 색상은 각 차트 생성 시 isDarkMode 체크하여 적용됨
