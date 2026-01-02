@@ -3373,7 +3373,7 @@ function calculateVendorScore(vendor) {
                 const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
                 const isBottleneck = key === bottleneckKey && minRate < 80;
 
-                return `<div class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded ${isBottleneck ? 'ring-2 ring-red-500' : ''}" onclick="showProcessDetail('${key}')">
+                return `<div class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded ${isBottleneck ? 'ring-2 ring-red-500' : ''}" onclick="showProcessDetail('${key}')" role="button" tabindex="0" aria-label="${PROCESS_NAMES[key]} 공정 상세 보기" onkeydown="if(event.key==='Enter')showProcessDetail('${key}')">
                     <div class="w-16 text-sm font-medium">${PROCESS_NAMES[key]}${isBottleneck ? ' 🔴' : ''}</div>
                     <div class="flex-1 progress-bar"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
                     <div class="w-24 text-right text-sm"><span class="font-medium" style="color: ${color}">${rate.toFixed(1)}%</span> <span class="text-secondary">(${formatNumber(data.completed)})</span></div>
@@ -3409,7 +3409,7 @@ function calculateVendorScore(vendor) {
 
             document.getElementById('vendorTableBody').innerHTML = sorted.slice(0, 10).map(([vendor, data]) => {
                 const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
-                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')">
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')" role="button" tabindex="0" aria-label="${vendor} 벤더 상세 보기" onkeydown="if(event.key==='Enter')showVendorDetail('${vendor}')">
                     <td class="px-3 py-2 text-xs">${vendor}</td>
                     <td class="px-3 py-2 text-right">${formatNumber(data.count)}</td>
                     <td class="px-3 py-2 text-right">${formatNumber(data.qty)}</td>
@@ -3431,7 +3431,7 @@ function calculateVendorScore(vendor) {
                 const d = factoryData[f];
                 const rate = d.qty > 0 ? (d.completed / d.qty * 100) : 0;
                 const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
-                return `<div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')">
+                return `<div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')" role="button" tabindex="0" aria-label="Factory ${f} 상세 보기" onkeydown="if(event.key==='Enter')showFactoryDetail('${f}')">
                     <div class="flex justify-between items-center">
                         <span class="font-semibold">Factory ${f}</span>
                         <span class="text-sm font-medium" style="color: ${color}">${rate.toFixed(1)}%</span>
@@ -3487,7 +3487,7 @@ function calculateVendorScore(vendor) {
                 const data = asiaData[country] || { qty: 0, completed: 0, count: 0 };
                 const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
                 const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
-                return `<div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl cursor-pointer hover:shadow-md transition" onclick="showCountryDetail('${country}')">
+                return `<div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-xl cursor-pointer hover:shadow-md transition" onclick="showCountryDetail('${country}')" role="button" tabindex="0" aria-label="${country} 국가 상세 보기" onkeydown="if(event.key==='Enter')showCountryDetail('${country}')">
                     <div class="text-2xl mb-1">${IMPORTANT_DESTINATIONS[country]}</div>
                     <div class="font-medium">${displayNames[country]}</div>
                     <div class="text-sm text-secondary">${formatNumber(data.qty)}족 · ${data.count}건</div>
@@ -3713,7 +3713,7 @@ function calculateVendorScore(vendor) {
                 const totalQty = fData.reduce((sum, d) => sum + (d.quantity || 0), 0);
                 const whInCompleted = fData.reduce((sum, d) => sum + (d.production?.wh_in?.completed || 0), 0);
                 const rate = totalQty > 0 ? (whInCompleted / totalQty * 100) : 0;
-                html += `<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')">
+                html += `<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" onclick="showFactoryDetail('${f}')" role="button" tabindex="0" aria-label="Factory ${f} 공정 상세 보기" onkeydown="if(event.key==='Enter')showFactoryDetail('${f}')">
                     <div class="flex justify-between items-center mb-2"><span class="font-semibold">Factory ${f}</span><span class="text-sm" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}% 완료</span></div>
                     <div class="text-sm text-secondary">${formatNumber(fData.length)}건 · ${formatNumber(totalQty)}족</div>
                 </div>`;
@@ -3749,7 +3749,7 @@ function calculateVendorScore(vendor) {
 
             document.querySelector('#vendorDetailTable tbody').innerHTML = sorted.map(([vendor, data]) => {
                 const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
-                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')">
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" onclick="showVendorDetail('${vendor}')" role="button" tabindex="0" aria-label="${vendor} 벤더 상세 정보" onkeydown="if(event.key==='Enter')showVendorDetail('${vendor}')">
                     <td class="px-3 py-2 text-xs">${vendor}</td>
                     <td class="px-3 py-2 text-right">${formatNumber(data.count)}</td>
                     <td class="px-3 py-2 text-right">${formatNumber(data.qty)}</td>
