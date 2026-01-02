@@ -1238,8 +1238,8 @@
                             <div id="pagination" class="text-sm text-secondary mt-1" aria-live="polite" aria-atomic="true"></div>
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled aria-label="이전 페이지">← 이전</button>
-                            <button type="button" onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn" aria-label="다음 페이지">다음 →</button>
+                            <button type="button" onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="prevBtn" disabled aria-disabled="true" aria-label="이전 페이지">← 이전</button>
+                            <button type="button" onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed" id="nextBtn" aria-disabled="false" aria-label="다음 페이지">다음 →</button>
                             <button type="button" onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium" aria-label="Excel 파일로 내보내기">📥 Excel</button>
                         </div>
                     </div>
@@ -3992,8 +3992,16 @@ function calculateVendorScore(vendor) {
 
             document.getElementById('dataCount').textContent = `(${formatNumber(filteredData.length)}건)`;
             document.getElementById('pagination').textContent = `${currentPage} / ${totalPages} 페이지`;
-            document.getElementById('prevBtn').disabled = currentPage === 1;
-            document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const isPrevDisabled = currentPage === 1;
+            const isNextDisabled = currentPage >= totalPages;
+
+            prevBtn.disabled = isPrevDisabled;
+            prevBtn.setAttribute('aria-disabled', isPrevDisabled.toString());
+            nextBtn.disabled = isNextDisabled;
+            nextBtn.setAttribute('aria-disabled', isNextDisabled.toString());
 
             const getIcon = (status) => {
                 if (status === 'completed') return '✅';
