@@ -1003,9 +1003,9 @@
                 <div class="flex-1 min-w-[280px]">
                     <label class="block text-sm font-medium mb-1" id="dateRangeLabel">📅 날짜 범위 (SDD)</label>
                     <div class="flex items-center gap-2">
-                        <input type="date" id="startDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()">
+                        <input type="date" id="startDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()" aria-label="시작 날짜">
                         <span class="text-secondary">~</span>
-                        <input type="date" id="endDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()">
+                        <input type="date" id="endDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()" aria-label="종료 날짜">
                         <button onclick="clearDateRange()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-2 rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center" title="날짜 초기화" aria-label="날짜 범위 초기화">✕</button>
                     </div>
                 </div>
@@ -1829,7 +1829,7 @@ function calculateVendorScore(vendor) {
                         <div class="text-xs mt-1 opacity-80">${escapeHtml(wp.model || '')} - 재단 공정 시작됨</div>
                         <div class="text-xs mt-2 opacity-60">완료량: ${formatNumber(production.s_cut.completed)}족</div>
                     </div>
-                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-red-200 text-xl ml-2">×</button>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-red-200 text-xl ml-2" aria-label="알림 닫기">×</button>
                 </div>
             `;
             document.body.appendChild(notif);
