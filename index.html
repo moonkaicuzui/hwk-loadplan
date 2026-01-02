@@ -4185,34 +4185,9 @@ function calculateVendorScore(vendor) {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('darkModeIcon').textContent = isDark ? '☀️' : '🌙';
 
-            // 차트 색상 업데이트
-            const textColor = isDark ? '#f9fafb' : '#1f2937';
-            const borderColor = isDark ? '#4b5563' : '#e5e7eb';
-            Chart.defaults.color = textColor;
-            Chart.defaults.borderColor = borderColor;
-
-            // 모든 차트 업데이트 (update('none')으로 애니메이션 없이 빠르게)
-            Object.values(Chart.instances).forEach((instance) => {
-                try {
-                    if (instance.options.scales) {
-                        ['x', 'y', 'r'].forEach(axis => {
-                            if (instance.options.scales[axis]) {
-                                instance.options.scales[axis].ticks = instance.options.scales[axis].ticks || {};
-                                instance.options.scales[axis].ticks.color = textColor;
-                                instance.options.scales[axis].grid = instance.options.scales[axis].grid || {};
-                                instance.options.scales[axis].grid.color = borderColor;
-                            }
-                        });
-                    }
-                    if (instance.options.plugins?.legend?.labels) {
-                        instance.options.plugins.legend.labels.color = textColor;
-                    }
-                    instance.update('none'); // 애니메이션 없이 즉시 업데이트
-                } catch (e) {
-                    console.warn('차트 업데이트 중 오류:', e);
-                }
-            });
-            // updateDashboard() 제거 - 이미 Chart.instances로 모든 차트 업데이트됨
+            // 차트 색상은 각 차트 생성 시 isDarkMode 체크하여 적용됨
+            // 다크모드 전환 시 차트 재생성 없이 CSS만 변경 (성능 최적화)
+            // 차트 텍스트 색상은 Tailwind dark: 클래스로 처리
         }
 
         // Export
