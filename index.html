@@ -4122,8 +4122,8 @@ function calculateVendorScore(vendor) {
             showOrderListModal(`${PROCESS_NAMES[processKey]} 미완료 오더`, incompleteOrders);
         }
 
-        function showDelayedOrders() { showOrderListModal('🚨 지연 오더', allData.filter(isDelayed)); }
-        function showWarningOrders() { showOrderListModal('⚡ 3일 내 예정 (미완료)', allData.filter(isWarning)); }
+        function showDelayedOrders() { showOrderListModal('<span aria-hidden="true">🚨 </span>지연 오더', allData.filter(isDelayed)); }
+        function showWarningOrders() { showOrderListModal('<span aria-hidden="true">⚡ </span>3일 내 예정 (미완료)', allData.filter(isWarning)); }
 
         function showInventoryOrders() {
             const inventory = allData.filter(d => {
@@ -4131,11 +4131,11 @@ function calculateVendorScore(vendor) {
                 const whOut = d.production?.wh_out?.completed || 0;
                 return whIn > whOut;
             });
-            showOrderListModal('📦 창고 재고 오더', inventory);
+            showOrderListModal('<span aria-hidden="true">📦 </span>창고 재고 오더', inventory);
         }
 
         function showShippedOrders() {
-            showOrderListModal('🚢 선적 완료 오더', allData.filter(isShipped));
+            showOrderListModal('<span aria-hidden="true">🚢 </span>선적 완료 오더', allData.filter(isShipped));
         }
 
         function showVendorDetail(vendor) { showOrderListModal(`${vendor} 상세`, filteredData.filter(d => (d.outsoleVendor || '(미지정)') === vendor)); }
@@ -4246,10 +4246,10 @@ function calculateVendorScore(vendor) {
                 <div><div class="text-secondary text-xs">색상</div><div class="font-bold">${d.color || '-'}</div></div>
                 <div><div class="text-secondary text-xs">시즌</div><div class="font-bold">${escapeHtml(d.season) || '-'}</div></div>
                 <div><div class="text-secondary text-xs">단위</div><div class="font-bold">${escapeHtml(d.unit) || '-'}</div></div>
-                <div><div class="text-secondary text-xs">AQL 검사</div><div class="font-bold ${d.aql ? 'text-blue-600' : 'text-gray-400'}">${d.aql ? '✅ 필요' : '불필요'}</div></div>
+                <div><div class="text-secondary text-xs">AQL 검사</div><div class="font-bold ${d.aql ? 'text-blue-600' : 'text-gray-400'}">${d.aql ? '<span aria-hidden="true">✅ </span>필요' : '불필요'}</div></div>
             </div>
 
-            <h4 class="font-semibold mb-3 mt-4">📦 잔량 현황</h4>
+            <h4 class="font-semibold mb-3 mt-4"><span aria-hidden="true">📦 </span>잔량 현황</h4>
             <div class="grid grid-cols-5 gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div class="text-center p-2 rounded ${(d.remaining?.osc || 0) > 0 ? 'bg-yellow-100 dark:bg-yellow-900' : 'bg-green-100 dark:bg-green-900'}">
                     <div class="text-xs text-secondary">외주 잔량</div>
@@ -5195,7 +5195,7 @@ function calculateVendorScore(vendor) {
                 .sort((a, b) => b.risk - a.risk)
                 .slice(0, 10);
 
-            let html = `<h3 class="text-lg font-bold mb-4">💰 위험 매출액 상세</h3>
+            let html = `<h3 class="text-lg font-bold mb-4"><span aria-hidden="true">💰 </span>위험 매출액 상세</h3>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div class="bg-red-50 dark:bg-red-900 p-3 rounded-lg text-center">
                         <div class="text-2xl font-bold text-red-600">$${formatNumber(revenue.revenue)}</div>
