@@ -387,7 +387,7 @@
                 <span class="nav-icon">⭐</span>관심 PO 현황
                 <span id="watchedPoCount" class="ml-auto text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">0</span>
             </div>
-            <div class="nav-item" onclick="openPoRegisterModal()">
+            <div class="nav-item" onclick="openPoRegisterModal()" role="button" tabindex="0" aria-label="관심 PO 등록 모달 열기" onkeydown="if(event.key==='Enter')openPoRegisterModal()">
                 <span class="nav-icon">➕</span>PO 등록하기
             </div>
         </div>
@@ -556,9 +556,9 @@
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">
                     <!-- Date Mode Toggle (SDD/CRD) -->
-                    <div class="date-mode-toggle">
-                        <div class="date-mode-btn active" data-mode="sdd" onclick="setDateMode('sdd')">SDD</div>
-                        <div class="date-mode-btn" data-mode="crd" onclick="setDateMode('crd')">CRD</div>
+                    <div class="date-mode-toggle" role="radiogroup" aria-label="날짜 기준 선택">
+                        <div class="date-mode-btn active" data-mode="sdd" onclick="setDateMode('sdd')" role="radio" aria-checked="true" tabindex="0" onkeydown="if(event.key==='Enter')setDateMode('sdd')">SDD</div>
+                        <div class="date-mode-btn" data-mode="crd" onclick="setDateMode('crd')" role="radio" aria-checked="false" tabindex="0" onkeydown="if(event.key==='Enter')setDateMode('crd')">CRD</div>
                     </div>
                     <!-- Date Range Filter -->
                     <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
@@ -1441,10 +1441,10 @@ function calculateVendorScore(vendor) {
             </div>
             <div class="p-6">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium mb-2">PO 번호 입력</label>
+                    <label for="poRegisterInput" class="block text-sm font-medium mb-2">PO 번호 입력</label>
                     <input type="text" id="poRegisterInput"
                         class="w-full px-4 py-3 border border-theme rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
-                        placeholder="예: 4501234567">
+                        placeholder="예: 4501234567" aria-describedby="poRegisterHint">
                     <div id="poRegisterHint" class="mt-2 text-sm text-gray-500"></div>
                 </div>
 
