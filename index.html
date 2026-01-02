@@ -3906,7 +3906,7 @@ function calculateVendorScore(vendor) {
                 const delayed = isDelayed(d);
                 const warning = isWarning(d);
                 const rowClass = shipped ? 'shipped-highlight' : delayed ? 'delay-highlight' : warning ? 'warning-highlight' : '';
-                return `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="showOrderProcessDetail(${filteredData.indexOf(d)})">
+                return `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="showOrderProcessDetail(${filteredData.indexOf(d)})" role="button" tabindex="0" aria-label="${escapeHtml(d.poNumber)} 오더 상세 보기" onkeydown="if(event.key==='Enter')showOrderProcessDetail(${filteredData.indexOf(d)})">
                     <td class="px-2 py-2">${d.factory}</td>
                     <td class="px-2 py-2 text-xs">${escapeHtml(d.poNumber) || '-'}</td>
                     <td class="px-2 py-2 text-xs">${escapeHtml(d.model) || '-'}</td>
@@ -4006,7 +4006,7 @@ function calculateVendorScore(vendor) {
                 const warning = isWarning(d);
                 const rowClass = shipped ? 'shipped-highlight' : delayed ? 'delay-highlight' : warning ? 'warning-highlight' : '';
                 const globalIndex = allData.indexOf(d);
-                html += `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="closeOrderModal(); showOrderProcessDetail(${globalIndex})">
+                html += `<tr class="border-b border-theme ${rowClass} clickable-row" onclick="closeOrderModal(); showOrderProcessDetail(${globalIndex})" role="button" tabindex="0" aria-label="${escapeHtml(d.poNumber)} 오더 상세 보기" onkeydown="if(event.key==='Enter'){closeOrderModal(); showOrderProcessDetail(${globalIndex})}">
                     <td class="px-2 py-2">${d.factory}</td>
                     <td class="px-2 py-2 text-xs">${escapeHtml(d.poNumber) || '-'}</td>
                     <td class="px-2 py-2 text-xs">${escapeHtml(d.model) || '-'}</td>
