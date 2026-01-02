@@ -1687,7 +1687,7 @@ function calculateVendorScore(vendor) {
 
                 if (alreadyRegistered) {
                     notFound.classList.remove('hidden');
-                    notFound.innerHTML = '<div class="text-sm font-medium text-amber-600 dark:text-amber-400">⚠️ 이미 등록된 PO입니다</div>';
+                    notFound.innerHTML = '<div class="text-sm font-medium text-amber-600 dark:text-amber-400"><span aria-hidden="true">⚠️ </span>이미 등록된 PO입니다</div>';
                     preview.classList.add('hidden');
                     submitBtn.disabled = true;
                     return;
@@ -1712,7 +1712,7 @@ function calculateVendorScore(vendor) {
                 preview.classList.add('hidden');
                 notFound.classList.remove('hidden');
                 notFound.innerHTML = `
-                    <div class="text-sm font-medium text-red-600 dark:text-red-400">❌ 해당 PO를 찾을 수 없습니다</div>
+                    <div class="text-sm font-medium text-red-600 dark:text-red-400"><span aria-hidden="true">❌ </span>해당 PO를 찾을 수 없습니다</div>
                     <div class="text-xs text-gray-500 mt-1">업로드된 데이터에서 PO 번호를 확인해주세요</div>
                 `;
                 submitBtn.disabled = true;
@@ -1755,7 +1755,7 @@ function calculateVendorScore(vendor) {
             closePoRegisterModal();
 
             // Show success message
-            showToast(`✅ PO ${escapeHtml(firstMatch.poNumber)} 등록 완료`);
+            showToast(`<span aria-hidden="true">✅ </span>PO ${escapeHtml(firstMatch.poNumber)} 등록 완료`);
         }
 
         // Remove a watched PO
@@ -1970,11 +1970,11 @@ function calculateVendorScore(vendor) {
             const wp = watchedPos.find(w => w.poNumber === poNumber);
 
             if (matches.length === 0) {
-                showErrorToast('❌ PO 데이터를 찾을 수 없습니다.');
+                showErrorToast('<span aria-hidden="true">❌ </span>PO 데이터를 찾을 수 없습니다.');
                 return;
             }
 
-            document.getElementById('watchedPoDetailTitle').textContent = `⭐ PO ${poNumber} 상세 현황`;
+            document.getElementById('watchedPoDetailTitle').innerHTML = `<span aria-hidden="true">⭐ </span>PO ${escapeHtml(poNumber)} 상세 현황`;
 
             // Aggregate data
             const totalQty = matches.reduce((sum, d) => sum + (d.quantity || 0), 0);
@@ -2614,18 +2614,21 @@ function calculateVendorScore(vendor) {
                         if (parsedData.length > 0) {
                             allParsedData = allParsedData.concat(parsedData);
                             successCount++;
-                            document.getElementById(`fileStatus${index}`).textContent = '✅';
+                            document.getElementById(`fileStatus${index}`).innerHTML = '<span aria-hidden="true">✅</span>';
                             document.getElementById(`fileStatus${index}`).className = 'text-green-400';
+                            document.getElementById(`fileStatus${index}`).setAttribute('aria-label', '성공');
                         } else {
                             errorFiles.push(file.name + ' (데이터 없음)');
-                            document.getElementById(`fileStatus${index}`).textContent = '⚠️';
+                            document.getElementById(`fileStatus${index}`).innerHTML = '<span aria-hidden="true">⚠️</span>';
                             document.getElementById(`fileStatus${index}`).className = 'text-yellow-400';
+                            document.getElementById(`fileStatus${index}`).setAttribute('aria-label', '경고');
                         }
                     } catch (error) {
                         console.error(`파일 파싱 오류 (${file.name}):`, error);
                         errorFiles.push(file.name);
-                        document.getElementById(`fileStatus${index}`).textContent = '❌';
+                        document.getElementById(`fileStatus${index}`).innerHTML = '<span aria-hidden="true">❌</span>';
                         document.getElementById(`fileStatus${index}`).className = 'text-red-400';
+                        document.getElementById(`fileStatus${index}`).setAttribute('aria-label', '오류');
                     }
 
                     processedCount++;
@@ -2637,8 +2640,9 @@ function calculateVendorScore(vendor) {
 
                 reader.onerror = function() {
                     errorFiles.push(file.name + ' (읽기 오류)');
-                    document.getElementById(`fileStatus${index}`).textContent = '❌';
+                    document.getElementById(`fileStatus${index}`).innerHTML = '<span aria-hidden="true">❌</span>';
                     document.getElementById(`fileStatus${index}`).className = 'text-red-400';
+                    document.getElementById(`fileStatus${index}`).setAttribute('aria-label', '읽기 오류');
                     processedCount++;
                     loadingText.textContent = `${processedCount} / ${files.length} 파일 처리 중...`;
                     processNextFile(index + 1);
@@ -2658,7 +2662,7 @@ function calculateVendorScore(vendor) {
             const fileListDiv = document.getElementById('fileList');
 
             if (parsedData.length === 0) {
-                showNotification('❌ 파싱된 데이터가 없습니다. BAL 파일 형식을 확인해주세요.', 'error');
+                showNotification('<span aria-hidden="true">❌ </span>파싱된 데이터가 없습니다. BAL 파일 형식을 확인해주세요.', 'error');
                 uploadContent.classList.remove('hidden');
                 uploadLoading.classList.add('hidden');
                 fileListDiv.classList.add('hidden');
@@ -2672,7 +2676,7 @@ function calculateVendorScore(vendor) {
             document.getElementById('uploadOverlay').classList.add('hidden');
 
             // 결과 알림
-            let message = `✅ ${successCount}개 파일에서 ${formatNumber(allData.length)}건 데이터 로드 완료`;
+            let message = `<span aria-hidden="true">✅ </span>${successCount}개 파일에서 ${formatNumber(allData.length)}건 데이터 로드 완료`;
             if (errorFiles.length > 0) {
                 message += ` (${errorFiles.length}개 파일 오류)`;
             }
@@ -2953,7 +2957,7 @@ function calculateVendorScore(vendor) {
             document.getElementById('dateModeLabel').textContent = label;
             document.getElementById('calendarLabel').textContent = `(${mode.toUpperCase()} 기준)`;
             document.getElementById('monthFilterLabel').textContent = `월 (${mode.toUpperCase()})`;
-            document.getElementById('dateRangeLabel').textContent = `📅 날짜 범위 (${mode.toUpperCase()})`;
+            document.getElementById('dateRangeLabel').innerHTML = `<span aria-hidden="true">📅 </span>날짜 범위 (${mode.toUpperCase()})`;
             populateFilters();
             applyFilters();
         }
@@ -3188,7 +3192,7 @@ function calculateVendorScore(vendor) {
 
                 // 날짜 유효성 검증: 시작일 > 종료일 체크
                 if (startDate && endDate && startDate > endDate) {
-                    showNotification('⚠️ 시작일이 종료일보다 늦을 수 없습니다.', 'error');
+                    showNotification('<span aria-hidden="true">⚠️ </span>시작일이 종료일보다 늦을 수 없습니다.', 'error');
                     document.getElementById('startDateFilter').value = '';
                     return;
                 }
