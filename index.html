@@ -4085,9 +4085,9 @@ function calculateVendorScore(vendor) {
             nextBtn.setAttribute('aria-disabled', isNextDisabled.toString());
 
             const getIcon = (status) => {
-                if (status === 'completed') return '✅';
-                if (status === 'partial') return '🔄';
-                return '⏳';
+                if (status === 'completed') return '<span aria-hidden="true">✅</span>';
+                if (status === 'partial') return '<span aria-hidden="true">🔄</span>';
+                return '<span aria-hidden="true">⏳</span>';
             };
 
             document.querySelector('#dataTable tbody').innerHTML = pageData.map(d => {
@@ -4109,7 +4109,7 @@ function calculateVendorScore(vendor) {
                     <td class="px-2 py-2 text-center">${getIcon(d.production?.wh_in?.status)}</td>
                     <td class="px-2 py-2 text-xs">${d.crd || '-'}</td>
                     <td class="px-2 py-2 text-xs">${d.sddValue || '-'}</td>
-                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge">🚢 선적</span>' : delayed ? '🚨' : warning ? '⚡' : d.production?.wh_in?.status === 'completed' ? '✅' : '⏳'}</td>
+                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge"><span aria-hidden="true">🚢 </span>선적</span>' : delayed ? '<span aria-hidden="true">🚨</span>' : warning ? '<span aria-hidden="true">⚡</span>' : d.production?.wh_in?.status === 'completed' ? '<span aria-hidden="true">✅</span>' : '<span aria-hidden="true">⏳</span>'}</td>
                 </tr>`;
             }).join('');
         }
@@ -4167,7 +4167,7 @@ function calculateVendorScore(vendor) {
                 <div><div class="text-secondary text-sm">완료율</div><div class="text-xl font-bold" style="color: ${rate >= 80 ? '#22c55e' : '#f59e0b'}">${rate.toFixed(1)}%</div></div>
             </div>`;
 
-            const getIcon = (status) => status === 'completed' ? '✅' : status === 'partial' ? '🔄' : '⏳';
+            const getIcon = (status) => status === 'completed' ? '<span aria-hidden="true">✅</span>' : status === 'partial' ? '<span aria-hidden="true">🔄</span>' : '<span aria-hidden="true">⏳</span>';
             const modalPageSize = 50;
             const displayOrders = orders.slice(0, modalPageSize);
 
@@ -4209,7 +4209,7 @@ function calculateVendorScore(vendor) {
                     <td class="px-2 py-2 text-center">${getIcon(d.production?.wh_in?.status)}</td>
                     <td class="px-2 py-2 text-xs">${d.crd || '-'}</td>
                     <td class="px-2 py-2 text-xs">${d.sddValue || '-'}</td>
-                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge">🚢 선적</span>' : delayed ? '🚨' : warning ? '⚡' : d.production?.wh_in?.status === 'completed' ? '✅' : '⏳'}</td>
+                    <td class="px-2 py-2 text-center">${shipped ? '<span class="shipped-badge"><span aria-hidden="true">🚢 </span>선적</span>' : delayed ? '<span aria-hidden="true">🚨</span>' : warning ? '<span aria-hidden="true">⚡</span>' : d.production?.wh_in?.status === 'completed' ? '<span aria-hidden="true">✅</span>' : '<span aria-hidden="true">⏳</span>'}</td>
                 </tr>`;
             });
 
@@ -4328,7 +4328,7 @@ function calculateVendorScore(vendor) {
                 const total = completed + pending;
                 const rate = total > 0 ? (completed / total * 100) : 0;
                 const status = p?.status || 'pending';
-                const statusIcon = status === 'completed' ? '✅ 완료' : status === 'partial' ? '🔄 진행중' : '⏳ 대기';
+                const statusIcon = status === 'completed' ? '<span aria-hidden="true">✅ </span>완료' : status === 'partial' ? '<span aria-hidden="true">🔄 </span>진행중' : '<span aria-hidden="true">⏳ </span>대기';
                 const rateColor = rate >= 100 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
 
                 html += `<tr class="border-b border-theme">
@@ -4621,10 +4621,10 @@ function calculateVendorScore(vendor) {
             const kpiOtdRate = document.getElementById('kpiOtdRate');
             const kpiOtdOrders = document.getElementById('kpiOtdOrders');
             if (kpiOtdRate) {
-                const statusEmoji = otd.rate >= 95 ? '✅' : otd.rate >= 85 ? '⚠️' : '🚨';
+                const statusEmoji = otd.rate >= 95 ? '<span aria-hidden="true">✅ </span>' : otd.rate >= 85 ? '<span aria-hidden="true">⚠️ </span>' : '<span aria-hidden="true">🚨 </span>';
                 kpiOtdRate.textContent = otd.rate.toFixed(1) + '%';
                 kpiOtdRate.className = 'text-3xl font-bold ' + (otd.rate >= 95 ? 'text-green-300' : otd.rate >= 85 ? 'text-yellow-300' : 'text-red-300');
-                if (kpiOtdOrders) kpiOtdOrders.textContent = `${statusEmoji} ${otd.onTimeCount}/${otd.completedCount}건 정시`;
+                if (kpiOtdOrders) kpiOtdOrders.innerHTML = `${statusEmoji}${otd.onTimeCount}/${otd.completedCount}건 정시`;
             }
 
             // Revenue at Risk - HTML ID: kpiRevenueRisk, kpiRiskOrders
@@ -4640,10 +4640,10 @@ function calculateVendorScore(vendor) {
             const kpiAqlRate = document.getElementById('kpiAqlRate');
             const kpiAqlCount = document.getElementById('kpiAqlCount');
             if (kpiAqlRate) {
-                const aqlStatus = aql.rate >= 98 ? '✅' : aql.rate >= 95 ? '⚠️' : '🚨';
+                const aqlStatus = aql.rate >= 98 ? '<span aria-hidden="true">✅ </span>' : aql.rate >= 95 ? '<span aria-hidden="true">⚠️ </span>' : '<span aria-hidden="true">🚨 </span>';
                 kpiAqlRate.textContent = aql.rate.toFixed(1) + '%';
                 kpiAqlRate.className = 'text-3xl font-bold ' + (aql.rate >= 98 ? 'text-green-300' : aql.rate >= 95 ? 'text-yellow-300' : 'text-red-300');
-                if (kpiAqlCount) kpiAqlCount.textContent = `${aqlStatus} ${aql.passedCount}/${aql.inspectedCount}건`;
+                if (kpiAqlCount) kpiAqlCount.innerHTML = `${aqlStatus}${aql.passedCount}/${aql.inspectedCount}건`;
             }
 
             // Bottleneck - HTML ID: kpiBottleneckStage, kpiBottleneckRisk
