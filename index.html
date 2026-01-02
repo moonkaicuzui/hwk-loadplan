@@ -2963,7 +2963,15 @@ function calculateVendorScore(vendor) {
 
             // Sort headers
             document.querySelectorAll('.sort-header').forEach(header => {
+                header.setAttribute('tabindex', '0');
+                header.setAttribute('role', 'button');
                 header.addEventListener('click', () => handleSort(header));
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleSort(header);
+                    }
+                });
             });
 
             // Keyboard shortcuts
