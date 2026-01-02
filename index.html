@@ -2572,7 +2572,7 @@ function calculateVendorScore(vendor) {
             // 파일 목록 표시
             fileListDiv.innerHTML = files.map((f, i) =>
                 `<div class="flex items-center gap-2 text-blue-200 text-sm py-1">
-                    <span id="fileStatus${i}" class="text-yellow-400">⏳</span>
+                    <span id="fileStatus${i}" class="text-yellow-400" aria-hidden="true">⏳</span>
                     <span>${escapeHtml(f.name)}</span>
                     <span class="text-blue-400/60 text-xs">(${(f.size / 1024).toFixed(1)} KB)</span>
                 </div>`
