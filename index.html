@@ -1400,19 +1400,19 @@ function isShipped(d) {
                     <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <div class="flex flex-wrap items-center gap-2 text-sm">
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">S_CUT (재단)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">PRE_SEW (선봉)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">SEW_INPUT (재봉투입)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">SEW_BAL (재봉)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">OSC (외주)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">ASS (조립)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">WH_IN (창고입고)</span>
-                            <span>→</span>
+                            <span aria-hidden="true">→</span>
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">WH_OUT (창고출고)</span>
                         </div>
                     </div>
@@ -4300,7 +4300,7 @@ function calculateVendorScore(vendor) {
                 </div>`;
 
                 if (i < PROCESS_ORDER.length - 1) {
-                    html += '<div class="process-arrow">→</div>';
+                    html += '<div class="process-arrow" aria-hidden="true">→</div>';
                 }
             });
 
