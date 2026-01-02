@@ -383,7 +383,7 @@
 
         <div class="nav-section">
             <div class="nav-section-title">관심 PO</div>
-            <div class="nav-item" data-target="section-watched-po" id="navWatchedPo">
+            <div class="nav-item" data-target="section-watched-po" id="navWatchedPo" role="button" tabindex="0" aria-label="관심 PO 현황 섹션으로 이동">
                 <span class="nav-icon">⭐</span>관심 PO 현황
                 <span id="watchedPoCount" class="ml-auto text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">0</span>
             </div>
@@ -394,55 +394,55 @@
 
         <div class="nav-section">
             <div class="nav-section-title">요약</div>
-            <div class="nav-item" data-target="section-summary">
+            <div class="nav-item" data-target="section-summary" role="button" tabindex="0" aria-label="월요 오더 현황 섹션으로 이동">
                 <span class="nav-icon">📋</span>월요 오더 현황
             </div>
-            <div class="nav-item" data-target="section-executive">
+            <div class="nav-item" data-target="section-executive" role="button" tabindex="0" aria-label="Executive Summary 섹션으로 이동">
                 <span class="nav-icon">🎯</span>Executive Summary
             </div>
-            <div class="nav-item" data-target="section-insights">
+            <div class="nav-item" data-target="section-insights" role="button" tabindex="0" aria-label="경영진 인사이트 섹션으로 이동">
                 <span class="nav-icon">📊</span>경영진 인사이트
             </div>
-            <div class="nav-item" data-target="section-alerts">
+            <div class="nav-item" data-target="section-alerts" role="button" tabindex="0" aria-label="알림 현황 섹션으로 이동">
                 <span class="nav-icon">🚨</span>알림 현황
             </div>
-            <div class="nav-item" data-target="section-recommendations">
+            <div class="nav-item" data-target="section-recommendations" role="button" tabindex="0" aria-label="담당자 권고사항 섹션으로 이동">
                 <span class="nav-icon">💡</span>담당자 권고사항
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">현황</div>
-            <div class="nav-item" data-target="section-kpi">
+            <div class="nav-item" data-target="section-kpi" role="button" tabindex="0" aria-label="KPI 요약 섹션으로 이동">
                 <span class="nav-icon">📈</span>KPI 요약
             </div>
-            <div class="nav-item" data-target="section-process">
+            <div class="nav-item" data-target="section-process" role="button" tabindex="0" aria-label="공정별 현황 섹션으로 이동">
                 <span class="nav-icon">⚙️</span>공정별 현황
             </div>
-            <div class="nav-item" data-target="section-factory">
+            <div class="nav-item" data-target="section-factory" role="button" tabindex="0" aria-label="공장별 완료율 섹션으로 이동">
                 <span class="nav-icon">🏭</span>공장별 완료율
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">일정/벤더</div>
-            <div class="nav-item" data-target="section-calendar">
+            <div class="nav-item" data-target="section-calendar" role="button" tabindex="0" aria-label="예정 캘린더 섹션으로 이동">
                 <span class="nav-icon">📅</span>예정 캘린더
             </div>
-            <div class="nav-item" data-target="section-vendor">
+            <div class="nav-item" data-target="section-vendor" role="button" tabindex="0" aria-label="아웃솔 벤더 섹션으로 이동">
                 <span class="nav-icon">👟</span>아웃솔 벤더
             </div>
-            <div class="nav-item" data-target="section-destination">
+            <div class="nav-item" data-target="section-destination" role="button" tabindex="0" aria-label="중요 행선지 섹션으로 이동">
                 <span class="nav-icon">🎯</span>중요 행선지
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">필터/분석</div>
-            <div class="nav-item" data-target="section-filter">
+            <div class="nav-item" data-target="section-filter" role="button" tabindex="0" aria-label="필터 섹션으로 이동">
                 <span class="nav-icon">🔍</span>필터
             </div>
-            <div class="nav-item" data-target="section-tabs">
+            <div class="nav-item" data-target="section-tabs" role="button" tabindex="0" aria-label="상세 분석 탭 섹션으로 이동">
                 <span class="nav-icon">📊</span>상세 분석 탭
             </div>
         </div>
@@ -2060,23 +2060,33 @@ function calculateVendorScore(vendor) {
                 toggleSidebar(false);
             });
 
-            // Navigation click - smooth scroll
+            // Navigation click/keyboard - smooth scroll
+            function handleNavItemActivation(item) {
+                const targetId = item.dataset.target;
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    // Close sidebar first on mobile
+                    if (window.innerWidth < 1024) {
+                        toggleSidebar(false);
+                    }
+                    // Scroll after brief delay for smoother experience
+                    setTimeout(() => {
+                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, window.innerWidth < 1024 ? 300 : 0);
+                    // Update active state
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                }
+            }
+
             navItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    const targetId = item.dataset.target;
-                    const targetEl = document.getElementById(targetId);
-                    if (targetEl) {
-                        // Close sidebar first on mobile
-                        if (window.innerWidth < 1024) {
-                            toggleSidebar(false);
-                        }
-                        // Scroll after brief delay for smoother experience
-                        setTimeout(() => {
-                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, window.innerWidth < 1024 ? 300 : 0);
-                        // Update active state
-                        navItems.forEach(nav => nav.classList.remove('active'));
-                        item.classList.add('active');
+                // Click handler
+                item.addEventListener('click', () => handleNavItemActivation(item));
+                // Keyboard handler for accessibility
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleNavItemActivation(item);
                     }
                 });
             });
