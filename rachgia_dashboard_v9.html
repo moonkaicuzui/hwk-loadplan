@@ -1492,25 +1492,33 @@ function calculateVendorScore(vendor) {
 
                 const headers = jsonData[headerRow].map(h => String(h || '').toUpperCase().trim());
 
-                // 컬럼 인덱스 찾기
+                // 안전한 findIndex 헬퍼 함수
+                const safeFind = (predicate) => headers.findIndex(h => h && predicate(h));
+
+                // 컬럼 인덱스 찾기 (새 Loadplan 형식 + 기존 BAL 형식 모두 지원)
                 const colIndex = {
-                    po: headers.findIndex(h => h.includes('PO') && (h.includes('#') || h.includes('NO'))),
-                    article: headers.findIndex(h => h.includes('ARTICLE')),
-                    model: headers.findIndex(h => h.includes('MODEL') || h.includes('STYLE')),
-                    qty: headers.findIndex(h => h === 'QTY' || h.includes('QUANTITY') || h.includes('ORDER')),
-                    crd: headers.findIndex(h => h === 'CRD' || h.includes('REQUIRED')),
-                    sdd: headers.findIndex(h => h === 'SDD' || h.includes('DELIVERY') || h.includes('SHIP')),
-                    dest: headers.findIndex(h => h.includes('DEST') || h.includes('COUNTRY')),
-                    vendor: headers.findIndex(h => h.includes('VENDOR') || h.includes('OUTSOLE')),
+                    po: safeFind(h => (h.includes('PO') && (h.includes('#') || h.includes('NO'))) || h.includes('SALES ORDER') || h.includes('ORDER') && h.includes('ITEM')),
+                    article: safeFind(h => h.includes('ARTICLE') || h === 'ART'),
+                    model: safeFind(h => h.includes('MODEL') || h.includes('STYLE')),
+                    qty: safeFind(h => h === 'QTY' || h.includes('Q.TY') || h.includes('QUANTITY') || (h.includes('ORDER') && !h.includes('SALES'))),
+                    crd: safeFind(h => h === 'CRD' || h.includes('REQUIRED')),
+                    sdd: safeFind(h => h === 'SDD' || h.includes('DELIVERY') || h.includes('SHIP')),
+                    dest: safeFind(h => h.includes('DEST') || h.includes('COUNTRY')),
+                    vendor: safeFind(h => h.includes('VENDOR') || (h.includes('OSC') && h.includes('VD'))),
                     // 공정별 컬럼
-                    s_cut: headers.findIndex(h => h.includes('S_CUT') || h.includes('CUT')),
-                    pre_sew: headers.findIndex(h => h.includes('PRE') && h.includes('SEW')),
-                    sew_input: headers.findIndex(h => h.includes('SEW') && h.includes('INPUT')),
-                    sew_bal: headers.findIndex(h => (h.includes('SEW') && h.includes('BAL')) || h === 'SEWING'),
-                    osc: headers.findIndex(h => h.includes('OSC') || h.includes('OUTSOLE')),
-                    ass_bal: headers.findIndex(h => (h.includes('ASS') && h.includes('BAL')) || h.includes('ASSEMBLY')),
-                    wh_in: headers.findIndex(h => h.includes('WH') && h.includes('IN')),
-                    wh_out: headers.findIndex(h => h.includes('WH') && h.includes('OUT') || h.includes('SHIP'))
+                    s_cut: safeFind(h => h.includes('S_CUT') || (h.includes('CUT') && !h.includes('OUT'))),
+                    pre_sew: safeFind(h => h.includes('PRE') && h.includes('SEW')),
+                    sew_input: safeFind(h => h.includes('SEW') && h.includes('INPUT')),
+                    sew_bal: safeFind(h => (h.includes('SEW') && h.includes('BAL')) || h === 'SEWING'),
+                    osc: safeFind(h => h.includes('OSC') && !h.includes('VD') && !h.includes('MATERIAL')),
+                    ass_bal: safeFind(h => (h.includes('ASS') && h.includes('BAL')) || h.includes('ASSEMBLY')),
+                    wh_in: safeFind(h => h.includes('WH') && h.includes('IN') && !h.includes('MAIN')),
+                    wh_out: safeFind(h => (h.includes('WH') && h.includes('OUT')) || (h.includes('SHIP') && !h.includes('SDD'))),
+                    // 새 형식 추가 컬럼
+                    unit: safeFind(h => h === 'UNIT'),
+                    color: safeFind(h => h.includes('COLOR')),
+                    prodStatus: safeFind(h => h.includes('PRODUCTION') && h.includes('STATUS')),
+                    warehouse: safeFind(h => h === 'WAREHOUSE')
                 };
 
                 // 데이터 행 파싱
