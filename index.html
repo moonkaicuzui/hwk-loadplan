@@ -1549,6 +1549,20 @@ function calculateVendorScore(vendor) {
         </div>
     </div>
 
+    <!-- 접근성 개선된 확인 다이얼로그 -->
+    <div id="confirmDialog" class="fixed inset-0 modal-overlay z-[60] hidden flex items-center justify-center p-4" role="alertdialog" aria-modal="true" aria-labelledby="confirmDialogTitle" aria-describedby="confirmDialogMessage">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="p-6">
+                <h3 id="confirmDialogTitle" class="text-lg font-semibold text-center mb-4">확인</h3>
+                <p id="confirmDialogMessage" class="text-secondary text-center mb-6"></p>
+                <div class="flex gap-3 justify-center">
+                    <button type="button" id="confirmDialogCancel" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition" aria-label="취소">취소</button>
+                    <button type="button" id="confirmDialogConfirm" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition" aria-label="확인">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data and state
         let allData = [];
@@ -1566,6 +1580,9 @@ function calculateVendorScore(vendor) {
         // Watched PO state
         let watchedPos = [];
         const WATCHED_PO_KEY = 'rachgia_watched_pos';
+
+        // Confirm dialog state
+        let confirmDialogCallback = null;
 
         // Load watched POs from localStorage
         function loadWatchedPos() {
@@ -1600,6 +1617,51 @@ function calculateVendorScore(vendor) {
         // Close PO register modal
         function closePoRegisterModal() {
             document.getElementById('poRegisterModal').classList.add('hidden');
+        }
+
+        // 접근성 개선된 확인 다이얼로그 표시
+        function showConfirmDialog(message, onConfirm) {
+            const dialog = document.getElementById('confirmDialog');
+            const messageEl = document.getElementById('confirmDialogMessage');
+            const confirmBtn = document.getElementById('confirmDialogConfirm');
+            const cancelBtn = document.getElementById('confirmDialogCancel');
+
+            messageEl.textContent = message;
+            confirmDialogCallback = onConfirm;
+            dialog.classList.remove('hidden');
+
+            // 포커스 트랩 설정
+            trapFocus(dialog);
+            confirmBtn.focus();
+
+            // 이벤트 리스너 (한 번만 실행)
+            const handleConfirm = () => {
+                hideConfirmDialog();
+                if (confirmDialogCallback) confirmDialogCallback();
+            };
+            const handleCancel = () => {
+                hideConfirmDialog();
+            };
+            const handleKeydown = (e) => {
+                if (e.key === 'Escape') {
+                    hideConfirmDialog();
+                } else if (e.key === 'Enter' && document.activeElement === confirmBtn) {
+                    handleConfirm();
+                }
+            };
+
+            // 기존 리스너 제거 후 새로 추가
+            confirmBtn.onclick = handleConfirm;
+            cancelBtn.onclick = handleCancel;
+            dialog.onkeydown = handleKeydown;
+        }
+
+        // 확인 다이얼로그 숨기기
+        function hideConfirmDialog() {
+            const dialog = document.getElementById('confirmDialog');
+            dialog.classList.add('hidden');
+            confirmDialogCallback = null;
+            releaseFocus();
         }
 
         // Search PO as user types
@@ -1698,11 +1760,11 @@ function calculateVendorScore(vendor) {
 
         // Remove a watched PO
         function removeWatchedPo(poNumber) {
-            if (!confirm(`PO ${poNumber}을(를) 관심 목록에서 삭제하시겠습니까?`)) return;
-
-            watchedPos = watchedPos.filter(wp => wp.poNumber !== poNumber);
-            saveWatchedPos();
-            updateWatchedPoDisplay();
+            showConfirmDialog(`PO ${poNumber}을(를) 관심 목록에서 삭제하시겠습니까?`, () => {
+                watchedPos = watchedPos.filter(wp => wp.poNumber !== poNumber);
+                saveWatchedPos();
+                updateWatchedPoDisplay();
+            });
         }
 
         // Update watched PO display
