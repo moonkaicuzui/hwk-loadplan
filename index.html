@@ -700,7 +700,7 @@
                 </h2>
                 <div class="flex items-center gap-3">
                     <span class="text-sm opacity-70">기준: SDD/CRD</span>
-                    <button onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition">❓ 도움말</button>
+                    <button onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition" aria-label="경영진 인사이트 도움말">❓ 도움말</button>
                 </div>
             </div>
 
@@ -1746,7 +1746,7 @@ function calculateVendorScore(vendor) {
             if (!prodData) {
                 return `
                     <div class="watched-po-card relative opacity-60">
-                        <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')">×</button>
+                        <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')" aria-label="관심 PO 삭제">×</button>
                         <div class="font-bold text-lg mb-1">${escapeHtml(wp.poNumber)}</div>
                         <div class="text-sm text-gray-500">데이터를 찾을 수 없습니다</div>
                         <div class="text-xs text-gray-400 mt-2">파일을 다시 업로드해주세요</div>
@@ -1782,7 +1782,7 @@ function calculateVendorScore(vendor) {
 
             return `
                 <div class="watched-po-card relative ${alertClass}" onclick="showWatchedPoDetail('${escapeHtml(wp.poNumber)}')">
-                    <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')">×</button>
+                    <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')" aria-label="관심 PO 삭제">×</button>
 
                     ${showAlert ? '<div class="first-input-badge absolute top-2 left-2">🔔 투입 시작!</div>' : ''}
 
@@ -5117,7 +5117,7 @@ function calculateVendorScore(vendor) {
                     <div class="bg-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
                             <h3 id="infoModalTitle" class="font-bold text-lg"></h3>
-                            <button onclick="closeInfoModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">✕</button>
+                            <button onclick="closeInfoModal()" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg" aria-label="정보 모달 닫기">✕</button>
                         </div>
                         <div id="infoModalContent" class="p-4 overflow-y-auto max-h-[60vh]"></div>
                     </div>`;
