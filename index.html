@@ -486,7 +486,7 @@
                     아이디 또는 비밀번호가 올바르지 않습니다.
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors" aria-label="로그인">
                     로그인
                 </button>
 
@@ -511,7 +511,7 @@
                     <div class="text-6xl mb-4">📁</div>
                     <h2 class="text-2xl font-bold text-white mb-2">BAL 엑셀 파일 업로드</h2>
                     <p class="text-blue-200 mb-6">파일을 드래그하거나 클릭하여 선택하세요</p>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden" aria-label="BAL Excel 파일 선택">
                     <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors" aria-label="BAL Excel 파일 선택">
                         📂 파일 선택 (다중 선택 가능)
                     </button>
@@ -1062,13 +1062,13 @@
         <div id="section-tabs" class="bg-card rounded-xl shadow-sm mb-6">
             <div class="border-b border-theme overflow-x-auto">
                 <nav class="flex -mb-px min-w-max" role="tablist" aria-label="대시보드 탭 네비게이션">
-                    <button class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" tabindex="0">📅 월별</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" tabindex="-1">🌍 행선지별</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" tabindex="-1">👟 모델별</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" tabindex="-1">🏭 공장별</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" tabindex="-1">🔧 아웃솔 벤더</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" tabindex="-1">🔥 히트맵</button>
-                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
+                    <button class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" aria-label="월별 현황 탭" tabindex="0">📅 월별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" aria-label="행선지별 현황 탭" tabindex="-1">🌍 행선지별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" aria-label="모델별 현황 탭" tabindex="-1">👟 모델별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" aria-label="공장별 현황 탭" tabindex="-1">🏭 공장별</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" aria-label="아웃솔 벤더 현황 탭" tabindex="-1">🔧 아웃솔 벤더</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" aria-label="히트맵 탭" tabindex="-1">🔥 히트맵</button>
+                    <button class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" aria-label="상세 데이터 탭" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
                 </nav>
             </div>
             <div id="tabContents" class="p-6">
