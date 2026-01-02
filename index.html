@@ -1109,18 +1109,18 @@
         <div id="section-tabs" class="bg-card rounded-xl shadow-sm mb-6">
             <div class="border-b border-theme overflow-x-auto">
                 <nav class="flex -mb-px min-w-max" role="tablist" aria-label="대시보드 탭 네비게이션">
-                    <button type="button" class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" aria-label="월별 현황 탭" tabindex="0">📅 월별</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" aria-label="행선지별 현황 탭" tabindex="-1">🌍 행선지별</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" aria-label="모델별 현황 탭" tabindex="-1">👟 모델별</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" aria-label="공장별 현황 탭" tabindex="-1">🏭 공장별</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" aria-label="아웃솔 벤더 현황 탭" tabindex="-1">🔧 아웃솔 벤더</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" aria-label="히트맵 탭" tabindex="-1">🔥 히트맵</button>
-                    <button type="button" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" aria-label="상세 데이터 탭" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
+                    <button type="button" id="monthlyTabBtn" class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" aria-controls="monthlyTab" aria-label="월별 현황 탭" tabindex="0">📅 월별</button>
+                    <button type="button" id="destinationTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" aria-controls="destinationTab" aria-label="행선지별 현황 탭" tabindex="-1">🌍 행선지별</button>
+                    <button type="button" id="modelTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" aria-controls="modelTab" aria-label="모델별 현황 탭" tabindex="-1">👟 모델별</button>
+                    <button type="button" id="factoryTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" aria-controls="factoryTab" aria-label="공장별 현황 탭" tabindex="-1">🏭 공장별</button>
+                    <button type="button" id="vendorTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" aria-controls="vendorTab" aria-label="아웃솔 벤더 현황 탭" tabindex="-1">🔧 아웃솔 벤더</button>
+                    <button type="button" id="heatmapTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" aria-controls="heatmapTab" aria-label="히트맵 탭" tabindex="-1">🔥 히트맵</button>
+                    <button type="button" id="dataTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" aria-controls="dataTab" aria-label="상세 데이터 탭" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
                 </nav>
             </div>
             <div id="tabContents" class="p-6">
                 <!-- Monthly Tab -->
-                <div id="monthlyTab" class="tab-content">
+                <div id="monthlyTab" class="tab-content" role="tabpanel" aria-labelledby="monthlyTabBtn">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div><h3 class="text-lg font-semibold mb-4">월별 오더 현황</h3><div class="chart-container"><canvas id="monthlyChart" role="img" aria-label="월별 오더 현황 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">월별 완료 현황</h3>
@@ -1143,7 +1143,7 @@
                     </div>
                 </div>
                 <!-- Destination Tab -->
-                <div id="destinationTab" class="tab-content hidden">
+                <div id="destinationTab" class="tab-content hidden" role="tabpanel" aria-labelledby="destinationTabBtn">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div><h3 class="text-lg font-semibold mb-4">국가별 수량 분포</h3><div class="chart-container"><canvas id="destChart" role="img" aria-label="국가별 수량 분포 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">행선지별 상세</h3>
@@ -1166,7 +1166,7 @@
                     </div>
                 </div>
                 <!-- Model Tab -->
-                <div id="modelTab" class="tab-content hidden">
+                <div id="modelTab" class="tab-content hidden" role="tabpanel" aria-labelledby="modelTabBtn">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div><h3 class="text-lg font-semibold mb-4">모델별 수량 (Top 15)</h3><div class="chart-container" style="height:400px"><canvas id="modelChart" role="img" aria-label="모델별 수량 Top 15 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">모델별 상세</h3>
@@ -1189,14 +1189,14 @@
                     </div>
                 </div>
                 <!-- Factory Tab -->
-                <div id="factoryTab" class="tab-content hidden">
+                <div id="factoryTab" class="tab-content hidden" role="tabpanel" aria-labelledby="factoryTabBtn">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div><h3 class="text-lg font-semibold mb-4">공장별 수량 비교</h3><div class="chart-container"><canvas id="factoryChart" role="img" aria-label="공장별 수량 비교 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">공장별 공정 현황</h3><div id="factoryProcessDetail" class="space-y-4"></div></div>
                     </div>
                 </div>
                 <!-- Vendor Tab (NEW) -->
-                <div id="vendorTab" class="tab-content hidden">
+                <div id="vendorTab" class="tab-content hidden" role="tabpanel" aria-labelledby="vendorTabBtn">
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 수량</h3><div class="chart-container"><canvas id="vendorDetailChart" role="img" aria-label="아웃솔 벤더별 수량 차트"></canvas></div></div>
@@ -1224,14 +1224,14 @@
                     </div>
                 </div>
                 <!-- Heatmap Tab -->
-                <div id="heatmapTab" class="tab-content hidden">
+                <div id="heatmapTab" class="tab-content hidden" role="tabpanel" aria-labelledby="heatmapTabBtn">
                     <div class="space-y-6">
                         <div><h3 class="text-lg font-semibold mb-4">중요 행선지 × 월별 히트맵</h3><div id="countryMonthHeatmap" class="overflow-x-auto"></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">모델 × 행선지 히트맵</h3><div id="modelDestHeatmap" class="overflow-x-auto"></div></div>
                     </div>
                 </div>
                 <!-- Data Tab -->
-                <div id="dataTab" class="tab-content hidden">
+                <div id="dataTab" class="tab-content hidden" role="tabpanel" aria-labelledby="dataTabBtn">
                     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                         <div>
                             <h3 class="text-lg font-semibold">상세 데이터 <span id="dataCount" class="text-sm font-normal text-secondary" aria-live="polite"></span></h3>
