@@ -828,7 +828,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showDelayedOrders()" role="button" tabindex="0" aria-label="지연 오더 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showDelayedOrders()">
                     <div class="flex items-center gap-3">
-                        <span class="text-3xl">🚨</span>
+                        <span class="text-3xl" aria-hidden="true">🚨</span>
                         <div>
                             <div class="text-red-700 dark:text-red-300 text-sm font-medium">지연 오더</div>
                             <div class="text-2xl font-bold text-red-800 dark:text-red-200" id="delayedOrderCount">0건</div>
@@ -838,7 +838,7 @@
                 </div>
                 <div class="warning-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showWarningOrders()" role="button" tabindex="0" aria-label="3일 내 예정 오더 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showWarningOrders()">
                     <div class="flex items-center gap-3">
-                        <span class="text-3xl">⚡</span>
+                        <span class="text-3xl" aria-hidden="true">⚡</span>
                         <div>
                             <div class="text-amber-700 dark:text-amber-300 text-sm font-medium">3일 내 예정</div>
                             <div class="text-2xl font-bold text-amber-800 dark:text-amber-200" id="warningOrderCount">0건</div>
@@ -848,7 +848,7 @@
                 </div>
                 <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-400 rounded-xl shadow-sm p-4 cursor-pointer" onclick="showInventoryOrders()" role="button" tabindex="0" aria-label="창고 재고 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showInventoryOrders()">
                     <div class="flex items-center gap-3">
-                        <span class="text-3xl">📦</span>
+                        <span class="text-3xl" aria-hidden="true">📦</span>
                         <div>
                             <div class="text-blue-700 dark:text-blue-300 text-sm font-medium">창고 재고</div>
                             <div class="text-2xl font-bold text-blue-800 dark:text-blue-200" id="inventoryCount">0족</div>
@@ -858,7 +858,7 @@
                 </div>
                 <div class="shipped-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showShippedOrders()" role="button" tabindex="0" aria-label="선적 완료 오더 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showShippedOrders()">
                     <div class="flex items-center gap-3">
-                        <span class="text-3xl">🚢</span>
+                        <span class="text-3xl" aria-hidden="true">🚢</span>
                         <div>
                             <div class="text-emerald-700 dark:text-emerald-300 text-sm font-medium">선적 완료</div>
                             <div class="text-2xl font-bold text-emerald-800 dark:text-emerald-200" id="shippedOrderCount">0건</div>
@@ -885,11 +885,11 @@
             </div>
 
             <div id="watchedPoEmpty" class="text-center py-8 text-gray-500">
-                <div class="text-4xl mb-3">📋</div>
+                <div class="text-4xl mb-3" aria-hidden="true">📋</div>
                 <div class="font-medium">등록된 관심 PO가 없습니다</div>
                 <div class="text-sm mt-1">PO를 등록하면 생산 현황을 실시간으로 모니터링할 수 있습니다</div>
                 <button type="button" class="po-register-btn mt-4" onclick="openPoRegisterModal()" aria-label="첫 관심 PO 등록하기" aria-haspopup="dialog">
-                    ➕ 첫 PO 등록하기
+                    <span aria-hidden="true">➕ </span>첫 PO 등록하기
                 </button>
             </div>
 
@@ -912,7 +912,7 @@
                 <!-- 계획 담당자 권고 -->
                 <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
                     <h3 class="font-bold text-blue-700 dark:text-blue-300 mb-3 flex items-center gap-2">
-                        📅 계획 담당자
+                        <span aria-hidden="true">📅 </span>계획 담당자
                         <span class="text-xs font-normal text-gray-500">생산계획 최적화</span>
                     </h3>
                     <div id="planningRecommendations" class="space-y-2 text-sm" aria-busy="true" aria-live="polite">
@@ -923,7 +923,7 @@
                 <!-- 품질 담당자 권고 -->
                 <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
                     <h3 class="font-bold text-green-700 dark:text-green-300 mb-3 flex items-center gap-2">
-                        ✅ 품질 담당자
+                        <span aria-hidden="true">✅ </span>품질 담당자
                         <span class="text-xs font-normal text-gray-500">품질 리스크 관리</span>
                     </h3>
                     <div id="qualityRecommendations" class="space-y-2 text-sm" aria-busy="true" aria-live="polite">
@@ -1006,7 +1006,7 @@
 
         <!-- Outsole Vendor Section -->
         <div id="section-vendor" class="bg-card rounded-xl shadow-sm p-6 mb-6">
-            <h3 class="text-lg font-semibold mb-4">👟 아웃솔 벤더별 현황</h3>
+            <h3 class="text-lg font-semibold mb-4"><span aria-hidden="true">👟 </span>아웃솔 벤더별 현황</h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div><div class="chart-container"><canvas id="vendorChart" role="img" aria-label="아웃솔 벤더별 현황 차트"></canvas></div></div>
                 <div>
@@ -1218,7 +1218,7 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-lg font-semibold mb-4">🔥 모델 × 아웃솔 벤더 히트맵</h3>
+                            <h3 class="text-lg font-semibold mb-4"><span aria-hidden="true">🔥 </span>모델 × 아웃솔 벤더 히트맵</h3>
                             <div id="modelVendorHeatmap" class="overflow-x-auto"></div>
                         </div>
                     </div>
@@ -1488,7 +1488,7 @@ function calculateVendorScore(vendor) {
     <div id="poRegisterModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="poRegisterModalTitle">
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
-                <h3 id="poRegisterModalTitle" class="text-lg font-semibold">⭐ 관심 PO 등록</h3>
+                <h3 id="poRegisterModalTitle" class="text-lg font-semibold"><span aria-hidden="true">⭐ </span>관심 PO 등록</h3>
                 <button type="button" onclick="closePoRegisterModal()" class="text-2xl hover:text-red-300" aria-label="PO 등록 모달 닫기">×</button>
             </div>
             <div class="p-6">
@@ -1502,13 +1502,13 @@ function calculateVendorScore(vendor) {
 
                 <!-- PO 검색 결과 미리보기 -->
                 <div id="poPreview" class="hidden mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg" role="status" aria-live="polite">
-                    <div class="text-sm font-medium text-green-600 dark:text-green-400 mb-2">✅ PO 찾음</div>
+                    <div class="text-sm font-medium text-green-600 dark:text-green-400 mb-2"><span aria-hidden="true">✅ </span>PO 찾음</div>
                     <div id="poPreviewContent" class="text-sm space-y-1"></div>
                 </div>
 
                 <!-- PO 찾지 못함 -->
                 <div id="poNotFound" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg" role="alert" aria-live="assertive">
-                    <div class="text-sm font-medium text-red-600 dark:text-red-400">❌ 해당 PO를 찾을 수 없습니다</div>
+                    <div class="text-sm font-medium text-red-600 dark:text-red-400"><span aria-hidden="true">❌ </span>해당 PO를 찾을 수 없습니다</div>
                     <div class="text-xs text-gray-500 mt-1">업로드된 데이터에서 PO 번호를 확인해주세요</div>
                 </div>
 
@@ -1540,7 +1540,7 @@ function calculateVendorScore(vendor) {
     <div id="watchedPoDetailModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="watchedPoDetailTitle">
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
-                <h3 id="watchedPoDetailTitle" class="text-lg font-semibold">⭐ PO 상세 현황</h3>
+                <h3 id="watchedPoDetailTitle" class="text-lg font-semibold"><span aria-hidden="true">⭐ </span>PO 상세 현황</h3>
                 <button type="button" onclick="closeWatchedPoDetailModal()" class="text-2xl hover:text-red-300" aria-label="PO 상세 모달 닫기">×</button>
             </div>
             <div id="watchedPoDetailContent" class="p-6 overflow-y-auto" style="max-height: calc(90vh - 70px);">
