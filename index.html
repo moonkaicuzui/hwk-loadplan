@@ -1091,11 +1091,11 @@
                 <div class="flex-1 min-w-[180px]">
                     <label id="factoryFilterLabel" class="block text-sm font-medium mb-1">공장</label>
                     <div id="factoryFilter" class="flex flex-wrap gap-1" role="group" aria-labelledby="factoryFilterLabel">
-                        <span class="filter-chip active" data-factory="">전체</span>
-                        <span class="filter-chip" data-factory="A">A</span>
-                        <span class="filter-chip" data-factory="B">B</span>
-                        <span class="filter-chip" data-factory="C">C</span>
-                        <span class="filter-chip" data-factory="D">D</span>
+                        <span class="filter-chip active" data-factory="" role="button" tabindex="0" aria-pressed="true">전체</span>
+                        <span class="filter-chip" data-factory="A" role="button" tabindex="0" aria-pressed="false">A</span>
+                        <span class="filter-chip" data-factory="B" role="button" tabindex="0" aria-pressed="false">B</span>
+                        <span class="filter-chip" data-factory="C" role="button" tabindex="0" aria-pressed="false">C</span>
+                        <span class="filter-chip" data-factory="D" role="button" tabindex="0" aria-pressed="false">D</span>
                     </div>
                 </div>
                 <div class="flex-1 min-w-[200px]">
@@ -2927,10 +2927,21 @@ function calculateVendorScore(vendor) {
 
             // Factory chips
             document.querySelectorAll('#factoryFilter .filter-chip').forEach(chip => {
-                chip.addEventListener('click', () => {
-                    document.querySelectorAll('#factoryFilter .filter-chip').forEach(c => c.classList.remove('active'));
+                const handleChipSelect = () => {
+                    document.querySelectorAll('#factoryFilter .filter-chip').forEach(c => {
+                        c.classList.remove('active');
+                        c.setAttribute('aria-pressed', 'false');
+                    });
                     chip.classList.add('active');
+                    chip.setAttribute('aria-pressed', 'true');
                     applyFilters();
+                };
+                chip.addEventListener('click', handleChipSelect);
+                chip.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleChipSelect();
+                    }
                 });
             });
 
