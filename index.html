@@ -682,11 +682,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white/10 rounded-lg p-3">
                     <div class="text-sm font-medium mb-2">📊 공장 순위</div>
-                    <div id="execFactoryRanking" class="text-sm"></div>
+                    <div id="execFactoryRanking" class="text-sm" aria-live="polite" aria-atomic="true"></div>
                 </div>
                 <div class="bg-white/10 rounded-lg p-3">
                     <div class="text-sm font-medium mb-2">⚠️ 주요 경고</div>
-                    <div id="execWarnings" class="text-sm"></div>
+                    <div id="execWarnings" class="text-sm" aria-live="polite" aria-atomic="true"></div>
                 </div>
             </div>
         </div>
@@ -900,7 +900,7 @@
         </div>
 
         <!-- Summary Cards -->
-        <div id="section-kpi" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div id="section-kpi" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" aria-live="polite" aria-atomic="true">
             <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-blue-500">
                 <div class="text-secondary text-sm">총 오더 건수</div>
                 <div class="text-2xl font-bold" id="totalOrders">-</div>
@@ -1184,8 +1184,8 @@
                 <div id="dataTab" class="tab-content hidden">
                     <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                         <div>
-                            <h3 class="text-lg font-semibold">상세 데이터 <span id="dataCount" class="text-sm font-normal text-secondary"></span></h3>
-                            <div id="pagination" class="text-sm text-secondary mt-1"></div>
+                            <h3 class="text-lg font-semibold">상세 데이터 <span id="dataCount" class="text-sm font-normal text-secondary" aria-live="polite"></span></h3>
+                            <div id="pagination" class="text-sm text-secondary mt-1" aria-live="polite" aria-atomic="true"></div>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled aria-label="이전 페이지">← 이전</button>
