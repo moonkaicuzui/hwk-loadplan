@@ -1057,7 +1057,7 @@
                     </div>
                 </div>
                 <div class="flex-1 min-w-[120px]">
-                    <label class="block text-sm font-medium mb-1">빠른 선택</label>
+                    <label for="quickDateFilter" class="block text-sm font-medium mb-1">빠른 선택</label>
                     <select id="quickDateFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="빠른 날짜 선택">
                         <option value="">전체 기간</option>
                         <option value="today">오늘</option>
@@ -1068,18 +1068,18 @@
                     </select>
                 </div>
                 <div class="flex-1 min-w-[120px]">
-                    <label class="block text-sm font-medium mb-1">행선지</label>
+                    <label for="destFilter" class="block text-sm font-medium mb-1">행선지</label>
                     <select id="destFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="행선지 필터">
                         <option value="">전체</option>
                         <option value="asia">중요 행선지만</option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[120px]">
-                    <label class="block text-sm font-medium mb-1">아웃솔 벤더</label>
+                    <label for="vendorFilter" class="block text-sm font-medium mb-1">아웃솔 벤더</label>
                     <select id="vendorFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="아웃솔 벤더 필터"><option value="">전체</option></select>
                 </div>
                 <div class="flex-1 min-w-[120px]">
-                    <label class="block text-sm font-medium mb-1">완료 상태</label>
+                    <label for="statusFilter" class="block text-sm font-medium mb-1">완료 상태</label>
                     <select id="statusFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="완료 상태 필터">
                         <option value="">전체</option>
                         <option value="shipped">🚢 선적 완료</option>
@@ -1089,8 +1089,8 @@
                     </select>
                 </div>
                 <div class="flex-1 min-w-[180px]">
-                    <label class="block text-sm font-medium mb-1">공장</label>
-                    <div id="factoryFilter" class="flex flex-wrap gap-1">
+                    <label id="factoryFilterLabel" class="block text-sm font-medium mb-1">공장</label>
+                    <div id="factoryFilter" class="flex flex-wrap gap-1" role="group" aria-labelledby="factoryFilterLabel">
                         <span class="filter-chip active" data-factory="">전체</span>
                         <span class="filter-chip" data-factory="A">A</span>
                         <span class="filter-chip" data-factory="B">B</span>
@@ -1099,7 +1099,7 @@
                     </div>
                 </div>
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium mb-1">통합 검색 <span class="kbd">S</span></label>
+                    <label for="searchInput" class="block text-sm font-medium mb-1">통합 검색 <span class="kbd">S</span></label>
                     <input type="text" id="searchInput" placeholder="모델, PO, 행선지, 벤더..." aria-label="오더 통합 검색" autocomplete="off" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
                 </div>
             </div>
