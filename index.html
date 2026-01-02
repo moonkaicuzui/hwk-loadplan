@@ -3972,7 +3972,7 @@ function calculateVendorScore(vendor) {
                 }
             });
 
-            let html = '<table class="w-full text-xs"><thead><tr><th scope="col" class="heatmap-cell">모델 \\ 벤더</th>';
+            let html = '<table class="w-full text-xs"><caption class="sr-only">모델별 벤더 히트맵</caption><thead><tr><th scope="col" class="heatmap-cell">모델 \\ 벤더</th>';
             topVendors.forEach(v => { html += `<th scope="col" class="heatmap-cell">${v.substring(0, 15)}</th>`; });
             html += '</tr></thead><tbody>';
 
@@ -4009,7 +4009,7 @@ function calculateVendorScore(vendor) {
                 }
             });
 
-            let html1 = '<table class="w-full text-xs"><thead><tr><th scope="col" class="heatmap-cell">국가 \\ 월</th>';
+            let html1 = '<table class="w-full text-xs"><caption class="sr-only">국가별 월별 히트맵</caption><thead><tr><th scope="col" class="heatmap-cell">국가 \\ 월</th>';
             months.forEach(m => { html1 += `<th scope="col" class="heatmap-cell">${m}</th>`; });
             html1 += '</tr></thead><tbody>';
 
@@ -4046,7 +4046,7 @@ function calculateVendorScore(vendor) {
                 }
             });
 
-            let html2 = '<table class="w-full text-xs"><thead><tr><th scope="col" class="heatmap-cell">모델 \\ 행선지</th>';
+            let html2 = '<table class="w-full text-xs"><caption class="sr-only">모델별 행선지 히트맵</caption><thead><tr><th scope="col" class="heatmap-cell">모델 \\ 행선지</th>';
             topDest.forEach(d => { html2 += `<th scope="col" class="heatmap-cell">${d}</th>`; });
             html2 += '</tr></thead><tbody>';
 
@@ -4172,6 +4172,7 @@ function calculateVendorScore(vendor) {
             const displayOrders = orders.slice(0, modalPageSize);
 
             html += `<div class="overflow-x-auto"><table class="w-full text-sm">
+                <caption class="sr-only">오더 상세 목록</caption>
                 <thead class="bg-gray-50 dark:bg-gray-700"><tr>
                     <th scope="col" class="px-2 py-2 text-left">공장</th>
                     <th scope="col" class="px-2 py-2 text-left">PO</th>
@@ -4309,6 +4310,7 @@ function calculateVendorScore(vendor) {
             <h4 class="font-semibold mb-4"><span aria-hidden="true">📈 </span>공정별 상세 현황</h4>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
+                    <caption class="sr-only">공정별 상세 현황</caption>
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th scope="col" class="px-3 py-2 text-left">공정</th>
