@@ -873,13 +873,13 @@
         <div id="section-watched-po" class="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-sky-500">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold flex items-center gap-2 text-sky-800 dark:text-sky-200">
-                    ⭐ 관심 PO 모니터링
-                    <span id="watchedPoAlertBadge" class="hidden first-input-badge">🔔 투입 시작!</span>
+                    <span aria-hidden="true">⭐ </span>관심 PO 모니터링
+                    <span id="watchedPoAlertBadge" class="hidden first-input-badge" aria-hidden="true">🔔 투입 시작!</span>
                 </h2>
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-sky-600 dark:text-sky-400" id="watchedPoLastUpdate">-</span>
                     <button type="button" class="po-register-btn" onclick="openPoRegisterModal()" aria-label="관심 PO 등록" aria-haspopup="dialog">
-                        ➕ PO 등록
+                        <span aria-hidden="true">➕ </span>PO 등록
                     </button>
                 </div>
             </div>
@@ -1517,7 +1517,7 @@ function calculateVendorScore(vendor) {
                     <label class="flex items-center gap-3 cursor-pointer">
                         <input type="checkbox" id="poAlertCheckbox" checked class="w-5 h-5 text-blue-600 rounded" aria-label="첫 투입 시작 알림 활성화">
                         <div>
-                            <div class="font-medium text-amber-800 dark:text-amber-200">🔔 첫 투입 시작 알림</div>
+                            <div class="font-medium text-amber-800 dark:text-amber-200"><span aria-hidden="true">🔔 </span>첫 투입 시작 알림</div>
                             <div class="text-xs text-amber-600 dark:text-amber-400">재단(S_CUT) 공정이 시작되면 알림을 표시합니다</div>
                         </div>
                     </label>
@@ -1898,7 +1898,7 @@ function calculateVendorScore(vendor) {
                 <div class="watched-po-card relative ${alertClass}" onclick="showWatchedPoDetail('${escapeHtml(wp.poNumber)}')" role="button" tabindex="0" aria-label="${escapeHtml(wp.poNumber)} PO 상세 보기" onkeydown="if(event.key==='Enter')showWatchedPoDetail('${escapeHtml(wp.poNumber)}')">
                     <button type="button" class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')" aria-label="관심 PO 삭제">×</button>
 
-                    ${showAlert ? '<div class="first-input-badge absolute top-2 left-2">🔔 투입 시작!</div>' : ''}
+                    ${showAlert ? '<div class="first-input-badge absolute top-2 left-2" aria-hidden="true">🔔 투입 시작!</div>' : ''}
 
                     <div class="flex justify-between items-start mb-2">
                         <div>
@@ -2110,7 +2110,7 @@ function calculateVendorScore(vendor) {
                                 onchange="toggleWatchedPoAlert('${escapeHtml(poNumber)}', this.checked)"
                                 class="w-5 h-5 text-blue-600 rounded">
                             <div>
-                                <div class="font-medium">🔔 첫 투입 시작 알림</div>
+                                <div class="font-medium"><span aria-hidden="true">🔔 </span>첫 투입 시작 알림</div>
                                 <div class="text-xs text-gray-500">${wp?.alertShown ? '(이미 알림 표시됨)' : '재단 공정 시작 시 알림'}</div>
                             </div>
                         </label>
