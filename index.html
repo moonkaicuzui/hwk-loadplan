@@ -629,7 +629,7 @@
                         🚪 <span class="hidden md:inline">로그아웃</span>
                     </button>
                     <!-- Help Button -->
-                    <button type="button" onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말" aria-label="도움말 보기" aria-haspopup="dialog">
+                    <button type="button" id="helpModalBtn" onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말" aria-label="도움말 보기" aria-haspopup="dialog" aria-expanded="false" aria-controls="helpModal">
                         ❓
                     </button>
                     <!-- Dark Mode Toggle -->
@@ -746,7 +746,7 @@
                 </h2>
                 <div class="flex items-center gap-3">
                     <span class="text-sm opacity-70">기준: SDD/CRD</span>
-                    <button type="button" onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition" aria-label="경영진 인사이트 도움말">❓ 도움말</button>
+                    <button type="button" id="insightsHelpBtn" onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition" aria-label="경영진 인사이트 도움말" aria-haspopup="dialog" aria-expanded="false" aria-controls="helpModal">❓ 도움말</button>
                 </div>
             </div>
 
@@ -5012,8 +5012,17 @@ function calculateVendorScore(vendor) {
         // 도움말 모달 토글
         function toggleHelpModal() {
             const modal = document.getElementById('helpModal');
+            const helpBtn = document.getElementById('helpModalBtn');
+            const insightsBtn = document.getElementById('insightsHelpBtn');
+            const isHidden = modal.classList.contains('hidden');
+
             modal.classList.toggle('hidden');
-            if (!modal.classList.contains('hidden')) {
+
+            // aria-expanded 업데이트
+            helpBtn?.setAttribute('aria-expanded', isHidden.toString());
+            insightsBtn?.setAttribute('aria-expanded', isHidden.toString());
+
+            if (isHidden) {
                 trapFocus(modal);
             }
         }
@@ -5024,7 +5033,15 @@ function calculateVendorScore(vendor) {
         }
 
         function closeHelpModal() {
+            const helpBtn = document.getElementById('helpModalBtn');
+            const insightsBtn = document.getElementById('insightsHelpBtn');
+
             document.getElementById('helpModal').classList.add('hidden');
+
+            // aria-expanded 업데이트
+            helpBtn?.setAttribute('aria-expanded', 'false');
+            insightsBtn?.setAttribute('aria-expanded', 'false');
+
             releaseFocus();
         }
 
