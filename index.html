@@ -552,16 +552,16 @@
             </div>
 
             <!-- Upload Area -->
-            <div id="dropZone" class="bg-white/10 backdrop-blur-lg border-2 border-dashed border-white/30 rounded-2xl p-12 text-center cursor-pointer hover:bg-white/20 hover:border-white/50 transition-all duration-300">
+            <div id="dropZone" class="bg-white/10 backdrop-blur-lg border-2 border-dashed border-white/30 rounded-2xl p-12 text-center cursor-pointer hover:bg-white/20 hover:border-white/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-sky-600" role="button" tabindex="0" aria-label="파일 업로드 영역" aria-describedby="dropZoneInstructions" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();document.getElementById('fileInput').click();}">
                 <div id="uploadContent">
-                    <div class="text-6xl mb-4">📁</div>
+                    <div class="text-6xl mb-4" aria-hidden="true">📁</div>
                     <h2 class="text-2xl font-bold text-white mb-2">BAL 엑셀 파일 업로드</h2>
-                    <p class="text-blue-200 mb-6">파일을 드래그하거나 클릭하여 선택하세요</p>
-                    <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden" aria-label="BAL Excel 파일 선택">
+                    <p id="dropZoneInstructions" class="text-blue-200 mb-6">파일을 드래그하거나 클릭 또는 Enter 키를 눌러 선택하세요</p>
+                    <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden" aria-label="BAL Excel 파일 선택" aria-describedby="dropZoneFormats">
                     <button type="button" onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors" aria-label="BAL Excel 파일 선택">
                         📂 파일 선택 (다중 선택 가능)
                     </button>
-                    <p class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일) - 여러 파일 동시 업로드 가능</p>
+                    <p id="dropZoneFormats" class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일) - 여러 파일 동시 업로드 가능</p>
                     <div id="fileList" class="mt-4 text-left max-h-32 overflow-y-auto hidden"></div>
                 </div>
 
