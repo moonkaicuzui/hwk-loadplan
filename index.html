@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: blob:; font-src 'self' data:;">
     <title>Rachgia Factory 통합 생산관리 대시보드 v9</title>
+    <meta name="description" content="Rachgia Factory A, B, C, D 공장의 생산 현황을 실시간으로 모니터링하는 통합 대시보드. BAL 데이터 분석, KPI 추적, 지연/경고 관리.">
 
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -396,6 +397,13 @@
 <body class="min-h-screen">
     <!-- Skip Link for Keyboard Users -->
     <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
+
+    <!-- Fallback for JavaScript Disabled -->
+    <noscript>
+        <div style="background: #fef3cd; color: #856404; padding: 16px; text-align: center; border-bottom: 1px solid #ffc107;">
+            이 대시보드는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 활성화해 주세요.
+        </div>
+    </noscript>
 
     <!-- Sidebar Navigation Toggle -->
     <button id="sidebarToggle" class="sidebar-toggle no-print" aria-label="사이드바 토글" aria-expanded="false" aria-controls="sidebarNav" title="메뉴 (M)">
