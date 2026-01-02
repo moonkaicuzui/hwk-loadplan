@@ -528,7 +528,7 @@
                         placeholder="비밀번호 입력">
                 </div>
 
-                <div id="loginError" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm text-center">
+                <div id="loginError" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-300 text-sm text-center" role="alert" aria-live="assertive">
                     아이디 또는 비밀번호가 올바르지 않습니다.
                 </div>
 
@@ -2121,8 +2121,12 @@ function calculateVendorScore(vendor) {
                         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }, window.innerWidth < 1024 ? 300 : 0);
                     // Update active state
-                    navItems.forEach(nav => nav.classList.remove('active'));
+                    navItems.forEach(nav => {
+                        nav.classList.remove('active');
+                        nav.removeAttribute('aria-current');
+                    });
                     item.classList.add('active');
+                    item.setAttribute('aria-current', 'true');
                 }
             }
 
@@ -2187,7 +2191,13 @@ function calculateVendorScore(vendor) {
             });
 
             navItems.forEach(item => {
-                item.classList.toggle('active', item.dataset.target === currentSection);
+                const isActive = item.dataset.target === currentSection;
+                item.classList.toggle('active', isActive);
+                if (isActive) {
+                    item.setAttribute('aria-current', 'true');
+                } else {
+                    item.removeAttribute('aria-current');
+                }
             });
         }
 
