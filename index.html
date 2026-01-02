@@ -4273,7 +4273,7 @@ function calculateVendorScore(vendor) {
                 </div>
             </div>
 
-            <h4 class="font-semibold mb-4">📊 공정별 생산 현황</h4>
+            <h4 class="font-semibold mb-4"><span aria-hidden="true">📊 </span>공정별 생산 현황</h4>
             <div class="process-timeline mb-6 justify-center">`;
 
             PROCESS_ORDER.forEach((key, i) => {
@@ -4290,7 +4290,7 @@ function calculateVendorScore(vendor) {
                 html += `
                 <div class="process-step ${stepClass}">
                     <div class="text-xs font-medium mb-1">${PROCESS_NAMES[key]}</div>
-                    <div class="text-lg font-bold">${status === 'completed' ? '✅' : status === 'partial' ? '🔄' : '⏳'}</div>
+                    <div class="text-lg font-bold" aria-hidden="true">${status === 'completed' ? '✅' : status === 'partial' ? '🔄' : '⏳'}</div>
                     <div class="text-xs">${formatNumber(completed)}/${formatNumber(total)}</div>
                     <div class="text-xs text-secondary">${total > 0 ? ((completed/total)*100).toFixed(0) : 0}%</div>
                 </div>`;
@@ -4302,7 +4302,7 @@ function calculateVendorScore(vendor) {
 
             html += `</div>
 
-            <h4 class="font-semibold mb-4">📈 공정별 상세 현황</h4>
+            <h4 class="font-semibold mb-4"><span aria-hidden="true">📈 </span>공정별 상세 현황</h4>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 dark:bg-gray-700">
