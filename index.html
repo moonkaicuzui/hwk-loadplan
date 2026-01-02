@@ -89,6 +89,13 @@
         /* Sortable headers - 접근성 개선 */
         .sort-header { cursor: pointer; user-select: none; position: relative; }
         .sort-header:focus { outline: 2px solid #3b82f6; outline-offset: 2px; }
+
+        /* Focus-visible for keyboard navigation */
+        :focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
+        button:focus:not(:focus-visible) { outline: none; }
+
+        /* Screen reader only utility */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
         .sort-header:hover { background: rgba(59, 130, 246, 0.1); }
         .sort-header::after { content: '⇅'; margin-left: 4px; opacity: 0.3; font-size: 10px; }
         .sort-header.asc::after { content: '↑'; opacity: 1; }
@@ -635,7 +642,7 @@
                     </div>
                     <div class="text-right">
                         <div class="text-sm text-blue-100">마지막 업데이트</div>
-                        <div class="font-semibold text-sm" id="lastUpdateTime">로딩 중...</div>
+                        <div class="font-semibold text-sm" id="lastUpdateTime" aria-busy="true" aria-live="polite">로딩 중...</div>
                     </div>
                 </div>
             </div>
@@ -908,7 +915,7 @@
                         📅 계획 담당자
                         <span class="text-xs font-normal text-gray-500">생산계획 최적화</span>
                     </h3>
-                    <div id="planningRecommendations" class="space-y-2 text-sm">
+                    <div id="planningRecommendations" class="space-y-2 text-sm" aria-busy="true" aria-live="polite">
                         <div class="text-gray-400">데이터 로딩 중...</div>
                     </div>
                 </div>
@@ -919,7 +926,7 @@
                         ✅ 품질 담당자
                         <span class="text-xs font-normal text-gray-500">품질 리스크 관리</span>
                     </h3>
-                    <div id="qualityRecommendations" class="space-y-2 text-sm">
+                    <div id="qualityRecommendations" class="space-y-2 text-sm" aria-busy="true" aria-live="polite">
                         <div class="text-gray-400">데이터 로딩 중...</div>
                     </div>
                 </div>
