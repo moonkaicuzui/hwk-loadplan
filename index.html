@@ -363,9 +363,30 @@
                 height: 40px;
             }
         }
+
+        /* Skip Link for Accessibility */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            z-index: 10000;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 0 0 4px 0;
+            transition: top 0.2s;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Skip Link for Keyboard Users -->
+    <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
+
     <!-- Sidebar Navigation Toggle -->
     <button id="sidebarToggle" class="sidebar-toggle no-print" aria-label="사이드바 토글" title="메뉴 (M)">
         <span id="toggleIcon">☰</span>
@@ -546,7 +567,7 @@
     </div>
 
     <!-- Main Content Wrapper -->
-    <div class="main-content">
+    <div id="main-content" class="main-content" role="main">
     <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg no-print" role="banner" aria-label="Rachgia Factory 대시보드 헤더">
         <div class="max-w-[2000px] mx-auto px-4 py-4">
             <div class="flex items-center justify-between flex-wrap gap-2">
