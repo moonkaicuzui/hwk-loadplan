@@ -5170,6 +5170,7 @@ function calculateVendorScore(vendor) {
                 html += `<h4 class="font-semibold mb-2">지연 완료 오더 (최근 10건)</h4>
                     <div class="max-h-60 overflow-y-auto">
                         <table class="w-full text-sm">
+                            <caption class="sr-only">지연 완료 오더 목록</caption>
                             <thead class="bg-gray-50 dark:bg-gray-700"><tr>
                                 <th scope="col" class="px-2 py-1 text-left">PO</th>
                                 <th scope="col" class="px-2 py-1">CRD</th>
@@ -5221,6 +5222,7 @@ function calculateVendorScore(vendor) {
                 html += `<h4 class="font-semibold mb-2">고위험 오더 TOP 10</h4>
                     <div class="max-h-60 overflow-y-auto">
                         <table class="w-full text-sm">
+                            <caption class="sr-only">고위험 오더 목록</caption>
                             <thead class="bg-gray-50 dark:bg-gray-700"><tr>
                                 <th scope="col" class="px-2 py-1 text-left">PO</th>
                                 <th scope="col" class="px-2 py-1">잔량</th>
@@ -5262,6 +5264,7 @@ function calculateVendorScore(vendor) {
                 html += `<h4 class="font-semibold mb-2">불합격 오더</h4>
                     <div class="max-h-60 overflow-y-auto">
                         <table class="w-full text-sm">
+                            <caption class="sr-only">불합격 오더 목록</caption>
                             <thead class="bg-gray-50 dark:bg-gray-700"><tr>
                                 <th scope="col" class="px-2 py-1 text-left">PO</th>
                                 <th scope="col" class="px-2 py-1">모델</th>
