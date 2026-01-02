@@ -2844,14 +2844,14 @@ function calculateVendorScore(vendor) {
         function populateFilters() {
             const yearMonthKey = dateMode === 'sdd' ? 'sddYearMonth' : 'crdYearMonth';
             const months = [...new Set(allData.map(d => d[yearMonthKey] || d.sddYearMonth).filter(Boolean))].sort();
-            document.getElementById('monthFilter').innerHTML = '<option value="">전체</option>' + months.map(m => `<option value="${m}">${m}</option>`).join('');
+            document.getElementById('monthFilter').innerHTML = '<option value="">전체</option>' + months.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
 
             const destinations = [...new Set(allData.map(d => d.destination).filter(Boolean))].sort();
             const destSelect = document.getElementById('destFilter');
-            destSelect.innerHTML = '<option value="">전체</option><option value="asia">중요 행선지만</option>' + destinations.map(d => `<option value="${d}">${d}</option>`).join('');
+            destSelect.innerHTML = '<option value="">전체</option><option value="asia">중요 행선지만</option>' + destinations.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
 
             const vendors = [...new Set(allData.map(d => d.outsoleVendor).filter(Boolean))].sort();
-            document.getElementById('vendorFilter').innerHTML = '<option value="">전체</option>' + vendors.map(v => `<option value="${v}">${v}</option>`).join('');
+            document.getElementById('vendorFilter').innerHTML = '<option value="">전체</option>' + vendors.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
         }
 
         function setupEventListeners() {
