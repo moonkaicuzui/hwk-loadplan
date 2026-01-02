@@ -574,7 +574,7 @@
 
             <!-- File Format Guide -->
             <div class="mt-8 bg-white/5 rounded-xl p-4 text-sm text-blue-200">
-                <h3 class="font-semibold text-white mb-2">📋 지원 파일 형식</h3>
+                <h3 class="font-semibold text-white mb-2"><span aria-hidden="true">📋 </span>지원 파일 형식</h3>
                 <ul class="space-y-1 text-xs">
                     <li>• BAL 엑셀 파일 (.xlsx) - 공장별 생산현황</li>
                     <li>• 필수 컬럼: PO#, ARTICLE, QTY, CRD, SDD, 공정별 실적</li>
@@ -787,7 +787,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- Delay Severity Distribution -->
                 <div class="bg-white/5 rounded-lg p-4">
-                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">📉 지연 심각도 분포</h4>
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2"><span aria-hidden="true">📉 </span>지연 심각도 분포</h4>
                     <div class="h-32"><canvas id="delaySeverityChart" role="img" aria-label="지연 심각도 분포 차트"></canvas></div>
                     <div class="flex justify-around text-xs mt-3 pt-2 border-t border-white/10">
                         <div class="text-center">
@@ -807,7 +807,7 @@
 
                 <!-- Root Cause Analysis -->
                 <div class="bg-white/5 rounded-lg p-4">
-                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">🔍 지연 원인 분석</h4>
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2"><span aria-hidden="true">🔍 </span>지연 원인 분석</h4>
                     <div class="h-32"><canvas id="rootCauseChart" role="img" aria-label="지연 원인 분석 차트"></canvas></div>
                     <div class="text-xs mt-3 pt-2 border-t border-white/10">
                         주요 원인: <span id="primaryRootCause" class="text-red-300 font-medium">-</span>
@@ -817,7 +817,7 @@
 
                 <!-- Vendor Performance -->
                 <div class="bg-white/5 rounded-lg p-4">
-                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2">🏭 벤더 성과 TOP 5</h4>
+                    <h4 class="text-sm font-medium mb-3 flex items-center gap-2"><span aria-hidden="true">🏭 </span>벤더 성과 TOP 5</h4>
                     <div id="vendorPerformanceList" class="space-y-2 text-sm"></div>
                 </div>
             </div>
