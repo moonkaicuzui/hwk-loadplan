@@ -1288,7 +1288,7 @@
     </div>
 
     <!-- Order Detail Modal (Process Visual) -->
-    <div id="orderProcessModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+    <div id="orderProcessModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="orderProcessTitle">
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme">
                 <h3 class="text-lg font-semibold" id="orderProcessTitle">오더 상세</h3>
@@ -5336,6 +5336,9 @@ function calculateVendorScore(vendor) {
                 modal = document.createElement('div');
                 modal.id = 'infoModal';
                 modal.className = 'fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4';
+                modal.setAttribute('role', 'dialog');
+                modal.setAttribute('aria-modal', 'true');
+                modal.setAttribute('aria-labelledby', 'infoModalTitle');
                 modal.innerHTML = `
                     <div class="bg-card rounded-xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
                         <div class="p-4 border-b border-theme flex justify-between items-center">
