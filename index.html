@@ -512,7 +512,7 @@
                     <h2 class="text-2xl font-bold text-white mb-2">BAL 엑셀 파일 업로드</h2>
                     <p class="text-blue-200 mb-6">파일을 드래그하거나 클릭하여 선택하세요</p>
                     <input type="file" id="fileInput" accept=".xlsx,.xls" multiple class="hidden">
-                    <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors">
+                    <button onclick="document.getElementById('fileInput').click()" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold px-8 py-3 rounded-xl transition-colors" aria-label="BAL Excel 파일 선택">
                         📂 파일 선택 (다중 선택 가능)
                     </button>
                     <p class="text-blue-300/70 text-sm mt-4">지원 형식: .xlsx, .xls (BAL 파일) - 여러 파일 동시 업로드 가능</p>
@@ -575,15 +575,15 @@
                         <input type="checkbox" id="autoRefreshToggle" class="w-4 h-4" checked>
                     </div>
                     <!-- File Upload Button -->
-                    <button onclick="showUploadOverlay()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="파일 업로드">
+                    <button onclick="showUploadOverlay()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="파일 업로드" aria-label="새 파일 업로드">
                         📁 <span class="hidden md:inline">파일 변경</span>
                     </button>
                     <!-- Logout Button -->
-                    <button onclick="handleLogout()" class="bg-red-500/50 hover:bg-red-500/70 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="로그아웃">
+                    <button onclick="handleLogout()" class="bg-red-500/50 hover:bg-red-500/70 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="로그아웃" aria-label="로그아웃">
                         🚪 <span class="hidden md:inline">로그아웃</span>
                     </button>
                     <!-- Help Button -->
-                    <button onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말">
+                    <button onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말" aria-label="도움말 보기">
                         ❓
                     </button>
                     <!-- Dark Mode Toggle -->
@@ -991,7 +991,7 @@
         <div id="section-filter" class="bg-card rounded-xl shadow-sm p-4 mb-6 no-print" role="search" aria-label="필터 옵션">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="font-medium">🔍 필터 <span class="kbd ml-2">F</span></h4>
-                <button onclick="resetAllFilters()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded-lg transition">
+                <button onclick="resetAllFilters()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded-lg transition" aria-label="모든 필터 초기화" title="필터 초기화 (R)">
                     ↺ 필터 초기화 <span class="kbd">R</span>
                 </button>
             </div>
@@ -1188,8 +1188,8 @@
                             <div id="pagination" class="text-sm text-secondary mt-1"></div>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled>← 이전</button>
-                            <button onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn">다음 →</button>
+                            <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled aria-label="이전 페이지">← 이전</button>
+                            <button onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn" aria-label="다음 페이지">다음 →</button>
                             <button onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium" aria-label="Excel 파일로 내보내기">📥 Excel</button>
                         </div>
                     </div>
@@ -1251,7 +1251,7 @@
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                 <h3 id="helpModalTitle" class="text-lg font-semibold">📖 대시보드 로직 설명서</h3>
-                <button onclick="closeHelpModal()" class="text-2xl hover:text-red-300">×</button>
+                <button onclick="closeHelpModal()" class="text-2xl hover:text-red-300" aria-label="도움말 닫기">×</button>
             </div>
             <div class="p-6 overflow-y-auto text-sm" style="max-height: calc(90vh - 120px);">
                 <!-- 핵심 지표 -->
@@ -1437,7 +1437,7 @@ function calculateVendorScore(vendor) {
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
                 <h3 id="poRegisterModalTitle" class="text-lg font-semibold">⭐ 관심 PO 등록</h3>
-                <button onclick="closePoRegisterModal()" class="text-2xl hover:text-red-300">×</button>
+                <button onclick="closePoRegisterModal()" class="text-2xl hover:text-red-300" aria-label="PO 등록 모달 닫기">×</button>
             </div>
             <div class="p-6">
                 <div class="mb-4">
@@ -1489,7 +1489,7 @@ function calculateVendorScore(vendor) {
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
                 <h3 id="watchedPoDetailTitle" class="text-lg font-semibold">⭐ PO 상세 현황</h3>
-                <button onclick="closeWatchedPoDetailModal()" class="text-2xl hover:text-red-300">×</button>
+                <button onclick="closeWatchedPoDetailModal()" class="text-2xl hover:text-red-300" aria-label="PO 상세 모달 닫기">×</button>
             </div>
             <div id="watchedPoDetailContent" class="p-6 overflow-y-auto" style="max-height: calc(90vh - 70px);">
                 <!-- 상세 내용이 동적으로 채워짐 -->
