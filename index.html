@@ -566,8 +566,8 @@
                 </div>
 
                 <!-- Loading State -->
-                <div id="uploadLoading" class="hidden">
-                    <div class="loading-spinner mx-auto mb-4"></div>
+                <div id="uploadLoading" class="hidden" role="status" aria-busy="true" aria-live="polite" aria-label="파일 업로드 처리 중">
+                    <div class="loading-spinner mx-auto mb-4" aria-hidden="true"></div>
                     <p class="text-white">파일 파싱 중...</p>
                 </div>
             </div>
@@ -584,9 +584,9 @@
     </div>
 
     <!-- Loading Overlay (for subsequent loads) -->
-    <div id="loadingOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 z-40 hidden items-center justify-center">
+    <div id="loadingOverlay" class="fixed inset-0 bg-white dark:bg-gray-900 bg-opacity-90 z-40 hidden items-center justify-center" role="status" aria-busy="true" aria-live="polite" aria-label="데이터 로딩 중">
         <div class="text-center">
-            <div class="loading-spinner mx-auto mb-4"></div>
+            <div class="loading-spinner mx-auto mb-4" aria-hidden="true"></div>
             <p class="text-gray-600 dark:text-gray-300">데이터 처리 중...</p>
         </div>
     </div>
