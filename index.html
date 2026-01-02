@@ -137,9 +137,327 @@
 
         .kbd { display: inline-block; padding: 2px 6px; font-size: 11px; background: #e5e7eb; border-radius: 4px; font-family: monospace; }
         .dark .kbd { background: #4b5563; }
+
+        /* Watched PO Styles */
+        .watched-po-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .dark .watched-po-card {
+            background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
+        }
+        .watched-po-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3);
+        }
+        .watched-po-card.alert {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-color: #f59e0b;
+            animation: alert-pulse 2s infinite;
+        }
+        .dark .watched-po-card.alert {
+            background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+        }
+        @keyframes alert-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        .watched-po-progress {
+            display: flex;
+            gap: 4px;
+            margin-top: 12px;
+        }
+        .watched-po-stage {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            overflow: hidden;
+        }
+        .dark .watched-po-stage { background: #4b5563; }
+        .watched-po-stage.completed { background: #22c55e; }
+        .watched-po-stage.partial { background: linear-gradient(90deg, #22c55e 50%, #e5e7eb 50%); }
+        .dark .watched-po-stage.partial { background: linear-gradient(90deg, #22c55e 50%, #4b5563 50%); }
+        .po-register-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        .po-register-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4);
+        }
+        .po-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .po-remove-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        .first-input-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            animation: badge-glow 1.5s infinite;
+        }
+        @keyframes badge-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            padding-top: 60px;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+        }
+        .sidebar-nav.open { transform: translateX(0); }
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 2px; }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            left: 12px;
+            top: 12px;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            font-size: 18px;
+        }
+        .sidebar-toggle:hover {
+            background: #3b82f6;
+            color: white;
+            transform: scale(1.05);
+        }
+        .sidebar-toggle.active {
+            left: 272px;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .nav-section { padding: 12px 16px; }
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateX(4px);
+        }
+        .nav-item.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .nav-item .nav-icon { font-size: 16px; width: 24px; text-align: center; }
+
+        /* Main Content - Push layout for desktop */
+        .main-content {
+            transition: margin-left 0.3s ease, transform 0.3s ease;
+            min-height: 100vh;
+        }
+        .main-content.sidebar-open {
+            margin-left: 260px;
+        }
+
+        /* Mobile: Overlay mode instead of push */
+        @media (max-width: 1024px) {
+            .sidebar-nav { width: 280px; }
+            .sidebar-toggle.active { left: 292px; }
+            .main-content.sidebar-open { margin-left: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-nav { width: 85vw; max-width: 320px; }
+            .sidebar-toggle.active { left: calc(85vw + 12px); max-left: 332px; }
+            .sidebar-toggle {
+                left: 8px;
+                top: 8px;
+                width: 40px;
+                height: 40px;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
+    <!-- Sidebar Navigation Toggle -->
+    <button id="sidebarToggle" class="sidebar-toggle no-print" aria-label="사이드바 토글" title="메뉴 (M)">
+        <span id="toggleIcon">☰</span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay no-print"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebarNav" class="sidebar-nav no-print" role="navigation" aria-label="대시보드 네비게이션">
+        <div class="px-4 pb-4 border-b border-theme">
+            <div class="text-lg font-bold">🏭 Dashboard</div>
+            <div class="text-xs text-secondary">섹션 바로가기</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">관심 PO</div>
+            <div class="nav-item" data-target="section-watched-po" id="navWatchedPo">
+                <span class="nav-icon">⭐</span>관심 PO 현황
+                <span id="watchedPoCount" class="ml-auto text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <div class="nav-item" onclick="openPoRegisterModal()">
+                <span class="nav-icon">➕</span>PO 등록하기
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">요약</div>
+            <div class="nav-item" data-target="section-summary">
+                <span class="nav-icon">📋</span>월요 오더 현황
+            </div>
+            <div class="nav-item" data-target="section-executive">
+                <span class="nav-icon">🎯</span>Executive Summary
+            </div>
+            <div class="nav-item" data-target="section-insights">
+                <span class="nav-icon">📊</span>경영진 인사이트
+            </div>
+            <div class="nav-item" data-target="section-alerts">
+                <span class="nav-icon">🚨</span>알림 현황
+            </div>
+            <div class="nav-item" data-target="section-recommendations">
+                <span class="nav-icon">💡</span>담당자 권고사항
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">현황</div>
+            <div class="nav-item" data-target="section-kpi">
+                <span class="nav-icon">📈</span>KPI 요약
+            </div>
+            <div class="nav-item" data-target="section-process">
+                <span class="nav-icon">⚙️</span>공정별 현황
+            </div>
+            <div class="nav-item" data-target="section-factory">
+                <span class="nav-icon">🏭</span>공장별 완료율
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">일정/벤더</div>
+            <div class="nav-item" data-target="section-calendar">
+                <span class="nav-icon">📅</span>예정 캘린더
+            </div>
+            <div class="nav-item" data-target="section-vendor">
+                <span class="nav-icon">👟</span>아웃솔 벤더
+            </div>
+            <div class="nav-item" data-target="section-destination">
+                <span class="nav-icon">🎯</span>중요 행선지
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">필터/분석</div>
+            <div class="nav-item" data-target="section-filter">
+                <span class="nav-icon">🔍</span>필터
+            </div>
+            <div class="nav-item" data-target="section-tabs">
+                <span class="nav-icon">📊</span>상세 분석 탭
+            </div>
+        </div>
+
+        <div class="nav-section border-t border-theme mt-2 pt-2">
+            <div class="nav-section-title">단축키</div>
+            <div class="text-xs text-secondary space-y-1 px-2">
+                <div><span class="kbd">M</span> 메뉴 토글</div>
+                <div><span class="kbd">S</span> 검색</div>
+                <div><span class="kbd">F</span> 필터</div>
+                <div><span class="kbd">D</span> 상세 탭</div>
+            </div>
+        </div>
+    </nav>
+
     <!-- Login Overlay - z-60으로 uploadOverlay 위에 표시 -->
     <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 z-[60] flex items-center justify-center">
         <div class="max-w-md w-full mx-4">
@@ -227,6 +545,8 @@
         </div>
     </div>
 
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
     <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg no-print" role="banner" aria-label="Rachgia Factory 대시보드 헤더">
         <div class="max-w-[2000px] mx-auto px-4 py-4">
             <div class="flex items-center justify-between flex-wrap gap-2">
@@ -284,7 +604,7 @@
     </header>
 
     <!-- 월요 오더 현황 요약 - 상단 고정 -->
-    <div id="weeklyOrderSummary" class="sticky top-0 z-40 bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg no-print">
+    <div id="section-summary" class="sticky top-0 z-40 bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg no-print">
         <div class="max-w-[2000px] mx-auto px-4 py-3">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <h2 class="text-lg font-bold flex items-center gap-2">
@@ -334,7 +654,7 @@
 
     <div class="max-w-[2000px] mx-auto px-4 py-6">
         <!-- Executive Summary -->
-        <div id="execSummary" class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
+        <div id="section-executive" class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">🎯 Executive Summary</h2>
                 <div class="text-sm opacity-80">기준: <span id="dateModeLabel">SDD</span></div>
@@ -372,7 +692,7 @@
         </div>
 
         <!-- Executive Insights - 경영진 핵심 인사이트 -->
-        <div id="execInsights" class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-xl shadow-lg p-6 mb-6 text-white">
+        <div id="section-insights" class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-xl shadow-lg p-6 mb-6 text-white">
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold flex items-center gap-2">
                     📊 경영진 인사이트
@@ -458,7 +778,7 @@
         </div>
 
         <!-- Alert Cards -->
-        <div id="alertSection" class="hidden mb-6">
+        <div id="section-alerts" class="hidden mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showDelayedOrders()">
                     <div class="flex items-center gap-3">
@@ -503,8 +823,37 @@
             </div>
         </div>
 
+        <!-- 관심 PO 모니터링 섹션 -->
+        <div id="section-watched-po" class="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-sky-900/20 dark:to-blue-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-sky-500">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold flex items-center gap-2 text-sky-800 dark:text-sky-200">
+                    ⭐ 관심 PO 모니터링
+                    <span id="watchedPoAlertBadge" class="hidden first-input-badge">🔔 투입 시작!</span>
+                </h2>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-sky-600 dark:text-sky-400" id="watchedPoLastUpdate">-</span>
+                    <button class="po-register-btn" onclick="openPoRegisterModal()">
+                        ➕ PO 등록
+                    </button>
+                </div>
+            </div>
+
+            <div id="watchedPoEmpty" class="text-center py-8 text-gray-500">
+                <div class="text-4xl mb-3">📋</div>
+                <div class="font-medium">등록된 관심 PO가 없습니다</div>
+                <div class="text-sm mt-1">PO를 등록하면 생산 현황을 실시간으로 모니터링할 수 있습니다</div>
+                <button class="po-register-btn mt-4" onclick="openPoRegisterModal()">
+                    ➕ 첫 PO 등록하기
+                </button>
+            </div>
+
+            <div id="watchedPoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
+                <!-- 등록된 PO 카드들이 여기에 동적으로 생성됨 -->
+            </div>
+        </div>
+
         <!-- 담당자 권고사항 (Action Recommendations) -->
-        <div id="actionRecommendations" class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-orange-500">
+        <div id="section-recommendations" class="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-orange-500">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-lg font-bold flex items-center gap-2 text-orange-800 dark:text-orange-200">
                     📋 담당자 권고사항
@@ -551,7 +900,7 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div id="section-kpi" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-blue-500">
                 <div class="text-secondary text-sm">총 오더 건수</div>
                 <div class="text-2xl font-bold" id="totalOrders">-</div>
@@ -578,12 +927,12 @@
         <!-- Main Content Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <!-- Production Flow -->
-            <div class="lg:col-span-2 bg-card rounded-xl shadow-sm p-6">
+            <div id="section-process" class="lg:col-span-2 bg-card rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-semibold mb-4">⚙️ 공정별 생산 현황 <span class="text-sm font-normal text-secondary">(🔴 = 병목공정)</span></h3>
                 <div id="funnelChart" class="grid grid-cols-8 gap-1 mb-4"></div>
                 <div id="processProgress" class="space-y-3"></div>
             </div>
-            <div class="bg-card rounded-xl shadow-sm p-6">
+            <div id="section-factory" class="bg-card rounded-xl shadow-sm p-6">
                 <h3 class="text-lg font-semibold mb-4">🏭 공장별 완료율</h3>
                 <div id="factoryCards" class="space-y-3"></div>
                 <div class="mt-4 pt-4 border-t border-theme">
@@ -594,7 +943,7 @@
         </div>
 
         <!-- Shipping Calendar -->
-        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+        <div id="section-calendar" class="bg-card rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-semibold mb-4">📅 예정 캘린더 <span class="text-sm font-normal text-secondary" id="calendarLabel">(SDD 기준)</span></h3>
             <div class="flex justify-between items-center mb-4">
                 <button onclick="prevMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600">◀ 이전</button>
@@ -610,7 +959,7 @@
         </div>
 
         <!-- Outsole Vendor Section -->
-        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+        <div id="section-vendor" class="bg-card rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-semibold mb-4">👟 아웃솔 벤더별 현황</h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div><div class="chart-container"><canvas id="vendorChart"></canvas></div></div>
@@ -633,13 +982,13 @@
         </div>
 
         <!-- Important Destinations -->
-        <div class="bg-card rounded-xl shadow-sm p-6 mb-6">
+        <div id="section-destination" class="bg-card rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-semibold mb-4">🎯 중요 행선지</h3>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4" id="asiaCards"></div>
         </div>
 
         <!-- Filters -->
-        <div class="bg-card rounded-xl shadow-sm p-4 mb-6 no-print" role="search" aria-label="필터 옵션">
+        <div id="section-filter" class="bg-card rounded-xl shadow-sm p-4 mb-6 no-print" role="search" aria-label="필터 옵션">
             <div class="flex justify-between items-center mb-3">
                 <h4 class="font-medium">🔍 필터 <span class="kbd ml-2">F</span></h4>
                 <button onclick="resetAllFilters()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded-lg transition">
@@ -710,7 +1059,7 @@
         </div>
 
         <!-- Tabs -->
-        <div class="bg-card rounded-xl shadow-sm mb-6">
+        <div id="section-tabs" class="bg-card rounded-xl shadow-sm mb-6">
             <div class="border-b border-theme overflow-x-auto">
                 <nav class="flex -mb-px min-w-max" role="tablist" aria-label="대시보드 탭 네비게이션">
                     <button class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" tabindex="0">📅 월별</button>
@@ -898,10 +1247,10 @@
     </div>
 
     <!-- Help Modal - 도움말 모달 -->
-    <div id="helpModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4">
+    <div id="helpModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="helpModalTitle">
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <h3 class="text-lg font-semibold">📖 대시보드 로직 설명서</h3>
+                <h3 id="helpModalTitle" class="text-lg font-semibold">📖 대시보드 로직 설명서</h3>
                 <button onclick="closeHelpModal()" class="text-2xl hover:text-red-300">×</button>
             </div>
             <div class="p-6 overflow-y-auto text-sm" style="max-height: calc(90vh - 120px);">
@@ -1083,6 +1432,71 @@ function calculateVendorScore(vendor) {
         </div>
     </div>
 
+    <!-- PO 등록 모달 -->
+    <div id="poRegisterModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="poRegisterModalTitle">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
+                <h3 id="poRegisterModalTitle" class="text-lg font-semibold">⭐ 관심 PO 등록</h3>
+                <button onclick="closePoRegisterModal()" class="text-2xl hover:text-red-300">×</button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-2">PO 번호 입력</label>
+                    <input type="text" id="poRegisterInput"
+                        class="w-full px-4 py-3 border border-theme rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card"
+                        placeholder="예: 4501234567">
+                    <div id="poRegisterHint" class="mt-2 text-sm text-gray-500"></div>
+                </div>
+
+                <!-- PO 검색 결과 미리보기 -->
+                <div id="poPreview" class="hidden mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div class="text-sm font-medium text-green-600 dark:text-green-400 mb-2">✅ PO 찾음</div>
+                    <div id="poPreviewContent" class="text-sm space-y-1"></div>
+                </div>
+
+                <!-- PO 찾지 못함 -->
+                <div id="poNotFound" class="hidden mb-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div class="text-sm font-medium text-red-600 dark:text-red-400">❌ 해당 PO를 찾을 수 없습니다</div>
+                    <div class="text-xs text-gray-500 mt-1">업로드된 데이터에서 PO 번호를 확인해주세요</div>
+                </div>
+
+                <!-- 알림 설정 -->
+                <div class="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" id="poAlertCheckbox" checked class="w-5 h-5 text-blue-600 rounded">
+                        <div>
+                            <div class="font-medium text-amber-800 dark:text-amber-200">🔔 첫 투입 시작 알림</div>
+                            <div class="text-xs text-amber-600 dark:text-amber-400">재단(S_CUT) 공정이 시작되면 알림을 표시합니다</div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closePoRegisterModal()" class="flex-1 px-4 py-3 border border-theme rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        취소
+                    </button>
+                    <button id="poRegisterSubmit" onclick="registerWatchedPo()" disabled
+                        class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        등록하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PO 상세 모달 -->
+    <div id="watchedPoDetailModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="watchedPoDetailTitle">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-sky-500 to-blue-600 text-white">
+                <h3 id="watchedPoDetailTitle" class="text-lg font-semibold">⭐ PO 상세 현황</h3>
+                <button onclick="closeWatchedPoDetailModal()" class="text-2xl hover:text-red-300">×</button>
+            </div>
+            <div id="watchedPoDetailContent" class="p-6 overflow-y-auto" style="max-height: calc(90vh - 70px);">
+                <!-- 상세 내용이 동적으로 채워짐 -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Data and state
         let allData = [];
@@ -1093,6 +1507,632 @@ function calculateVendorScore(vendor) {
         let charts = {};
         let dateMode = 'sdd'; // 'sdd' or 'crd'
         let dateRangeFilter = 'all'; // 'all', 'week', 'month'
+
+        // Sidebar state
+        let sidebarOpen = false;
+
+        // Watched PO state
+        let watchedPos = [];
+        const WATCHED_PO_KEY = 'rachgia_watched_pos';
+
+        // Load watched POs from localStorage
+        function loadWatchedPos() {
+            try {
+                const saved = localStorage.getItem(WATCHED_PO_KEY);
+                watchedPos = saved ? JSON.parse(saved) : [];
+            } catch (e) {
+                console.error('Failed to load watched POs:', e);
+                watchedPos = [];
+            }
+        }
+
+        // Save watched POs to localStorage
+        function saveWatchedPos() {
+            try {
+                localStorage.setItem(WATCHED_PO_KEY, JSON.stringify(watchedPos));
+            } catch (e) {
+                console.error('Failed to save watched POs:', e);
+            }
+        }
+
+        // Open PO register modal
+        function openPoRegisterModal() {
+            document.getElementById('poRegisterModal').classList.remove('hidden');
+            document.getElementById('poRegisterInput').value = '';
+            document.getElementById('poPreview').classList.add('hidden');
+            document.getElementById('poNotFound').classList.add('hidden');
+            document.getElementById('poRegisterSubmit').disabled = true;
+            document.getElementById('poRegisterInput').focus();
+        }
+
+        // Close PO register modal
+        function closePoRegisterModal() {
+            document.getElementById('poRegisterModal').classList.add('hidden');
+        }
+
+        // Search PO as user types
+        function searchPoForRegister(poNumber) {
+            const trimmed = poNumber.trim();
+            const preview = document.getElementById('poPreview');
+            const notFound = document.getElementById('poNotFound');
+            const submitBtn = document.getElementById('poRegisterSubmit');
+
+            if (trimmed.length < 3) {
+                preview.classList.add('hidden');
+                notFound.classList.add('hidden');
+                submitBtn.disabled = true;
+                return;
+            }
+
+            // Find matching POs in allData
+            const matches = allData.filter(d => d.poNumber && d.poNumber.includes(trimmed));
+
+            if (matches.length > 0) {
+                // Check if already registered
+                const alreadyRegistered = watchedPos.some(wp => wp.poNumber === matches[0].poNumber);
+
+                if (alreadyRegistered) {
+                    notFound.classList.remove('hidden');
+                    notFound.innerHTML = '<div class="text-sm font-medium text-amber-600 dark:text-amber-400">⚠️ 이미 등록된 PO입니다</div>';
+                    preview.classList.add('hidden');
+                    submitBtn.disabled = true;
+                    return;
+                }
+
+                preview.classList.remove('hidden');
+                notFound.classList.add('hidden');
+                submitBtn.disabled = false;
+
+                // Show preview of first match
+                const d = matches[0];
+                const totalQty = matches.reduce((sum, m) => sum + (m.quantity || 0), 0);
+                document.getElementById('poPreviewContent').innerHTML = `
+                    <div><strong>PO:</strong> ${escapeHtml(d.poNumber)}</div>
+                    <div><strong>모델:</strong> ${escapeHtml(d.model || '-')}</div>
+                    <div><strong>공장:</strong> ${escapeHtml(d.factory || '-')}</div>
+                    <div><strong>행선지:</strong> ${escapeHtml(d.destination || '-')}</div>
+                    <div><strong>수량:</strong> ${formatNumber(totalQty)}족 (${matches.length}건)</div>
+                    <div><strong>CRD:</strong> ${d.crd || '-'}</div>
+                `;
+            } else {
+                preview.classList.add('hidden');
+                notFound.classList.remove('hidden');
+                notFound.innerHTML = `
+                    <div class="text-sm font-medium text-red-600 dark:text-red-400">❌ 해당 PO를 찾을 수 없습니다</div>
+                    <div class="text-xs text-gray-500 mt-1">업로드된 데이터에서 PO 번호를 확인해주세요</div>
+                `;
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Register a watched PO
+        function registerWatchedPo() {
+            const poNumber = document.getElementById('poRegisterInput').value.trim();
+            const alertEnabled = document.getElementById('poAlertCheckbox').checked;
+
+            if (!poNumber) return;
+
+            // Find matching data
+            const matches = allData.filter(d => d.poNumber && d.poNumber.includes(poNumber));
+            if (matches.length === 0) return;
+
+            const firstMatch = matches[0];
+
+            // Check current production status
+            const hasStarted = firstMatch.production?.s_cut?.completed > 0;
+
+            const watchedPo = {
+                poNumber: firstMatch.poNumber,
+                model: firstMatch.model,
+                factory: firstMatch.factory,
+                destination: firstMatch.destination,
+                alertEnabled: alertEnabled,
+                registeredAt: new Date().toISOString(),
+                alertShown: hasStarted, // If already started, don't show alert
+                lastStatus: {
+                    s_cut: firstMatch.production?.s_cut?.status || 'pending',
+                    hasStarted: hasStarted
+                }
+            };
+
+            watchedPos.push(watchedPo);
+            saveWatchedPos();
+            updateWatchedPoDisplay();
+            closePoRegisterModal();
+
+            // Show success message
+            showToast(`✅ PO ${escapeHtml(firstMatch.poNumber)} 등록 완료`);
+        }
+
+        // Remove a watched PO
+        function removeWatchedPo(poNumber) {
+            if (!confirm(`PO ${poNumber}을(를) 관심 목록에서 삭제하시겠습니까?`)) return;
+
+            watchedPos = watchedPos.filter(wp => wp.poNumber !== poNumber);
+            saveWatchedPos();
+            updateWatchedPoDisplay();
+        }
+
+        // Update watched PO display
+        function updateWatchedPoDisplay() {
+            const emptyEl = document.getElementById('watchedPoEmpty');
+            const gridEl = document.getElementById('watchedPoGrid');
+            const countEl = document.getElementById('watchedPoCount');
+            const alertBadge = document.getElementById('watchedPoAlertBadge');
+            const lastUpdateEl = document.getElementById('watchedPoLastUpdate');
+
+            countEl.textContent = watchedPos.length;
+            lastUpdateEl.textContent = `업데이트: ${new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}`;
+
+            if (watchedPos.length === 0) {
+                emptyEl.classList.remove('hidden');
+                gridEl.classList.add('hidden');
+                alertBadge.classList.add('hidden');
+                return;
+            }
+
+            emptyEl.classList.add('hidden');
+            gridEl.classList.remove('hidden');
+
+            let hasAlert = false;
+            let cardsHtml = '';
+
+            watchedPos.forEach(wp => {
+                // Find current data for this PO
+                const matches = allData.filter(d => d.poNumber === wp.poNumber);
+
+                if (matches.length === 0) {
+                    cardsHtml += createWatchedPoCard(wp, null, false);
+                    return;
+                }
+
+                // Aggregate production data
+                const totalQty = matches.reduce((sum, d) => sum + (d.quantity || 0), 0);
+                const aggregatedProd = {
+                    s_cut: { completed: 0, pending: 0 },
+                    pre_sew: { completed: 0, pending: 0 },
+                    sew_input: { completed: 0, pending: 0 },
+                    sew_bal: { completed: 0, pending: 0 },
+                    osc: { completed: 0, pending: 0 },
+                    ass_bal: { completed: 0, pending: 0 },
+                    wh_in: { completed: 0, pending: 0 },
+                    wh_out: { completed: 0, pending: 0 }
+                };
+
+                matches.forEach(m => {
+                    Object.keys(aggregatedProd).forEach(stage => {
+                        if (m.production?.[stage]) {
+                            aggregatedProd[stage].completed += m.production[stage].completed || 0;
+                            aggregatedProd[stage].pending += m.production[stage].pending || 0;
+                        }
+                    });
+                });
+
+                // Check for first input alert
+                const currentlyStarted = aggregatedProd.s_cut.completed > 0;
+                const shouldAlert = wp.alertEnabled && currentlyStarted && !wp.alertShown;
+
+                if (shouldAlert) {
+                    hasAlert = true;
+                    // Mark alert as shown
+                    wp.alertShown = true;
+                    saveWatchedPos();
+
+                    // Show notification
+                    showFirstInputNotification(wp, aggregatedProd);
+                }
+
+                const prodData = {
+                    totalQty,
+                    matches: matches.length,
+                    firstMatch: matches[0],
+                    production: aggregatedProd
+                };
+
+                cardsHtml += createWatchedPoCard(wp, prodData, shouldAlert);
+            });
+
+            gridEl.innerHTML = cardsHtml;
+
+            if (hasAlert) {
+                alertBadge.classList.remove('hidden');
+            } else {
+                alertBadge.classList.add('hidden');
+            }
+        }
+
+        // Create watched PO card HTML
+        function createWatchedPoCard(wp, prodData, showAlert) {
+            if (!prodData) {
+                return `
+                    <div class="watched-po-card relative opacity-60">
+                        <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')">×</button>
+                        <div class="font-bold text-lg mb-1">${escapeHtml(wp.poNumber)}</div>
+                        <div class="text-sm text-gray-500">데이터를 찾을 수 없습니다</div>
+                        <div class="text-xs text-gray-400 mt-2">파일을 다시 업로드해주세요</div>
+                    </div>
+                `;
+            }
+
+            const { totalQty, matches, firstMatch, production } = prodData;
+            const completionRate = totalQty > 0 ? Math.min((production.wh_in.completed / totalQty) * 100, 100).toFixed(1) : 0;
+            const alertClass = showAlert ? 'alert' : '';
+
+            // Determine current stage
+            let currentStage = '대기중';
+            const stages = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 'osc', 'ass_bal', 'wh_in', 'wh_out'];
+            const stageNames = ['재단', '선봉', '재봉투입', '재봉', '외주', '조립', '입고', '출고'];
+
+            for (let i = stages.length - 1; i >= 0; i--) {
+                if (production[stages[i]].completed > 0) {
+                    currentStage = stageNames[i];
+                    break;
+                }
+            }
+
+            // Progress stages
+            const progressHtml = stages.map(stage => {
+                const stageData = production[stage];
+                const rate = totalQty > 0 ? (stageData.completed / totalQty) : 0;
+                let statusClass = 'pending';
+                if (rate >= 1) statusClass = 'completed';
+                else if (rate > 0) statusClass = 'partial';
+                return `<div class="watched-po-stage ${statusClass}" title="${stageNames[stages.indexOf(stage)]}: ${(rate * 100).toFixed(0)}%"></div>`;
+            }).join('');
+
+            return `
+                <div class="watched-po-card relative ${alertClass}" onclick="showWatchedPoDetail('${escapeHtml(wp.poNumber)}')">
+                    <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')">×</button>
+
+                    ${showAlert ? '<div class="first-input-badge absolute top-2 left-2">🔔 투입 시작!</div>' : ''}
+
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="font-bold text-lg">${escapeHtml(wp.poNumber)}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">${escapeHtml(firstMatch.model || '-')}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-2xl font-bold ${completionRate >= 100 ? 'text-green-600' : 'text-blue-600'}">${completionRate}%</div>
+                            <div class="text-xs text-gray-500">완료율</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div><span class="text-gray-500">공장:</span> ${escapeHtml(firstMatch.factory || '-')}</div>
+                        <div><span class="text-gray-500">행선지:</span> ${escapeHtml(firstMatch.destination || '-')}</div>
+                        <div><span class="text-gray-500">수량:</span> ${formatNumber(totalQty)}족</div>
+                        <div><span class="text-gray-500">현재:</span> <strong>${currentStage}</strong></div>
+                    </div>
+
+                    <div class="text-xs text-gray-500 mb-1">공정 진행률</div>
+                    <div class="watched-po-progress">${progressHtml}</div>
+
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>재단</span>
+                        <span>출고</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show first input notification
+        function showFirstInputNotification(wp, production) {
+            // Create notification element
+            const notif = document.createElement('div');
+            notif.className = 'fixed top-4 right-4 bg-amber-500 text-white px-6 py-4 rounded-xl shadow-2xl z-[100] animate-pulse max-w-sm';
+            notif.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <span class="text-3xl">🔔</span>
+                    <div>
+                        <div class="font-bold text-lg">생산 시작 알림!</div>
+                        <div class="text-sm mt-1">PO ${escapeHtml(wp.poNumber)}</div>
+                        <div class="text-xs mt-1 opacity-80">${escapeHtml(wp.model || '')} - 재단 공정 시작됨</div>
+                        <div class="text-xs mt-2 opacity-60">완료량: ${formatNumber(production.s_cut.completed)}족</div>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-red-200 text-xl ml-2">×</button>
+                </div>
+            `;
+            document.body.appendChild(notif);
+
+            // Auto remove after 10 seconds
+            setTimeout(() => {
+                notif.remove();
+            }, 10000);
+
+            // Play notification sound if supported
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJawoJZmXnSflZBvaGd0jZCIfHd3gH1+gIaKi4eDf3t2dHd9g4qOj42Kh4J9eHZ1dn2DioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioo=');
+                audio.volume = 0.5;
+                audio.play().catch(() => {}); // Ignore errors if autoplay is blocked
+            } catch (e) {}
+        }
+
+        // Show watched PO detail modal
+        function showWatchedPoDetail(poNumber) {
+            const matches = allData.filter(d => d.poNumber === poNumber);
+            const wp = watchedPos.find(w => w.poNumber === poNumber);
+
+            if (matches.length === 0) {
+                alert('PO 데이터를 찾을 수 없습니다.');
+                return;
+            }
+
+            document.getElementById('watchedPoDetailTitle').textContent = `⭐ PO ${poNumber} 상세 현황`;
+
+            // Aggregate data
+            const totalQty = matches.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            const stages = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 'osc', 'ass_bal', 'wh_in', 'wh_out'];
+            const stageNames = ['재단', '선봉', '재봉투입', '재봉', '외주', '조립', '입고', '출고'];
+
+            const aggregatedProd = {};
+            stages.forEach(stage => {
+                aggregatedProd[stage] = { completed: 0, pending: 0 };
+            });
+
+            matches.forEach(m => {
+                stages.forEach(stage => {
+                    if (m.production?.[stage]) {
+                        aggregatedProd[stage].completed += m.production[stage].completed || 0;
+                        aggregatedProd[stage].pending += m.production[stage].pending || 0;
+                    }
+                });
+            });
+
+            const firstMatch = matches[0];
+
+            let html = `
+                <div class="space-y-6">
+                    <!-- 기본 정보 -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="text-xs text-gray-500">PO 번호</div>
+                            <div class="font-bold">${escapeHtml(poNumber)}</div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="text-xs text-gray-500">모델</div>
+                            <div class="font-bold">${escapeHtml(firstMatch.model || '-')}</div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="text-xs text-gray-500">공장</div>
+                            <div class="font-bold">${escapeHtml(firstMatch.factory || '-')}</div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                            <div class="text-xs text-gray-500">행선지</div>
+                            <div class="font-bold">${escapeHtml(firstMatch.destination || '-')}</div>
+                        </div>
+                    </div>
+
+                    <!-- 수량 정보 -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-600">${formatNumber(totalQty)}</div>
+                            <div class="text-sm text-gray-500">총 주문량</div>
+                        </div>
+                        <div class="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-600">${formatNumber(aggregatedProd.wh_in.completed)}</div>
+                            <div class="text-sm text-gray-500">입고 완료</div>
+                        </div>
+                        <div class="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-amber-600">${formatNumber(totalQty - aggregatedProd.wh_in.completed)}</div>
+                            <div class="text-sm text-gray-500">잔량</div>
+                        </div>
+                    </div>
+
+                    <!-- 날짜 정보 -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">CRD (고객요청일)</div>
+                            <div class="font-bold text-lg">${firstMatch.crd || '-'}</div>
+                        </div>
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">SDD (예정출고일)</div>
+                            <div class="font-bold text-lg">${firstMatch.sddValue || '-'}</div>
+                        </div>
+                    </div>
+
+                    <!-- 공정별 현황 -->
+                    <div>
+                        <h4 class="font-bold mb-3">공정별 진행 현황</h4>
+                        <div class="space-y-3">
+                            ${stages.map((stage, idx) => {
+                                const data = aggregatedProd[stage];
+                                const rate = totalQty > 0 ? (data.completed / totalQty * 100).toFixed(1) : 0;
+                                const barColor = rate >= 100 ? 'bg-green-500' : rate > 0 ? 'bg-blue-500' : 'bg-gray-300';
+                                return `
+                                    <div>
+                                        <div class="flex justify-between text-sm mb-1">
+                                            <span>${stageNames[idx]}</span>
+                                            <span>${formatNumber(data.completed)} / ${formatNumber(totalQty)} (${rate}%)</span>
+                                        </div>
+                                        <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="${barColor} h-full rounded-full transition-all" style="width: ${Math.min(rate, 100)}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- 개별 오더 목록 -->
+                    ${matches.length > 1 ? `
+                        <div>
+                            <h4 class="font-bold mb-3">개별 오더 목록 (${matches.length}건)</h4>
+                            <div class="max-h-48 overflow-y-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
+                                        <tr>
+                                            <th class="p-2 text-left">Article</th>
+                                            <th class="p-2 text-right">수량</th>
+                                            <th class="p-2 text-right">입고</th>
+                                            <th class="p-2 text-right">완료율</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                        ${matches.map(m => {
+                                            const rate = m.quantity > 0 ? ((m.production?.wh_in?.completed || 0) / m.quantity * 100).toFixed(0) : 0;
+                                            return `
+                                                <tr>
+                                                    <td class="p-2">${escapeHtml(m.article || '-')}</td>
+                                                    <td class="p-2 text-right">${formatNumber(m.quantity)}</td>
+                                                    <td class="p-2 text-right">${formatNumber(m.production?.wh_in?.completed || 0)}</td>
+                                                    <td class="p-2 text-right">${rate}%</td>
+                                                </tr>
+                                            `;
+                                        }).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- 알림 설정 -->
+                    <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" ${wp?.alertEnabled ? 'checked' : ''}
+                                onchange="toggleWatchedPoAlert('${escapeHtml(poNumber)}', this.checked)"
+                                class="w-5 h-5 text-blue-600 rounded">
+                            <div>
+                                <div class="font-medium">🔔 첫 투입 시작 알림</div>
+                                <div class="text-xs text-gray-500">${wp?.alertShown ? '(이미 알림 표시됨)' : '재단 공정 시작 시 알림'}</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('watchedPoDetailContent').innerHTML = html;
+            document.getElementById('watchedPoDetailModal').classList.remove('hidden');
+        }
+
+        // Close watched PO detail modal
+        function closeWatchedPoDetailModal() {
+            document.getElementById('watchedPoDetailModal').classList.add('hidden');
+        }
+
+        // Toggle alert setting for a watched PO
+        function toggleWatchedPoAlert(poNumber, enabled) {
+            const wp = watchedPos.find(w => w.poNumber === poNumber);
+            if (wp) {
+                wp.alertEnabled = enabled;
+                saveWatchedPos();
+            }
+        }
+
+        // Show toast message
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Sidebar Navigation Functions
+        function initSidebar() {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarNav = document.getElementById('sidebarNav');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const mainContent = document.querySelector('.main-content');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            // Helper function to toggle sidebar state
+            function toggleSidebar(open) {
+                sidebarOpen = open;
+                sidebarNav.classList.toggle('open', open);
+                sidebarToggle.classList.toggle('active', open);
+                sidebarOverlay?.classList.toggle('active', open);
+                mainContent?.classList.toggle('sidebar-open', open);
+                toggleIcon.textContent = open ? '✕' : '☰';
+                // Prevent body scroll when sidebar is open on mobile
+                if (window.innerWidth < 1024) {
+                    document.body.style.overflow = open ? 'hidden' : '';
+                }
+            }
+
+            // Toggle sidebar
+            sidebarToggle?.addEventListener('click', () => {
+                toggleSidebar(!sidebarOpen);
+            });
+
+            // Close sidebar when clicking overlay
+            sidebarOverlay?.addEventListener('click', () => {
+                toggleSidebar(false);
+            });
+
+            // Navigation click - smooth scroll
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetId = item.dataset.target;
+                    const targetEl = document.getElementById(targetId);
+                    if (targetEl) {
+                        // Close sidebar first on mobile
+                        if (window.innerWidth < 1024) {
+                            toggleSidebar(false);
+                        }
+                        // Scroll after brief delay for smoother experience
+                        setTimeout(() => {
+                            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, window.innerWidth < 1024 ? 300 : 0);
+                        // Update active state
+                        navItems.forEach(nav => nav.classList.remove('active'));
+                        item.classList.add('active');
+                    }
+                });
+            });
+
+            // Keyboard shortcut (M for menu)
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'm' || e.key === 'M') {
+                    // Skip if in input field
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+                    sidebarToggle?.click();
+                }
+                // ESC to close sidebar
+                if (e.key === 'Escape' && sidebarOpen) {
+                    toggleSidebar(false);
+                }
+            });
+
+            // Update active nav on scroll
+            let scrollTimeout;
+            window.addEventListener('scroll', () => {
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(updateActiveNav, 100);
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 1024) {
+                    document.body.style.overflow = '';
+                } else if (sidebarOpen) {
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        }
+
+        function updateActiveNav() {
+            const sections = [
+                'section-summary', 'section-executive', 'section-insights',
+                'section-alerts', 'section-recommendations', 'section-kpi',
+                'section-process', 'section-factory', 'section-calendar',
+                'section-vendor', 'section-destination', 'section-filter', 'section-tabs'
+            ];
+            const navItems = document.querySelectorAll('.nav-item');
+            const scrollPos = window.scrollY + 150;
+
+            let currentSection = '';
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section && section.offsetTop <= scrollPos) {
+                    currentSection = sectionId;
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.toggle('active', item.dataset.target === currentSection);
+            });
+        }
 
         // Production mode flag (disable console in production)
         const IS_PRODUCTION = location.hostname !== 'localhost' && location.hostname !== '127.0.0.1';
@@ -1272,6 +2312,27 @@ function calculateVendorScore(vendor) {
 
         // Initialize - File Upload Mode
         document.addEventListener('DOMContentLoaded', () => {
+            // 사이드바 네비게이션 초기화
+            initSidebar();
+
+            // 관심 PO 데이터 로드
+            loadWatchedPos();
+
+            // PO 등록 입력 필드 이벤트 리스너
+            const poRegisterInput = document.getElementById('poRegisterInput');
+            if (poRegisterInput) {
+                poRegisterInput.addEventListener('input', (e) => {
+                    const value = e.target.value.trim();
+                    if (value.length >= 3) {
+                        searchPoForRegister(value);
+                    } else {
+                        document.getElementById('poPreview').classList.add('hidden');
+                        document.getElementById('poNotFound').classList.add('hidden');
+                        document.getElementById('poRegisterSubmit').disabled = true;
+                    }
+                });
+            }
+
             // 로그인 상태 확인
             if (isLoggedIn()) {
                 document.getElementById('loginOverlay').classList.add('hidden');
@@ -1575,6 +2636,18 @@ function calculateVendorScore(vendor) {
                         }
                     };
 
+                    // Year-Month 필드 생성 (월 필터용)
+                    if (record.sddValue && record.sddValue.length >= 7) {
+                        record.sddYearMonth = record.sddValue.substring(0, 7);
+                    } else {
+                        record.sddYearMonth = '';
+                    }
+                    if (record.crd && record.crd.length >= 7) {
+                        record.crdYearMonth = record.crd.substring(0, 7);
+                    } else {
+                        record.crdYearMonth = '';
+                    }
+
                     // 지연/경고 상태 계산
                     record.isDelayed = calculateIsDelayed(record);
                     record.isWarning = calculateIsWarning(record);
@@ -1586,12 +2659,17 @@ function calculateVendorScore(vendor) {
             return result;
         }
 
-        // 엑셀 날짜 파싱
+        // 엑셀 날짜 파싱 (UTC 기준으로 시간대 오류 방지)
         function parseExcelDate(value) {
             if (!value) return '';
 
             // 이미 문자열 날짜 형식인 경우
             if (typeof value === 'string') {
+                // 형식 정규화 (YYYY.MM.DD, YYYY/MM/DD → YYYY-MM-DD)
+                const normalized = value.replace(/[\/\.]/g, '-').trim();
+                if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+                    return normalized;
+                }
                 const parsed = new Date(value);
                 if (!isNaN(parsed.getTime())) {
                     return parsed.toISOString().split('T')[0];
@@ -1599,10 +2677,13 @@ function calculateVendorScore(vendor) {
                 return value;
             }
 
-            // 엑셀 시리얼 날짜인 경우
+            // 엑셀 시리얼 날짜인 경우 (UTC 기준으로 처리하여 시간대 오류 방지)
             if (typeof value === 'number') {
                 const date = new Date((value - 25569) * 86400 * 1000);
-                return date.toISOString().split('T')[0];
+                const year = date.getUTCFullYear();
+                const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const day = String(date.getUTCDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
             return '';
@@ -1685,13 +2766,11 @@ function calculateVendorScore(vendor) {
                 const prod = d.production || {};
 
                 // 각 공정별 잔량 계산 (주문량 - 완료량)
-                d.remaining = {
-                    osc: Math.max(0, qty - (prod.osc?.completed || 0)),
-                    sew: Math.max(0, qty - (prod.sew?.completed || 0)),
-                    ass: Math.max(0, qty - (prod.ass?.completed || 0)),
-                    whIn: Math.max(0, qty - (prod.wh_in?.completed || 0)),
-                    whOut: Math.max(0, qty - (prod.wh_out?.completed || 0))
-                };
+                // 모든 공정에 대한 잔량 계산 (PROCESS_ORDER 기반)
+                d.remaining = {};
+                PROCESS_ORDER.forEach(key => {
+                    d.remaining[key] = Math.max(0, qty - (prod[key]?.completed || 0));
+                });
             });
 
             populateFilters();
@@ -1908,22 +2987,23 @@ function calculateVendorScore(vendor) {
         }
 
         function applyFilters() {
-            const month = document.getElementById('monthFilter').value;
-            const quick = document.getElementById('quickDateFilter').value;
-            const dest = document.getElementById('destFilter').value;
-            const vendor = document.getElementById('vendorFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            const factory = document.querySelector('#factoryFilter .filter-chip.active')?.dataset.factory || '';
-            const search = document.getElementById('searchInput').value.toLowerCase().trim();
-            const startDate = document.getElementById('startDateFilter').value;
-            const endDate = document.getElementById('endDateFilter').value;
+            try {
+                const month = document.getElementById('monthFilter')?.value || '';
+                const quick = document.getElementById('quickDateFilter')?.value || '';
+                const dest = document.getElementById('destFilter')?.value || '';
+                const vendor = document.getElementById('vendorFilter')?.value || '';
+                const status = document.getElementById('statusFilter')?.value || '';
+                const factory = document.querySelector('#factoryFilter .filter-chip.active')?.dataset?.factory || '';
+                const search = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+                const startDate = document.getElementById('startDateFilter')?.value || '';
+                const endDate = document.getElementById('endDateFilter')?.value || '';
 
-            // 날짜 유효성 검증: 시작일 > 종료일 체크
-            if (startDate && endDate && startDate > endDate) {
-                alert('⚠️ 시작일이 종료일보다 늦을 수 없습니다.');
-                document.getElementById('startDateFilter').value = '';
-                return;
-            }
+                // 날짜 유효성 검증: 시작일 > 종료일 체크
+                if (startDate && endDate && startDate > endDate) {
+                    showNotification('⚠️ 시작일이 종료일보다 늦을 수 없습니다.', 'error');
+                    document.getElementById('startDateFilter').value = '';
+                    return;
+                }
 
             // Check cache first
             const cacheKey = JSON.stringify({ month, quick, dest, vendor, status, factory, search, dateMode, dateRangeFilter, startDate, endDate });
@@ -2021,6 +3101,13 @@ function calculateVendorScore(vendor) {
 
             currentPage = 1;
             updateDashboard();
+            } catch (error) {
+                log.error('필터 적용 중 오류:', error);
+                showNotification('필터 적용 중 오류가 발생했습니다.', 'error');
+                filteredData = allData;
+                currentPage = 1;
+                updateDashboard();
+            }
         }
 
         function resetAllFilters() {
@@ -2049,6 +3136,7 @@ function calculateVendorScore(vendor) {
             updateCalendar();
             updateTabs();
             updateExecutiveInsights(); // 경영진 인사이트 업데이트
+            updateWatchedPoDisplay(); // 관심 PO 현황 업데이트
         }
 
         // 월요 오더 현황 요약 업데이트
@@ -2214,9 +3302,12 @@ function calculateVendorScore(vendor) {
             document.getElementById('shippedOrderQty').textContent = formatNumber(shippedQty) + '족';
 
             // Show alert section (show if any alerts or shipped orders exist)
-            document.getElementById('alertSection').classList.toggle('hidden', delayed.length === 0 && warning.length === 0 && shipped.length === 0);
-            document.getElementById('delayAlert').classList.toggle('hidden', delayed.length === 0);
-            document.getElementById('delayCount').textContent = delayed.length;
+            const alertSection = document.getElementById('alertSection');
+            const delayAlert = document.getElementById('delayAlert');
+            const delayCount = document.getElementById('delayCount');
+            if (alertSection) alertSection.classList.toggle('hidden', delayed.length === 0 && warning.length === 0 && shipped.length === 0);
+            if (delayAlert) delayAlert.classList.toggle('hidden', delayed.length === 0);
+            if (delayCount) delayCount.textContent = delayed.length;
         }
 
         function updateProcessFlow() {
@@ -3709,11 +4800,14 @@ function calculateVendorScore(vendor) {
             breakdownEl.textContent = `지연:${riskData.breakdown.delay} | 병목:${riskData.breakdown.bottleneck} | 벤더:${riskData.breakdown.vendor} | 품질:${riskData.breakdown.quality}`;
         }
 
-        // 지연 심각도 도넛 차트
+        // 지연 심각도 도넛 차트 (메모리 누수 방지 + 다크모드 대응)
         let delaySeverityChart = null;
         function updateDelaySeverityChart(severity) {
             const ctx = document.getElementById('delaySeverityChart');
             if (!ctx) return;
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#fff' : '#333';
 
             const data = {
                 labels: ['경미 (1-3일)', '주의 (4-7일)', '심각 (7일+)'],
@@ -3724,32 +4818,44 @@ function calculateVendorScore(vendor) {
                 }]
             };
 
-            if (delaySeverityChart) {
-                delaySeverityChart.data = data;
-                delaySeverityChart.update();
-            } else {
-                delaySeverityChart = new Chart(ctx, {
-                    type: 'doughnut',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { color: '#fff', font: { size: 10 } }
-                            }
+            const config = {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: textColor, font: { size: 10 } }
                         }
                     }
-                });
+                }
+            };
+
+            if (delaySeverityChart) {
+                delaySeverityChart.data = data;
+                delaySeverityChart.options.plugins.legend.labels.color = textColor;
+                delaySeverityChart.update();
+            } else {
+                // 기존 차트가 있으면 destroy 후 생성 (메모리 누수 방지)
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                delaySeverityChart = new Chart(ctx, config);
+                ctx.chart = delaySeverityChart;
             }
         }
 
-        // 지연 원인 막대 차트
+        // 지연 원인 막대 차트 (메모리 누수 방지 + 다크모드 대응)
         let rootCauseChart = null;
         function updateRootCauseChart(causes) {
             const ctx = document.getElementById('rootCauseChart');
             if (!ctx) return;
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#fff' : '#333';
+            const gridColor = isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
 
             const data = {
                 labels: causes.map(c => c[0]),
@@ -3761,26 +4867,36 @@ function calculateVendorScore(vendor) {
                 }]
             };
 
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { display: false } }
+                    }
+                }
+            };
+
             if (rootCauseChart) {
                 rootCauseChart.data = data;
+                rootCauseChart.options.scales.x.ticks.color = textColor;
+                rootCauseChart.options.scales.x.grid.color = gridColor;
+                rootCauseChart.options.scales.y.ticks.color = textColor;
                 rootCauseChart.update();
             } else {
-                rootCauseChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        indexAxis: 'y',
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-                            y: { ticks: { color: '#fff' }, grid: { display: false } }
-                        }
-                    }
-                });
+                // 기존 차트가 있으면 destroy 후 생성 (메모리 누수 방지)
+                if (ctx.chart) {
+                    ctx.chart.destroy();
+                }
+                rootCauseChart = new Chart(ctx, config);
+                ctx.chart = rootCauseChart;
             }
         }
 
@@ -4041,5 +5157,6 @@ function calculateVendorScore(vendor) {
             }
         }
     </script>
+    </div><!-- End main-content -->
 </body>
 </html>
