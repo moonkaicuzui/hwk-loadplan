@@ -707,7 +707,7 @@
             <!-- Primary KPIs Row -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                 <!-- OTD Rate -->
-                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-green-400 hover:bg-white/15 transition cursor-pointer" onclick="showOTDDetail()">
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-green-400 hover:bg-white/15 transition cursor-pointer" onclick="showOTDDetail()" role="button" tabindex="0" aria-label="정시 납기율 상세 보기" onkeydown="if(event.key==='Enter')showOTDDetail()">
                     <div class="text-sm opacity-70 mb-1 flex items-center gap-1">🎯 정시 납기율 (OTD)</div>
                     <div class="flex items-end gap-2">
                         <span class="text-3xl font-bold" id="kpiOtdRate">-</span>
@@ -716,21 +716,21 @@
                 </div>
 
                 <!-- Revenue at Risk -->
-                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-red-400 hover:bg-white/15 transition cursor-pointer" onclick="showRevenueRiskDetail()">
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-red-400 hover:bg-white/15 transition cursor-pointer" onclick="showRevenueRiskDetail()" role="button" tabindex="0" aria-label="위험 매출액 상세 보기" onkeydown="if(event.key==='Enter')showRevenueRiskDetail()">
                     <div class="text-sm opacity-70 mb-1 flex items-center gap-1">💰 위험 매출액</div>
                     <div class="text-3xl font-bold text-red-300" id="kpiRevenueRisk">-</div>
                     <div class="text-xs opacity-60 mt-1" id="kpiRiskOrders">-</div>
                 </div>
 
                 <!-- AQL Pass Rate -->
-                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-blue-400 hover:bg-white/15 transition cursor-pointer" onclick="showAQLDetail()">
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-blue-400 hover:bg-white/15 transition cursor-pointer" onclick="showAQLDetail()" role="button" tabindex="0" aria-label="품질 검사 합격률 상세 보기" onkeydown="if(event.key==='Enter')showAQLDetail()">
                     <div class="text-sm opacity-70 mb-1 flex items-center gap-1">✅ 품질 검사 합격률</div>
                     <div class="text-3xl font-bold" id="kpiAqlRate">-</div>
                     <div class="text-xs opacity-60 mt-1" id="kpiAqlCount">-</div>
                 </div>
 
                 <!-- Bottleneck Prediction -->
-                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-amber-400 hover:bg-white/15 transition cursor-pointer" onclick="showBottleneckDetail()">
+                <div class="bg-white/10 rounded-xl p-4 border-l-4 border-amber-400 hover:bg-white/15 transition cursor-pointer" onclick="showBottleneckDetail()" role="button" tabindex="0" aria-label="예측 병목 공정 상세 보기" onkeydown="if(event.key==='Enter')showBottleneckDetail()">
                     <div class="text-sm opacity-70 mb-1 flex items-center gap-1">⚠️ 예측 병목 공정</div>
                     <div class="text-2xl font-bold text-amber-300" id="kpiBottleneckStage">-</div>
                     <div class="text-xs text-amber-400 mt-1" id="kpiBottleneckRisk">-</div>
