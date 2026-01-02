@@ -608,8 +608,8 @@
                     </div>
                     <!-- Date Range Filter -->
                     <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
-                        <label class="text-sm">기간:</label>
-                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()" aria-label="기간 필터">
+                        <label for="dateRangeFilter" class="text-sm">기간:</label>
+                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()">
                             <option value="all" style="color: #000;">전체</option>
                             <option value="week" style="color: #000;">1주일 이내</option>
                             <option value="month" style="color: #000;">1달 이내</option>
@@ -1044,8 +1044,8 @@
             </div>
             <div class="flex flex-wrap items-center gap-4">
                 <div class="flex-1 min-w-[120px]">
-                    <label class="block text-sm font-medium mb-1" id="monthFilterLabel">월 (SDD)</label>
-                    <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()" aria-label="월별 필터"><option value="">전체</option></select>
+                    <label for="monthFilter" class="block text-sm font-medium mb-1" id="monthFilterLabel">월 (SDD)</label>
+                    <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()"><option value="">전체</option></select>
                 </div>
                 <div class="flex-1 min-w-[280px]">
                     <label class="block text-sm font-medium mb-1" id="dateRangeLabel">📅 날짜 범위 (SDD)</label>
@@ -1099,8 +1099,8 @@
                     </div>
                 </div>
                 <div class="flex-1 min-w-[200px]">
-                    <label for="searchInput" class="block text-sm font-medium mb-1">통합 검색 <span class="kbd">S</span></label>
-                    <input type="text" id="searchInput" placeholder="모델, PO, 행선지, 벤더..." aria-label="오더 통합 검색" autocomplete="off" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                    <label for="searchInput" class="block text-sm font-medium mb-1">통합 검색 <span class="kbd" aria-hidden="true">S</span></label>
+                    <input type="text" id="searchInput" placeholder="모델, PO, 행선지, 벤더..." autocomplete="off" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
                 </div>
             </div>
         </div>
