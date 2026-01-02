@@ -587,7 +587,7 @@
                         ❓
                     </button>
                     <!-- Dark Mode Toggle -->
-                    <button onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm">
+                    <button onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" aria-label="다크모드 전환" title="다크모드 전환">
                         <span id="darkModeIcon">🌙</span>
                     </button>
                     <!-- Delay Alert -->
@@ -946,9 +946,9 @@
         <div id="section-calendar" class="bg-card rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-semibold mb-4">📅 예정 캘린더 <span class="text-sm font-normal text-secondary" id="calendarLabel">(SDD 기준)</span></h3>
             <div class="flex justify-between items-center mb-4">
-                <button onclick="prevMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600">◀ 이전</button>
+                <button onclick="prevMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600" aria-label="이전 달">◀ 이전</button>
                 <span id="calendarMonth" class="font-semibold text-lg"></span>
-                <button onclick="nextMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600">다음 ▶</button>
+                <button onclick="nextMonth()" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600" aria-label="다음 달">다음 ▶</button>
             </div>
             <div id="shippingCalendar" class="grid grid-cols-7 gap-2"></div>
             <div class="flex gap-4 mt-4 text-sm">
@@ -1190,7 +1190,7 @@
                         <div class="flex gap-2">
                             <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled>← 이전</button>
                             <button onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn">다음 →</button>
-                            <button onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium">📥 Excel</button>
+                            <button onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium" aria-label="Excel 파일로 내보내기">📥 Excel</button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
@@ -1229,7 +1229,7 @@
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme">
                 <h3 class="text-lg font-semibold" id="modalTitle">상세 정보</h3>
-                <button onclick="closeOrderModal()" class="text-2xl hover:text-red-500">×</button>
+                <button onclick="closeOrderModal()" class="text-2xl hover:text-red-500" aria-label="모달 닫기">×</button>
             </div>
             <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);" id="modalContent"></div>
         </div>
@@ -1240,7 +1240,7 @@
         <div class="bg-card rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div class="flex justify-between items-center p-4 border-b border-theme">
                 <h3 class="text-lg font-semibold" id="orderProcessTitle">오더 상세</h3>
-                <button onclick="closeOrderProcessModal()" class="text-2xl hover:text-red-500">×</button>
+                <button onclick="closeOrderProcessModal()" class="text-2xl hover:text-red-500" aria-label="모달 닫기">×</button>
             </div>
             <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 120px);" id="orderProcessContent"></div>
         </div>
@@ -2599,9 +2599,10 @@ function calculateVendorScore(vendor) {
                     warehouse: safeFind(h => h === 'WAREHOUSE')
                 };
 
-                console.log('Parsing sheet:', sheetName, 'Headers:', headers.slice(0, 20));
-                console.log('Column indices:', colIndex);
-                console.log('Data starts at row:', dataStartRow);
+                // DEBUG: 파싱 정보 (프로덕션에서는 비활성화)
+                // logger.debug('Parsing sheet:', sheetName, 'Headers:', headers.slice(0, 20));
+                // logger.debug('Column indices:', colIndex);
+                // logger.debug('Data starts at row:', dataStartRow);
 
                 // 데이터 행 파싱
                 for (let i = dataStartRow; i < jsonData.length; i++) {
