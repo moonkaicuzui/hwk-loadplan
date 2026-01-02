@@ -508,7 +508,7 @@
     <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 z-[60] flex items-center justify-center">
         <div class="max-w-md w-full mx-4">
             <div class="text-center mb-8">
-                <div class="text-6xl mb-4">🔐</div>
+                <div class="text-6xl mb-4" aria-hidden="true">🔐</div>
                 <h1 class="text-3xl font-bold text-white mb-2">Rachgia Dashboard</h1>
                 <p class="text-gray-400">Authorized Access Only</p>
             </div>
@@ -660,9 +660,9 @@
                 <div class="flex flex-wrap items-center gap-6 text-sm">
                     <!-- SDD 기준 -->
                     <div class="flex items-center gap-4 bg-blue-500/20 px-4 py-2 rounded-lg">
-                        <span class="font-semibold text-blue-300">📅 SDD 기준</span>
+                        <span class="font-semibold text-blue-300"><span aria-hidden="true">📅 </span>SDD 기준</span>
                         <div class="flex items-center gap-1">
-                            <span class="text-red-400">🚨 지연:</span>
+                            <span class="text-red-400"><span aria-hidden="true">🚨 </span>지연:</span>
                             <span id="sddDelayCount" class="font-bold text-red-300">-</span>
                         </div>
                         <div class="flex items-center gap-1">
@@ -674,7 +674,7 @@
                     <div class="flex items-center gap-4 bg-purple-500/20 px-4 py-2 rounded-lg">
                         <span class="font-semibold text-purple-300">🎯 CRD 기준</span>
                         <div class="flex items-center gap-1">
-                            <span class="text-red-400">🚨 지연:</span>
+                            <span class="text-red-400"><span aria-hidden="true">🚨 </span>지연:</span>
                             <span id="crdDelayCount" class="font-bold text-red-300">-</span>
                         </div>
                         <div class="flex items-center gap-1">
@@ -1048,7 +1048,7 @@
                     <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()"><option value="">전체</option></select>
                 </div>
                 <div class="flex-1 min-w-[280px]">
-                    <label class="block text-sm font-medium mb-1" id="dateRangeLabel">📅 날짜 범위 (SDD)</label>
+                    <label class="block text-sm font-medium mb-1" id="dateRangeLabel"><span aria-hidden="true">📅 </span>날짜 범위 (SDD)</label>
                     <div class="flex items-center gap-2" role="group" aria-labelledby="dateRangeLabel">
                         <input type="date" id="startDateFilter" class="flex-1 border border-theme rounded-lg px-2 py-2 bg-card text-sm" onchange="onDateRangeChange()" aria-label="시작 날짜">
                         <span class="text-secondary" aria-hidden="true">~</span>
@@ -1109,13 +1109,13 @@
         <div id="section-tabs" class="bg-card rounded-xl shadow-sm mb-6">
             <div class="border-b border-theme overflow-x-auto">
                 <nav class="flex -mb-px min-w-max" role="tablist" aria-label="대시보드 탭 네비게이션">
-                    <button type="button" id="monthlyTabBtn" class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" aria-controls="monthlyTab" aria-label="월별 현황 탭" tabindex="0">📅 월별</button>
-                    <button type="button" id="destinationTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" aria-controls="destinationTab" aria-label="행선지별 현황 탭" tabindex="-1">🌍 행선지별</button>
-                    <button type="button" id="modelTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" aria-controls="modelTab" aria-label="모델별 현황 탭" tabindex="-1">👟 모델별</button>
-                    <button type="button" id="factoryTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" aria-controls="factoryTab" aria-label="공장별 현황 탭" tabindex="-1">🏭 공장별</button>
-                    <button type="button" id="vendorTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" aria-controls="vendorTab" aria-label="아웃솔 벤더 현황 탭" tabindex="-1">🔧 아웃솔 벤더</button>
-                    <button type="button" id="heatmapTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" aria-controls="heatmapTab" aria-label="히트맵 탭" tabindex="-1">🔥 히트맵</button>
-                    <button type="button" id="dataTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" aria-controls="dataTab" aria-label="상세 데이터 탭" tabindex="-1">📋 상세 <span class="kbd">D</span></button>
+                    <button type="button" id="monthlyTabBtn" class="tab-btn tab-active px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" aria-controls="monthlyTab" aria-label="월별 현황 탭" tabindex="0"><span aria-hidden="true">📅 </span>월별</button>
+                    <button type="button" id="destinationTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="destination" role="tab" aria-selected="false" aria-controls="destinationTab" aria-label="행선지별 현황 탭" tabindex="-1"><span aria-hidden="true">🌍 </span>행선지별</button>
+                    <button type="button" id="modelTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" aria-controls="modelTab" aria-label="모델별 현황 탭" tabindex="-1"><span aria-hidden="true">👟 </span>모델별</button>
+                    <button type="button" id="factoryTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="factory" role="tab" aria-selected="false" aria-controls="factoryTab" aria-label="공장별 현황 탭" tabindex="-1"><span aria-hidden="true">🏭 </span>공장별</button>
+                    <button type="button" id="vendorTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="vendor" role="tab" aria-selected="false" aria-controls="vendorTab" aria-label="아웃솔 벤더 현황 탭" tabindex="-1"><span aria-hidden="true">🔧 </span>아웃솔 벤더</button>
+                    <button type="button" id="heatmapTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="heatmap" role="tab" aria-selected="false" aria-controls="heatmapTab" aria-label="히트맵 탭" tabindex="-1"><span aria-hidden="true">🔥 </span>히트맵</button>
+                    <button type="button" id="dataTabBtn" class="tab-btn px-6 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" aria-controls="dataTab" aria-label="상세 데이터 탭" tabindex="-1"><span aria-hidden="true">📋 </span>상세 <span class="kbd">D</span></button>
                 </nav>
             </div>
             <div id="tabContents" class="p-6">
