@@ -1307,32 +1307,32 @@
             <div class="p-6 overflow-y-auto text-sm" style="max-height: calc(90vh - 120px);">
                 <!-- 핵심 지표 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2">📊 경영진 인사이트 KPI</h4>
+                    <h4 class="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2"><span aria-hidden="true">📊 </span>경영진 인사이트 KPI</h4>
 
                     <div class="space-y-4">
                         <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border-l-4 border-green-500">
-                            <h5 class="font-bold text-green-700 dark:text-green-400">🎯 정시 납기율 (OTD - On-Time Delivery)</h5>
+                            <h5 class="font-bold text-green-700 dark:text-green-400"><span aria-hidden="true">🎯 </span>정시 납기율 (OTD - On-Time Delivery)</h5>
                             <p class="mt-1"><strong>공식:</strong> (선적완료 중 SDD ≤ CRD인 건수) / 전체 선적완료 × 100</p>
                             <p class="mt-1"><strong>의미:</strong> 고객 요청일(CRD) 이전에 출고된 비율</p>
                             <p class="mt-1"><strong>목표:</strong> 95% 이상 (Green), 85-95% (Yellow), 85% 미만 (Red)</p>
                         </div>
 
                         <div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border-l-4 border-red-500">
-                            <h5 class="font-bold text-red-700 dark:text-red-400">💰 위험 매출액 (Revenue at Risk)</h5>
+                            <h5 class="font-bold text-red-700 dark:text-red-400"><span aria-hidden="true">💰 </span>위험 매출액 (Revenue at Risk)</h5>
                             <p class="mt-1"><strong>공식:</strong> 지연 오더 수량 × $10 (평균 단가)</p>
                             <p class="mt-1"><strong>의미:</strong> 지연으로 인해 손실 위험이 있는 예상 매출</p>
                             <p class="mt-1"><strong>목표:</strong> $0 (모든 금액은 위험 신호)</p>
                         </div>
 
                         <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h5 class="font-bold text-blue-700 dark:text-blue-400">✅ 품질 검사 합격률 (AQL Pass Rate)</h5>
+                            <h5 class="font-bold text-blue-700 dark:text-blue-400"><span aria-hidden="true">✅ </span>품질 검사 합격률 (AQL Pass Rate)</h5>
                             <p class="mt-1"><strong>공식:</strong> (aql=true인 건수) / AQL 데이터 있는 전체 건수 × 100</p>
                             <p class="mt-1"><strong>의미:</strong> 품질 검사를 통과한 오더 비율</p>
                             <p class="mt-1"><strong>목표:</strong> 98% 이상 (Green), 95-98% (Yellow), 95% 미만 (Red)</p>
                         </div>
 
                         <div class="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border-l-4 border-amber-500">
-                            <h5 class="font-bold text-amber-700 dark:text-amber-400">⚠️ 예측 병목 공정</h5>
+                            <h5 class="font-bold text-amber-700 dark:text-amber-400"><span aria-hidden="true">⚠️ </span>예측 병목 공정</h5>
                             <p class="mt-1"><strong>공식:</strong> 각 공정별 완료율 계산 → 최저 완료율 공정 식별</p>
                             <p class="mt-1"><strong>의미:</strong> 가장 지연이 많이 발생할 것으로 예측되는 공정</p>
                             <p class="mt-1"><strong>조치:</strong> 해당 공정에 자원 집중 배치 필요</p>
@@ -1342,7 +1342,7 @@
 
                 <!-- 지연 판정 로직 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2">🚨 지연 판정 로직</h4>
+                    <h4 class="text-lg font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><span aria-hidden="true">🚨 </span>지연 판정 로직</h4>
                     <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                         <pre class="text-xs overflow-x-auto">
 function isDelayed(d) {
@@ -1362,7 +1362,7 @@ function isDelayed(d) {
 
                 <!-- 경고 판정 로직 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">⚡ 경고 (3일 내 예정) 판정 로직</h4>
+                    <h4 class="text-lg font-bold text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2"><span aria-hidden="true">⚡ </span>경고 (3일 내 예정) 판정 로직</h4>
                     <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                         <pre class="text-xs overflow-x-auto">
 function isWarning(d) {
@@ -1381,7 +1381,7 @@ function isWarning(d) {
 
                 <!-- 선적 완료 판정 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2">🚢 선적 완료 판정 로직</h4>
+                    <h4 class="text-lg font-bold text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-2"><span aria-hidden="true">🚢 </span>선적 완료 판정 로직</h4>
                     <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                         <pre class="text-xs overflow-x-auto">
 function isShipped(d) {
@@ -1396,7 +1396,7 @@ function isShipped(d) {
 
                 <!-- 생산 공정 순서 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-3 flex items-center gap-2">🏭 생산 공정 순서</h4>
+                    <h4 class="text-lg font-bold text-purple-600 dark:text-purple-400 mb-3 flex items-center gap-2"><span aria-hidden="true">🏭 </span>생산 공정 순서</h4>
                     <div class="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <div class="flex flex-wrap items-center gap-2 text-sm">
                             <span class="px-3 py-1 bg-purple-100 dark:bg-purple-800 rounded">S_CUT (재단)</span>
@@ -1420,7 +1420,7 @@ function isShipped(d) {
 
                 <!-- 벤더 성과 점수 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2">🏆 벤더 성과 점수 계산</h4>
+                    <h4 class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mb-3 flex items-center gap-2"><span aria-hidden="true">🏆 </span>벤더 성과 점수 계산</h4>
                     <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                         <pre class="text-xs overflow-x-auto">
 // 벤더 성과 점수 = (완료율 × 0.7) - (지연율 × 0.3)
@@ -1439,7 +1439,7 @@ function calculateVendorScore(vendor) {
 
                 <!-- 지연 심각도 분류 -->
                 <section class="mb-6">
-                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">📉 지연 심각도 분류</h4>
+                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2"><span aria-hidden="true">📉 </span>지연 심각도 분류</h4>
                     <div class="grid grid-cols-3 gap-3">
                         <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded text-center">
                             <div class="text-2xl mb-1">🟢</div>
@@ -1461,7 +1461,7 @@ function calculateVendorScore(vendor) {
 
                 <!-- 주요 필드 설명 -->
                 <section>
-                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">📋 주요 데이터 필드</h4>
+                    <h4 class="text-lg font-bold text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2"><span aria-hidden="true">📋 </span>주요 데이터 필드</h4>
                     <table class="w-full text-xs">
                         <caption class="sr-only">데이터 필드 용어 설명</caption>
                         <thead class="bg-gray-100 dark:bg-gray-700">
