@@ -4191,24 +4191,28 @@ function calculateVendorScore(vendor) {
             Chart.defaults.color = textColor;
             Chart.defaults.borderColor = borderColor;
 
-            // 모든 차트 업데이트
+            // 모든 차트 업데이트 (update('none')으로 애니메이션 없이 빠르게)
             Object.values(Chart.instances).forEach((instance) => {
-                if (instance.options.scales) {
-                    ['x', 'y', 'r'].forEach(axis => {
-                        if (instance.options.scales[axis]) {
-                            instance.options.scales[axis].ticks = instance.options.scales[axis].ticks || {};
-                            instance.options.scales[axis].ticks.color = textColor;
-                            instance.options.scales[axis].grid = instance.options.scales[axis].grid || {};
-                            instance.options.scales[axis].grid.color = borderColor;
-                        }
-                    });
+                try {
+                    if (instance.options.scales) {
+                        ['x', 'y', 'r'].forEach(axis => {
+                            if (instance.options.scales[axis]) {
+                                instance.options.scales[axis].ticks = instance.options.scales[axis].ticks || {};
+                                instance.options.scales[axis].ticks.color = textColor;
+                                instance.options.scales[axis].grid = instance.options.scales[axis].grid || {};
+                                instance.options.scales[axis].grid.color = borderColor;
+                            }
+                        });
+                    }
+                    if (instance.options.plugins?.legend?.labels) {
+                        instance.options.plugins.legend.labels.color = textColor;
+                    }
+                    instance.update('none'); // 애니메이션 없이 즉시 업데이트
+                } catch (e) {
+                    console.warn('차트 업데이트 중 오류:', e);
                 }
-                if (instance.options.plugins?.legend?.labels) {
-                    instance.options.plugins.legend.labels.color = textColor;
-                }
-                instance.update();
             });
-            updateDashboard();
+            // updateDashboard() 제거 - 이미 Chart.instances로 모든 차트 업데이트됨
         }
 
         // Export
