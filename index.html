@@ -1037,7 +1037,7 @@
         <!-- Filters -->
         <div id="section-filter" class="bg-card rounded-xl shadow-sm p-4 mb-6 no-print" role="search" aria-label="필터 옵션">
             <div class="flex justify-between items-center mb-3">
-                <h4 class="font-medium">🔍 필터 <span class="kbd ml-2">F</span></h4>
+                <h4 class="font-medium">🔍 필터 <span class="kbd ml-2" aria-hidden="true">F</span></h4>
                 <button type="button" onclick="resetAllFilters()" class="text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded-lg transition" aria-label="모든 필터 초기화" title="필터 초기화 (R)">
                     ↺ 필터 초기화 <span class="kbd">R</span>
                 </button>
@@ -1270,7 +1270,7 @@
         </div>
 
         <!-- Keyboard Shortcuts Help -->
-        <div class="text-center text-sm text-secondary no-print">
+        <div class="text-center text-sm text-secondary no-print" aria-hidden="true">
             <span class="kbd">S</span> 검색 | <span class="kbd">F</span> 필터 | <span class="kbd">R</span> 초기화 | <span class="kbd">D</span> 상세탭 | <span class="kbd">Esc</span> 모달닫기 | <span class="kbd">←→</span> 페이지
         </div>
     </div>
