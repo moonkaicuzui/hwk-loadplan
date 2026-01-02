@@ -572,7 +572,7 @@
                     <!-- Auto Refresh -->
                     <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
                         <label class="text-sm">자동 새로고침</label>
-                        <input type="checkbox" id="autoRefreshToggle" class="w-4 h-4" checked>
+                        <input type="checkbox" id="autoRefreshToggle" class="w-4 h-4" checked aria-label="자동 새로고침 토글">
                     </div>
                     <!-- File Upload Button -->
                     <button onclick="showUploadOverlay()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="파일 업로드" aria-label="새 파일 업로드">
@@ -742,7 +742,7 @@
                 <!-- Delay Severity Distribution -->
                 <div class="bg-white/5 rounded-lg p-4">
                     <h4 class="text-sm font-medium mb-3 flex items-center gap-2">📉 지연 심각도 분포</h4>
-                    <div class="h-32"><canvas id="delaySeverityChart"></canvas></div>
+                    <div class="h-32"><canvas id="delaySeverityChart" role="img" aria-label="지연 심각도 분포 차트"></canvas></div>
                     <div class="flex justify-around text-xs mt-3 pt-2 border-t border-white/10">
                         <div class="text-center">
                             <div class="text-green-400 font-medium" id="delayMild">-</div>
@@ -762,7 +762,7 @@
                 <!-- Root Cause Analysis -->
                 <div class="bg-white/5 rounded-lg p-4">
                     <h4 class="text-sm font-medium mb-3 flex items-center gap-2">🔍 지연 원인 분석</h4>
-                    <div class="h-32"><canvas id="rootCauseChart"></canvas></div>
+                    <div class="h-32"><canvas id="rootCauseChart" role="img" aria-label="지연 원인 분석 차트"></canvas></div>
                     <div class="text-xs mt-3 pt-2 border-t border-white/10">
                         주요 원인: <span id="primaryRootCause" class="text-red-300 font-medium">-</span>
                         <span class="opacity-60">(<span id="primaryRootCauseCount">-</span>건)</span>
@@ -919,7 +919,7 @@
                         <div class="text-secondary text-sm">전체 완료율</div>
                         <div class="text-2xl font-bold text-purple-600" id="totalRate">-</div>
                     </div>
-                    <div class="w-16 h-16"><canvas id="rateDonut"></canvas></div>
+                    <div class="w-16 h-16"><canvas id="rateDonut" role="img" aria-label="전체 완료율 도넛 차트"></canvas></div>
                 </div>
             </div>
         </div>
@@ -937,7 +937,7 @@
                 <div id="factoryCards" class="space-y-3"></div>
                 <div class="mt-4 pt-4 border-t border-theme">
                     <h4 class="text-sm font-medium text-secondary mb-2">공장 비교</h4>
-                    <div style="height: 200px;"><canvas id="factoryRadar"></canvas></div>
+                    <div style="height: 200px;"><canvas id="factoryRadar" role="img" aria-label="공장별 비교 레이더 차트"></canvas></div>
                 </div>
             </div>
         </div>
@@ -962,7 +962,7 @@
         <div id="section-vendor" class="bg-card rounded-xl shadow-sm p-6 mb-6">
             <h3 class="text-lg font-semibold mb-4">👟 아웃솔 벤더별 현황</h3>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div><div class="chart-container"><canvas id="vendorChart"></canvas></div></div>
+                <div><div class="chart-container"><canvas id="vendorChart" role="img" aria-label="아웃솔 벤더별 현황 차트"></canvas></div></div>
                 <div>
                     <div class="overflow-x-auto max-h-[300px]">
                         <table class="w-full text-sm" id="vendorTable">
@@ -1075,7 +1075,7 @@
                 <!-- Monthly Tab -->
                 <div id="monthlyTab" class="tab-content">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div><h3 class="text-lg font-semibold mb-4">월별 오더 현황</h3><div class="chart-container"><canvas id="monthlyChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">월별 오더 현황</h3><div class="chart-container"><canvas id="monthlyChart" role="img" aria-label="월별 오더 현황 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">월별 완료 현황</h3>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm" id="monthlyTable">
@@ -1097,7 +1097,7 @@
                 <!-- Destination Tab -->
                 <div id="destinationTab" class="tab-content hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div><h3 class="text-lg font-semibold mb-4">국가별 수량 분포</h3><div class="chart-container"><canvas id="destChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">국가별 수량 분포</h3><div class="chart-container"><canvas id="destChart" role="img" aria-label="국가별 수량 분포 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">행선지별 상세</h3>
                             <div class="overflow-x-auto max-h-[400px]">
                                 <table class="w-full text-sm" id="destTable">
@@ -1119,7 +1119,7 @@
                 <!-- Model Tab -->
                 <div id="modelTab" class="tab-content hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div><h3 class="text-lg font-semibold mb-4">모델별 수량 (Top 15)</h3><div class="chart-container" style="height:400px"><canvas id="modelChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">모델별 수량 (Top 15)</h3><div class="chart-container" style="height:400px"><canvas id="modelChart" role="img" aria-label="모델별 수량 Top 15 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">모델별 상세</h3>
                             <div class="overflow-x-auto max-h-[400px]">
                                 <table class="w-full text-sm" id="modelTable">
@@ -1141,7 +1141,7 @@
                 <!-- Factory Tab -->
                 <div id="factoryTab" class="tab-content hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div><h3 class="text-lg font-semibold mb-4">공장별 수량 비교</h3><div class="chart-container"><canvas id="factoryChart"></canvas></div></div>
+                        <div><h3 class="text-lg font-semibold mb-4">공장별 수량 비교</h3><div class="chart-container"><canvas id="factoryChart" role="img" aria-label="공장별 수량 비교 차트"></canvas></div></div>
                         <div><h3 class="text-lg font-semibold mb-4">공장별 공정 현황</h3><div id="factoryProcessDetail" class="space-y-4"></div></div>
                     </div>
                 </div>
@@ -1149,7 +1149,7 @@
                 <div id="vendorTab" class="tab-content hidden">
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 수량</h3><div class="chart-container"><canvas id="vendorDetailChart"></canvas></div></div>
+                            <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 수량</h3><div class="chart-container"><canvas id="vendorDetailChart" role="img" aria-label="아웃솔 벤더별 수량 차트"></canvas></div></div>
                             <div><h3 class="text-lg font-semibold mb-4">아웃솔 벤더별 상세</h3>
                                 <div class="overflow-x-auto max-h-[300px]">
                                     <table class="w-full text-sm" id="vendorDetailTable">
@@ -1463,7 +1463,7 @@ function calculateVendorScore(vendor) {
                 <!-- 알림 설정 -->
                 <div class="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
                     <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" id="poAlertCheckbox" checked class="w-5 h-5 text-blue-600 rounded">
+                        <input type="checkbox" id="poAlertCheckbox" checked class="w-5 h-5 text-blue-600 rounded" aria-label="첫 투입 시작 알림 활성화">
                         <div>
                             <div class="font-medium text-amber-800 dark:text-amber-200">🔔 첫 투입 시작 알림</div>
                             <div class="text-xs text-amber-600 dark:text-amber-400">재단(S_CUT) 공정이 시작되면 알림을 표시합니다</div>
