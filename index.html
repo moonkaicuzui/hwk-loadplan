@@ -2803,6 +2803,8 @@ function calculateVendorScore(vendor) {
                 type === 'success' ? 'bg-green-500' :
                 type === 'error' ? 'bg-red-500' : 'bg-blue-500'
             }`;
+            notification.setAttribute('role', 'alert');
+            notification.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
             notification.textContent = message;
             document.body.appendChild(notification);
 
