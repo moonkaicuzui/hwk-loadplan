@@ -1781,7 +1781,7 @@ function calculateVendorScore(vendor) {
             }).join('');
 
             return `
-                <div class="watched-po-card relative ${alertClass}" onclick="showWatchedPoDetail('${escapeHtml(wp.poNumber)}')">
+                <div class="watched-po-card relative ${alertClass}" onclick="showWatchedPoDetail('${escapeHtml(wp.poNumber)}')" role="button" tabindex="0" aria-label="${escapeHtml(wp.poNumber)} PO 상세 보기" onkeydown="if(event.key==='Enter')showWatchedPoDetail('${escapeHtml(wp.poNumber)}')">
                     <button class="po-remove-btn" onclick="event.stopPropagation(); removeWatchedPo('${escapeHtml(wp.poNumber)}')" aria-label="관심 PO 삭제">×</button>
 
                     ${showAlert ? '<div class="first-input-badge absolute top-2 left-2">🔔 투입 시작!</div>' : ''}
@@ -3357,7 +3357,7 @@ function calculateVendorScore(vendor) {
                 const isBottleneck = key === bottleneckKey && minRate < 80;
 
                 return `<div class="funnel-step ${isBottleneck ? 'bottleneck' : ''}" style="background: linear-gradient(to right, ${color}40, ${color}20); width: ${width}%"
-                    onclick="showProcessDetail('${key}')" title="${PROCESS_NAMES[key]}: ${rate.toFixed(1)}%">
+                    onclick="showProcessDetail('${key}')" role="button" tabindex="0" aria-label="${PROCESS_NAMES[key]} ${rate.toFixed(1)}% 상세 보기" onkeydown="if(event.key==='Enter')showProcessDetail('${key}')" title="${PROCESS_NAMES[key]}: ${rate.toFixed(1)}%">
                     <div class="text-xs font-medium">${PROCESS_NAMES[key]}</div>
                     <div class="text-lg font-bold" style="color: ${color}">${rate.toFixed(0)}%</div>
                     <div class="text-xs text-secondary">${formatNumber(data.completed)}</div>
@@ -3543,7 +3543,7 @@ function calculateVendorScore(vendor) {
                 if (data?.delayed > 0) dayClass += ' delayed';
                 else if (data?.warning > 0) dayClass += ' warning';
 
-                html += `<div class="${dayClass}" onclick="showCalendarDayDetail(${year}, ${month}, ${day})">
+                html += `<div class="${dayClass}" onclick="showCalendarDayDetail(${year}, ${month}, ${day})" role="button" tabindex="0" aria-label="${year}년 ${month+1}월 ${day}일 ${data ? data.count+'건' : ''} 상세 보기" onkeydown="if(event.key==='Enter')showCalendarDayDetail(${year}, ${month}, ${day})">
                     <div class="font-medium">${day}</div>
                     ${data ? `<div class="text-xs">${data.count}건</div>` : ''}
                 </div>`;
@@ -3639,7 +3639,7 @@ function calculateVendorScore(vendor) {
             document.querySelector('#destTable tbody').innerHTML = sorted.map(([dest, data]) => {
                 const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
                 const flag = IMPORTANT_DESTINATIONS[dest] || '';
-                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showCountryDetail('${dest}')">
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showCountryDetail('${dest}')" role="button" tabindex="0" aria-label="${dest} 행선지 상세 보기" onkeydown="if(event.key==='Enter')showCountryDetail('${dest}')">
                     <td class="px-4 py-2">${flag} ${dest}</td>
                     <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
                     <td class="px-4 py-2 text-right">${formatNumber(data.qty)}</td>
@@ -3674,7 +3674,7 @@ function calculateVendorScore(vendor) {
 
             document.querySelector('#modelTable tbody').innerHTML = sorted.slice(0, 30).map(([model, data]) => {
                 const rate = data.qty > 0 ? (data.completed / data.qty * 100) : 0;
-                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showModelDetail('${model}')">
+                return `<tr class="border-b border-theme hover:bg-gray-50 dark:hover:bg-gray-700 clickable-row" onclick="showModelDetail('${model}')" role="button" tabindex="0" aria-label="${model} 모델 상세 보기" onkeydown="if(event.key==='Enter')showModelDetail('${model}')">
                     <td class="px-4 py-2 text-xs">${model}</td>
                     <td class="px-4 py-2 text-right">${formatNumber(data.count)}</td>
                     <td class="px-4 py-2 text-right">${formatNumber(data.qty)}</td>
