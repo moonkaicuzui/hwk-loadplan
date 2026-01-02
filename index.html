@@ -591,7 +591,7 @@
                         <span id="darkModeIcon">🌙</span>
                     </button>
                     <!-- Delay Alert -->
-                    <div id="delayAlert" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg animate-pulse cursor-pointer" onclick="showDelayedOrders()">
+                    <div id="delayAlert" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg animate-pulse cursor-pointer" onclick="showDelayedOrders()" role="button" tabindex="0" aria-label="지연 알림 상세 보기" onkeydown="if(event.key==='Enter')showDelayedOrders()">
                         ⚠️ 지연: <span id="delayCount">0</span>건
                     </div>
                     <div class="text-right">
@@ -780,7 +780,7 @@
         <!-- Alert Cards -->
         <div id="section-alerts" class="hidden mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showDelayedOrders()">
+                <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showDelayedOrders()" role="button" tabindex="0" aria-label="지연 오더 상세 보기" onkeydown="if(event.key==='Enter')showDelayedOrders()">
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">🚨</span>
                         <div>
@@ -790,7 +790,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="warning-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showWarningOrders()">
+                <div class="warning-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showWarningOrders()" role="button" tabindex="0" aria-label="3일 내 예정 오더 상세 보기" onkeydown="if(event.key==='Enter')showWarningOrders()">
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">⚡</span>
                         <div>
@@ -800,7 +800,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-400 rounded-xl shadow-sm p-4 cursor-pointer" onclick="showInventoryOrders()">
+                <div class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-400 rounded-xl shadow-sm p-4 cursor-pointer" onclick="showInventoryOrders()" role="button" tabindex="0" aria-label="창고 재고 상세 보기" onkeydown="if(event.key==='Enter')showInventoryOrders()">
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">📦</span>
                         <div>
@@ -810,7 +810,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="shipped-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showShippedOrders()">
+                <div class="shipped-highlight rounded-xl shadow-sm p-4 cursor-pointer" onclick="showShippedOrders()" role="button" tabindex="0" aria-label="선적 완료 오더 상세 보기" onkeydown="if(event.key==='Enter')showShippedOrders()">
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">🚢</span>
                         <div>
