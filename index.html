@@ -423,7 +423,7 @@
     <!-- Sidebar Navigation -->
     <nav id="sidebarNav" class="sidebar-nav no-print" role="navigation" aria-label="대시보드 네비게이션">
         <div class="px-4 pb-4 border-b border-theme">
-            <div class="text-lg font-bold">🏭 Dashboard</div>
+            <div class="text-lg font-bold"><span aria-hidden="true">🏭 </span>Dashboard</div>
             <div class="text-xs text-secondary">섹션 바로가기</div>
         </div>
 
@@ -622,15 +622,15 @@
                     </div>
                     <!-- File Upload Button -->
                     <button type="button" onclick="showUploadOverlay()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="파일 업로드" aria-label="새 파일 업로드" aria-haspopup="dialog">
-                        📁 <span class="hidden md:inline">파일 변경</span>
+                        <span aria-hidden="true">📁 </span><span class="hidden md:inline">파일 변경</span>
                     </button>
                     <!-- Logout Button -->
                     <button type="button" onclick="handleLogout()" class="bg-red-500/50 hover:bg-red-500/70 px-3 py-1 rounded-lg text-sm flex items-center gap-1" title="로그아웃" aria-label="로그아웃">
-                        🚪 <span class="hidden md:inline">로그아웃</span>
+                        <span aria-hidden="true">🚪 </span><span class="hidden md:inline">로그아웃</span>
                     </button>
                     <!-- Help Button -->
                     <button type="button" id="helpModalBtn" onclick="toggleHelpModal()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" title="도움말" aria-label="도움말 보기" aria-haspopup="dialog" aria-expanded="false" aria-controls="helpModal">
-                        ❓
+                        <span aria-hidden="true">❓</span>
                     </button>
                     <!-- Dark Mode Toggle -->
                     <button type="button" id="darkModeToggle" onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" aria-label="다크모드 전환" aria-pressed="false" title="다크모드 전환">
@@ -638,7 +638,7 @@
                     </button>
                     <!-- Delay Alert -->
                     <div id="delayAlert" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg animate-pulse cursor-pointer" onclick="showDelayedOrders()" role="button" tabindex="0" aria-label="지연 알림 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showDelayedOrders()">
-                        ⚠️ 지연: <span id="delayCount">0</span>건
+                        <span aria-hidden="true">⚠️ </span>지연: <span id="delayCount">0</span>건
                     </div>
                     <div class="text-right">
                         <div class="text-sm text-blue-100">마지막 업데이트</div>
@@ -654,7 +654,7 @@
         <div class="max-w-[2000px] mx-auto px-4 py-3">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <h2 class="text-lg font-bold flex items-center gap-2">
-                    📋 월요 오더 현황 요약
+                    <span aria-hidden="true">📋 </span>월요 오더 현황 요약
                     <span class="text-xs font-normal bg-white/20 px-2 py-0.5 rounded" id="summaryUpdateTime">-</span>
                 </h2>
                 <div class="flex flex-wrap items-center gap-6 text-sm">
@@ -666,30 +666,30 @@
                             <span id="sddDelayCount" class="font-bold text-red-300">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-amber-400">⚡ 경고:</span>
+                            <span class="text-amber-400"><span aria-hidden="true">⚡ </span>경고:</span>
                             <span id="sddWarningCount" class="font-bold text-amber-300">-</span>
                         </div>
                     </div>
                     <!-- CRD 기준 -->
                     <div class="flex items-center gap-4 bg-purple-500/20 px-4 py-2 rounded-lg">
-                        <span class="font-semibold text-purple-300">🎯 CRD 기준</span>
+                        <span class="font-semibold text-purple-300"><span aria-hidden="true">🎯 </span>CRD 기준</span>
                         <div class="flex items-center gap-1">
                             <span class="text-red-400"><span aria-hidden="true">🚨 </span>지연:</span>
                             <span id="crdDelayCount" class="font-bold text-red-300">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-amber-400">⚡ 경고:</span>
+                            <span class="text-amber-400"><span aria-hidden="true">⚡ </span>경고:</span>
                             <span id="crdWarningCount" class="font-bold text-amber-300">-</span>
                         </div>
                     </div>
                     <!-- 생산/출고 현황 -->
                     <div class="flex items-center gap-4 bg-green-500/20 px-4 py-2 rounded-lg">
                         <div class="flex items-center gap-1">
-                            <span class="text-green-300">👟 제화 생산 완료:</span>
+                            <span class="text-green-300"><span aria-hidden="true">👟 </span>제화 생산 완료:</span>
                             <span id="sewingCompleteCount" class="font-bold text-green-200">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-cyan-300">📦 창고 출고 완료:</span>
+                            <span class="text-cyan-300"><span aria-hidden="true">📦 </span>창고 출고 완료:</span>
                             <span id="warehouseOutCount" class="font-bold text-cyan-200">-</span>
                         </div>
                     </div>
@@ -727,11 +727,11 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white/10 rounded-lg p-3">
-                    <div class="text-sm font-medium mb-2">📊 공장 순위</div>
+                    <div class="text-sm font-medium mb-2"><span aria-hidden="true">📊 </span>공장 순위</div>
                     <div id="execFactoryRanking" class="text-sm" aria-live="polite" aria-atomic="true"></div>
                 </div>
                 <div class="bg-white/10 rounded-lg p-3">
-                    <div class="text-sm font-medium mb-2">⚠️ 주요 경고</div>
+                    <div class="text-sm font-medium mb-2"><span aria-hidden="true">⚠️ </span>주요 경고</div>
                     <div id="execWarnings" class="text-sm" aria-live="polite" aria-atomic="true"></div>
                 </div>
             </div>
@@ -741,12 +741,12 @@
         <div id="section-insights" class="bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 rounded-xl shadow-lg p-6 mb-6 text-white">
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold flex items-center gap-2">
-                    📊 경영진 인사이트
+                    <span aria-hidden="true">📊 </span>경영진 인사이트
                     <span class="text-xs bg-green-500 text-white px-2 py-0.5 rounded animate-pulse">LIVE</span>
                 </h2>
                 <div class="flex items-center gap-3">
                     <span class="text-sm opacity-70">기준: SDD/CRD</span>
-                    <button type="button" id="insightsHelpBtn" onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition" aria-label="경영진 인사이트 도움말" aria-haspopup="dialog" aria-expanded="false" aria-controls="helpModal">❓ 도움말</button>
+                    <button type="button" id="insightsHelpBtn" onclick="toggleInsightsHelp()" class="text-xs bg-white/10 hover:bg-white/20 px-2 py-1 rounded transition" aria-label="경영진 인사이트 도움말" aria-haspopup="dialog" aria-expanded="false" aria-controls="helpModal"><span aria-hidden="true">❓ </span>도움말</button>
                 </div>
             </div>
 
@@ -754,7 +754,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
                 <!-- OTD Rate -->
                 <div class="bg-white/10 rounded-xl p-4 border-l-4 border-green-400 hover:bg-white/15 transition cursor-pointer" onclick="showOTDDetail()" role="button" tabindex="0" aria-label="정시 납기율 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showOTDDetail()">
-                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">🎯 정시 납기율 (OTD)</div>
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1"><span aria-hidden="true">🎯 </span>정시 납기율 (OTD)</div>
                     <div class="flex items-end gap-2">
                         <span class="text-3xl font-bold" id="kpiOtdRate">-</span>
                     </div>
@@ -763,21 +763,21 @@
 
                 <!-- Revenue at Risk -->
                 <div class="bg-white/10 rounded-xl p-4 border-l-4 border-red-400 hover:bg-white/15 transition cursor-pointer" onclick="showRevenueRiskDetail()" role="button" tabindex="0" aria-label="위험 매출액 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showRevenueRiskDetail()">
-                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">💰 위험 매출액</div>
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1"><span aria-hidden="true">💰 </span>위험 매출액</div>
                     <div class="text-3xl font-bold text-red-300" id="kpiRevenueRisk">-</div>
                     <div class="text-xs opacity-60 mt-1" id="kpiRiskOrders">-</div>
                 </div>
 
                 <!-- AQL Pass Rate -->
                 <div class="bg-white/10 rounded-xl p-4 border-l-4 border-blue-400 hover:bg-white/15 transition cursor-pointer" onclick="showAQLDetail()" role="button" tabindex="0" aria-label="품질 검사 합격률 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showAQLDetail()">
-                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">✅ 품질 검사 합격률</div>
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1"><span aria-hidden="true">✅ </span>품질 검사 합격률</div>
                     <div class="text-3xl font-bold" id="kpiAqlRate">-</div>
                     <div class="text-xs opacity-60 mt-1" id="kpiAqlCount">-</div>
                 </div>
 
                 <!-- Bottleneck Prediction -->
                 <div class="bg-white/10 rounded-xl p-4 border-l-4 border-amber-400 hover:bg-white/15 transition cursor-pointer" onclick="showBottleneckDetail()" role="button" tabindex="0" aria-label="예측 병목 공정 상세 보기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')showBottleneckDetail()">
-                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1">⚠️ 예측 병목 공정</div>
+                    <div class="text-sm opacity-70 mb-1 flex items-center gap-1"><span aria-hidden="true">⚠️ </span>예측 병목 공정</div>
                     <div class="text-2xl font-bold text-amber-300" id="kpiBottleneckStage">-</div>
                     <div class="text-xs text-amber-400 mt-1" id="kpiBottleneckRisk">-</div>
                 </div>
