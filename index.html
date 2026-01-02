@@ -563,7 +563,7 @@
                     <!-- Date Range Filter -->
                     <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
                         <label class="text-sm">기간:</label>
-                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()">
+                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()" aria-label="기간 필터">
                             <option value="all" style="color: #000;">전체</option>
                             <option value="week" style="color: #000;">1주일 이내</option>
                             <option value="month" style="color: #000;">1달 이내</option>
@@ -998,7 +998,7 @@
             <div class="flex flex-wrap items-center gap-4">
                 <div class="flex-1 min-w-[120px]">
                     <label class="block text-sm font-medium mb-1" id="monthFilterLabel">월 (SDD)</label>
-                    <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()"><option value="">전체</option></select>
+                    <select id="monthFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" onchange="onMonthFilterChange()" aria-label="월별 필터"><option value="">전체</option></select>
                 </div>
                 <div class="flex-1 min-w-[280px]">
                     <label class="block text-sm font-medium mb-1" id="dateRangeLabel">📅 날짜 범위 (SDD)</label>
@@ -1011,7 +1011,7 @@
                 </div>
                 <div class="flex-1 min-w-[120px]">
                     <label class="block text-sm font-medium mb-1">빠른 선택</label>
-                    <select id="quickDateFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                    <select id="quickDateFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="빠른 날짜 선택">
                         <option value="">전체 기간</option>
                         <option value="today">오늘</option>
                         <option value="week">이번 주</option>
@@ -1022,18 +1022,18 @@
                 </div>
                 <div class="flex-1 min-w-[120px]">
                     <label class="block text-sm font-medium mb-1">행선지</label>
-                    <select id="destFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                    <select id="destFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="행선지 필터">
                         <option value="">전체</option>
                         <option value="asia">중요 행선지만</option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[120px]">
                     <label class="block text-sm font-medium mb-1">아웃솔 벤더</label>
-                    <select id="vendorFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card"><option value="">전체</option></select>
+                    <select id="vendorFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="아웃솔 벤더 필터"><option value="">전체</option></select>
                 </div>
                 <div class="flex-1 min-w-[120px]">
                     <label class="block text-sm font-medium mb-1">완료 상태</label>
-                    <select id="statusFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card">
+                    <select id="statusFilter" class="w-full border border-theme rounded-lg px-3 py-2 bg-card" aria-label="완료 상태 필터">
                         <option value="">전체</option>
                         <option value="shipped">🚢 선적 완료</option>
                         <option value="completed">완료</option>
