@@ -3435,12 +3435,12 @@ function calculateVendorScore(vendor) {
             // Warnings
             const delayed = allData.filter(isDelayed);
             const warnings = [];
-            if (delayed.length > 0) warnings.push(`🚨 지연 ${delayed.length}건`);
+            if (delayed.length > 0) warnings.push(`<span aria-hidden="true">🚨 </span>지연 ${delayed.length}건`);
 
             const bottleneck = findBottleneck();
-            if (bottleneck && bottleneck.rate < 80) warnings.push(`🔴 병목: ${PROCESS_NAMES[bottleneck.key]} (${bottleneck.rate.toFixed(1)}%)`);
+            if (bottleneck && bottleneck.rate < 80) warnings.push(`<span aria-hidden="true">🔴 </span>병목: ${PROCESS_NAMES[bottleneck.key]} (${bottleneck.rate.toFixed(1)}%)`);
 
-            document.getElementById('execWarnings').innerHTML = warnings.length > 0 ? warnings.join(' | ') : '✅ 정상';
+            document.getElementById('execWarnings').innerHTML = warnings.length > 0 ? warnings.join(' | ') : '<span aria-hidden="true">✅ </span>정상';
         }
 
         function findBottleneck() {
@@ -3551,7 +3551,7 @@ function calculateVendorScore(vendor) {
                 const isBottleneck = key === bottleneckKey && minRate < 80;
 
                 return `<div class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded ${isBottleneck ? 'ring-2 ring-red-500' : ''}" onclick="showProcessDetail('${key}')" role="button" tabindex="0" aria-label="${PROCESS_NAMES[key]} 공정 상세 보기" onkeydown="if(event.key==='Enter')showProcessDetail('${key}')">
-                    <div class="w-16 text-sm font-medium">${PROCESS_NAMES[key]}${isBottleneck ? ' 🔴' : ''}</div>
+                    <div class="w-16 text-sm font-medium">${PROCESS_NAMES[key]}${isBottleneck ? '<span aria-hidden="true"> 🔴</span>' : ''}</div>
                     <div class="flex-1 progress-bar" role="progressbar" aria-valuenow="${rate.toFixed(0)}" aria-valuemin="0" aria-valuemax="100" aria-valuetext="${rate.toFixed(0)}% 완료" aria-label="${PROCESS_NAMES[key]} 완료율"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
                     <div class="w-24 text-right text-sm"><span class="font-medium" style="color: ${color}">${rate.toFixed(1)}%</span> <span class="text-secondary">(${formatNumber(data.completed)})</span></div>
                 </div>`;
@@ -3742,7 +3742,7 @@ function calculateVendorScore(vendor) {
                     return dDate.toDateString() === targetDate.toDateString();
                 } catch (e) { console.warn("Date parsing error:", e); return false; }
             });
-            showOrderListModal(`📅 ${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')} 예정`, orders);
+            showOrderListModal(`<span aria-hidden="true">📅 </span>${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')} 예정`, orders);
         }
 
         function updateTabs() {
