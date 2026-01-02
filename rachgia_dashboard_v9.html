@@ -1480,11 +1480,16 @@ function calculateVendorScore(vendor) {
 
                 if (jsonData.length < 2) return;
 
-                // 헤더 행 찾기
+                // 헤더 행 찾기 (PO, ARTICLE, ART, SALES ORDER, MODEL, UNIT 등으로 식별)
                 let headerRow = 0;
                 for (let i = 0; i < Math.min(10, jsonData.length); i++) {
                     const row = jsonData[i];
-                    if (row && row.some(cell => String(cell).includes('PO') || String(cell).includes('ARTICLE'))) {
+                    if (row && row.some(cell => {
+                        const cellStr = String(cell || '').toUpperCase();
+                        return cellStr.includes('PO') || cellStr.includes('ARTICLE') ||
+                               cellStr === 'ART' || cellStr.includes('SALES ORDER') ||
+                               cellStr.includes('MODEL') || cellStr === 'UNIT';
+                    })) {
                         headerRow = i;
                         break;
                     }
@@ -1492,17 +1497,29 @@ function calculateVendorScore(vendor) {
 
                 const headers = jsonData[headerRow].map(h => String(h || '').toUpperCase().trim());
 
+                // 서브 헤더 행 확인 (Original, Current 같은 추가 헤더가 있는 경우)
+                let dataStartRow = headerRow + 1;
+                if (jsonData[dataStartRow]) {
+                    const nextRow = jsonData[dataStartRow];
+                    const nextRowStr = nextRow.map(c => String(c || '').toUpperCase().trim());
+                    // 서브 헤더 감지: Original, Current, 또는 대부분 빈 셀
+                    if (nextRowStr.includes('ORIGINAL') || nextRowStr.includes('CURRENT') ||
+                        nextRow.filter(c => c !== null && c !== undefined && String(c).trim() !== '').length < 3) {
+                        dataStartRow = headerRow + 2;
+                    }
+                }
+
                 // 안전한 findIndex 헬퍼 함수
                 const safeFind = (predicate) => headers.findIndex(h => h && predicate(h));
 
                 // 컬럼 인덱스 찾기 (새 Loadplan 형식 + 기존 BAL 형식 모두 지원)
                 const colIndex = {
-                    po: safeFind(h => (h.includes('PO') && (h.includes('#') || h.includes('NO'))) || h.includes('SALES ORDER') || h.includes('ORDER') && h.includes('ITEM')),
+                    po: safeFind(h => (h.includes('PO') && (h.includes('#') || h.includes('NO'))) || h.includes('SALES ORDER') || (h.includes('ORDER') && h.includes('ITEM'))),
                     article: safeFind(h => h.includes('ARTICLE') || h === 'ART'),
                     model: safeFind(h => h.includes('MODEL') || h.includes('STYLE')),
-                    qty: safeFind(h => h === 'QTY' || h.includes('Q.TY') || h.includes('QUANTITY') || (h.includes('ORDER') && !h.includes('SALES'))),
+                    qty: safeFind(h => h === 'QTY' || h.includes('Q.TY') || h.includes('QUANTITY')),
                     crd: safeFind(h => h === 'CRD' || h.includes('REQUIRED')),
-                    sdd: safeFind(h => h === 'SDD' || h.includes('DELIVERY') || h.includes('SHIP')),
+                    sdd: safeFind(h => h === 'SDD' || (h.includes('DELIVERY') && !h.includes('SDD'))),
                     dest: safeFind(h => h.includes('DEST') || h.includes('COUNTRY')),
                     vendor: safeFind(h => h.includes('VENDOR') || (h.includes('OSC') && h.includes('VD'))),
                     // 공정별 컬럼
@@ -1521,8 +1538,12 @@ function calculateVendorScore(vendor) {
                     warehouse: safeFind(h => h === 'WAREHOUSE')
                 };
 
+                console.log('Parsing sheet:', sheetName, 'Headers:', headers.slice(0, 20));
+                console.log('Column indices:', colIndex);
+                console.log('Data starts at row:', dataStartRow);
+
                 // 데이터 행 파싱
-                for (let i = headerRow + 1; i < jsonData.length; i++) {
+                for (let i = dataStartRow; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if (!row || row.length === 0) continue;
 
