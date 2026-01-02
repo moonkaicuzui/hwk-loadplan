@@ -430,66 +430,66 @@
         <div class="nav-section">
             <div class="nav-section-title">관심 PO</div>
             <div class="nav-item" data-target="section-watched-po" id="navWatchedPo" role="button" tabindex="0" aria-label="관심 PO 현황 섹션으로 이동">
-                <span class="nav-icon">⭐</span>관심 PO 현황
+                <span class="nav-icon" aria-hidden="true">⭐</span>관심 PO 현황
                 <span id="watchedPoCount" class="ml-auto text-xs bg-blue-500 text-white px-2 py-0.5 rounded-full">0</span>
             </div>
             <div class="nav-item" onclick="openPoRegisterModal()" role="button" tabindex="0" aria-label="관심 PO 등록 모달 열기" aria-haspopup="dialog" onkeydown="if(event.key==='Enter')openPoRegisterModal()">
-                <span class="nav-icon">➕</span>PO 등록하기
+                <span class="nav-icon" aria-hidden="true">➕</span>PO 등록하기
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">요약</div>
             <div class="nav-item" data-target="section-summary" role="button" tabindex="0" aria-label="월요 오더 현황 섹션으로 이동">
-                <span class="nav-icon">📋</span>월요 오더 현황
+                <span class="nav-icon" aria-hidden="true">📋</span>월요 오더 현황
             </div>
             <div class="nav-item" data-target="section-executive" role="button" tabindex="0" aria-label="Executive Summary 섹션으로 이동">
-                <span class="nav-icon">🎯</span>Executive Summary
+                <span class="nav-icon" aria-hidden="true">🎯</span>Executive Summary
             </div>
             <div class="nav-item" data-target="section-insights" role="button" tabindex="0" aria-label="경영진 인사이트 섹션으로 이동">
-                <span class="nav-icon">📊</span>경영진 인사이트
+                <span class="nav-icon" aria-hidden="true">📊</span>경영진 인사이트
             </div>
             <div class="nav-item" data-target="section-alerts" role="button" tabindex="0" aria-label="알림 현황 섹션으로 이동">
-                <span class="nav-icon">🚨</span>알림 현황
+                <span class="nav-icon" aria-hidden="true">🚨</span>알림 현황
             </div>
             <div class="nav-item" data-target="section-recommendations" role="button" tabindex="0" aria-label="담당자 권고사항 섹션으로 이동">
-                <span class="nav-icon">💡</span>담당자 권고사항
+                <span class="nav-icon" aria-hidden="true">💡</span>담당자 권고사항
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">현황</div>
             <div class="nav-item" data-target="section-kpi" role="button" tabindex="0" aria-label="KPI 요약 섹션으로 이동">
-                <span class="nav-icon">📈</span>KPI 요약
+                <span class="nav-icon" aria-hidden="true">📈</span>KPI 요약
             </div>
             <div class="nav-item" data-target="section-process" role="button" tabindex="0" aria-label="공정별 현황 섹션으로 이동">
-                <span class="nav-icon">⚙️</span>공정별 현황
+                <span class="nav-icon" aria-hidden="true">⚙️</span>공정별 현황
             </div>
             <div class="nav-item" data-target="section-factory" role="button" tabindex="0" aria-label="공장별 완료율 섹션으로 이동">
-                <span class="nav-icon">🏭</span>공장별 완료율
+                <span class="nav-icon" aria-hidden="true">🏭</span>공장별 완료율
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">일정/벤더</div>
             <div class="nav-item" data-target="section-calendar" role="button" tabindex="0" aria-label="예정 캘린더 섹션으로 이동">
-                <span class="nav-icon">📅</span>예정 캘린더
+                <span class="nav-icon" aria-hidden="true">📅</span>예정 캘린더
             </div>
             <div class="nav-item" data-target="section-vendor" role="button" tabindex="0" aria-label="아웃솔 벤더 섹션으로 이동">
-                <span class="nav-icon">👟</span>아웃솔 벤더
+                <span class="nav-icon" aria-hidden="true">👟</span>아웃솔 벤더
             </div>
             <div class="nav-item" data-target="section-destination" role="button" tabindex="0" aria-label="중요 행선지 섹션으로 이동">
-                <span class="nav-icon">🎯</span>중요 행선지
+                <span class="nav-icon" aria-hidden="true">🎯</span>중요 행선지
             </div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">필터/분석</div>
             <div class="nav-item" data-target="section-filter" role="button" tabindex="0" aria-label="필터 섹션으로 이동">
-                <span class="nav-icon">🔍</span>필터
+                <span class="nav-icon" aria-hidden="true">🔍</span>필터
             </div>
             <div class="nav-item" data-target="section-tabs" role="button" tabindex="0" aria-label="상세 분석 탭 섹션으로 이동">
-                <span class="nav-icon">📊</span>상세 분석 탭
+                <span class="nav-icon" aria-hidden="true">📊</span>상세 분석 탭
             </div>
         </div>
 
@@ -634,7 +634,7 @@
                     </button>
                     <!-- Dark Mode Toggle -->
                     <button type="button" id="darkModeToggle" onclick="toggleDarkMode()" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" aria-label="다크모드 전환" aria-pressed="false" title="다크모드 전환">
-                        <span id="darkModeIcon">🌙</span>
+                        <span id="darkModeIcon" aria-hidden="true">🌙</span>
                     </button>
                     <!-- Delay Alert -->
                     <div id="delayAlert" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg animate-pulse cursor-pointer" onclick="showDelayedOrders()" role="button" tabindex="0" aria-label="지연 알림 상세 보기" onkeydown="if(event.key==='Enter')showDelayedOrders()">
