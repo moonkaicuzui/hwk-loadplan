@@ -5144,7 +5144,7 @@ function calculateVendorScore(vendor) {
                 })
                 .slice(0, 10);
 
-            let html = `<h3 class="text-lg font-bold mb-4">📊 OTD 상세 분석</h3>
+            let html = `<h3 class="text-lg font-bold mb-4"><span aria-hidden="true">📊 </span>OTD 상세 분석</h3>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div class="bg-blue-50 dark:bg-blue-900 p-3 rounded-lg text-center">
                         <div class="text-2xl font-bold text-blue-600">${otd.rate.toFixed(1)}%</div>
@@ -5236,7 +5236,7 @@ function calculateVendorScore(vendor) {
             const aql = calculateAQLStats();
             const failed = filteredData.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N').slice(0, 10);
 
-            let html = `<h3 class="text-lg font-bold mb-4">✅ AQL 품질 검사 상세</h3>
+            let html = `<h3 class="text-lg font-bold mb-4"><span aria-hidden="true">✅ </span>AQL 품질 검사 상세</h3>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div class="bg-green-50 dark:bg-green-900 p-3 rounded-lg text-center">
                         <div class="text-2xl font-bold text-green-600">${aql.rate.toFixed(1)}%</div>
@@ -5289,7 +5289,7 @@ function calculateVendorScore(vendor) {
                 });
             });
 
-            let html = `<h3 class="text-lg font-bold mb-4">⚠️ 병목 공정 분석</h3>
+            let html = `<h3 class="text-lg font-bold mb-4"><span aria-hidden="true">⚠️ </span>병목 공정 분석</h3>
                 <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg mb-4">
                     <div class="text-center">
                         <div class="text-3xl font-bold text-yellow-600">${bottleneck.process}</div>
