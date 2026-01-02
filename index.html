@@ -381,6 +381,16 @@
         .skip-link:focus {
             top: 0;
         }
+
+        /* Reduced Motion Preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -388,7 +398,7 @@
     <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
 
     <!-- Sidebar Navigation Toggle -->
-    <button id="sidebarToggle" class="sidebar-toggle no-print" aria-label="사이드바 토글" title="메뉴 (M)">
+    <button id="sidebarToggle" class="sidebar-toggle no-print" aria-label="사이드바 토글" aria-expanded="false" aria-controls="sidebarNav" title="메뉴 (M)">
         <span id="toggleIcon">☰</span>
     </button>
 
@@ -2062,6 +2072,7 @@ function calculateVendorScore(vendor) {
                 sidebarOpen = open;
                 sidebarNav.classList.toggle('open', open);
                 sidebarToggle.classList.toggle('active', open);
+                sidebarToggle?.setAttribute('aria-expanded', open.toString());
                 sidebarOverlay?.classList.toggle('active', open);
                 mainContent?.classList.toggle('sidebar-open', open);
                 toggleIcon.textContent = open ? '✕' : '☰';
