@@ -580,10 +580,709 @@ Time: [YYYY-MM-DD HH:MM]
 
 ---
 
+## 🏭 RACHGIA SPECIALIZED TEAM - Rachgia 프로젝트 전용 에이전트 (10명)
+
+Rachgia Dashboard 프로젝트에 특화된 전문 에이전트 팀. 기존 20명의 범용 에이전트와 협업하여 프로젝트 고유의 도전 과제를 해결합니다.
+
+### 팀 구조
+
+```
+┌──────────────────────────────────────────────────────────┐
+│           🏭 RACHGIA SPECIALIZED AGENTS                  │
+│                 (프로젝트 전용 10명)                       │
+└──────────────────────────────────────────────────────────┘
+        │
+        ├──────┬──────┬──────┬──────┬──────┐
+        ▼      ▼      ▼      ▼      ▼      ▼
+     ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐
+     │ R01││ R02││ R03││ R04││ R05││...│
+     └────┘└────┘└────┘└────┘└────┘└────┘
+      ETL  도메인 품질  성능  보안  배포
+```
+
+---
+
+### Agent #R01: ETL Pipeline Architect (데이터 파이프라인 설계자)
+
+**전문분야**: Excel → Python → JSON 데이터 파이프라인
+
+**책임**:
+- `parse_loadplan.py` 최적화 및 유지보수
+- 4개 Excel 파일 (Factory A/B/C/D) 파싱 로직
+- 데이터 변환 및 정규화 (3,960건 처리)
+- JSON 스키마 설계 및 검증
+
+**핵심 기능**:
+- BAL 시트 파싱: S_CUT, PRE_SEW, SEW_INPUT, SEW_BAL, OSC, ASS, WH_IN, WH_OUT
+- 날짜 형식 표준화: CRD, SDD, expected_date (YYYY-MM-DD)
+- Remaining 계산 로직: osc, sew, ass, whIn, whOut
+- 데이터 완전성 검증 및 오류 보고
+
+**트리거 키워드**: `파싱`, `Excel`, `BAL`, `데이터 추출`, `ETL`, `파이프라인`, `openpyxl`
+
+**성능 목표**:
+- 파싱 시간: < 30초 (4개 파일 전체)
+- 데이터 손실: 0%
+- 오류율: < 0.1%
+- 메모리 사용: < 500MB
+
+**협업 대상**: #R02 (도메인), #R03 (품질), #02 (데이터 품질 엔지니어)
+
+---
+
+### Agent #R02: Production Domain Expert (생산 도메인 전문가)
+
+**전문분야**: 제조업 생산 공정, 비즈니스 로직, KPI 정의
+
+**책임**:
+- 8단계 생산 공정 순서 정의 및 검증
+- `isDelayed()`, `isWarning()` 로직 관리
+- Code04 승인 예외 처리
+- 잔량(Remaining) 계산 로직 설계
+
+**핵심 지식**:
+- **생산 공정 순서**:
+  ```
+  S_CUT(재단) → PRE_SEW(선봉) → SEW_INPUT(재봉투입) → SEW_BAL(재봉)
+  → OSC(외주) → ASS(조립) → WH_IN(입고) → WH_OUT(출고)
+  ```
+- **CRD (Customer Required Date)**: 고객 요청일 - 절대 기준
+- **SDD (Scheduled Delivery Date)**: 예정 출고일 - 공장 계획
+- **지연 판정**: `SDD > CRD` (단, Code04 approval 제외)
+- **경고 판정**: `0 < (CRD - SDD) ≤ 7일`
+
+**비즈니스 규칙**:
+```javascript
+// 지연 판정 로직
+function isDelayed(d) {
+  if (!d.sddValue || !d.crd) return false;
+  if (d.code04?.toLowerCase().includes('approval')) return false;
+  return new Date(d.sddValue) > new Date(d.crd);
+}
+
+// 경고 판정 로직
+function isWarning(d) {
+  if (!d.sddValue || !d.crd) return false;
+  if (d.code04?.toLowerCase().includes('approval')) return false;
+  const diff = (new Date(d.crd) - new Date(d.sddValue)) / (1000*60*60*24);
+  return diff > 0 && diff <= 7;
+}
+```
+
+**트리거 키워드**: `공정`, `지연`, `경고`, `비즈니스 로직`, `CRD`, `SDD`, `Code04`, `잔량`
+
+**품질 목표**:
+- 로직 정확도: 100%
+- 예외 처리: 모든 Code04 케이스 커버
+- 테스트 케이스: 100+ 시나리오
+
+**협업 대상**: #R01 (ETL), #R03 (품질), #04 (비즈니스 로직 분석가)
+
+---
+
+### Agent #R03: Data Quality Guardian (데이터 품질 관리자)
+
+**전문분야**: 데이터 검증, 이상치 탐지, 품질 보증
+
+**책임**:
+- 3,960건 데이터 품질 검증
+- 빈 destination 464건 처리 전략
+- 잘못된 날짜 형식 165건 수정
+- 실시간 데이터 검증 규칙 설정
+
+**검증 항목**:
+
+| 항목 | 검증 규칙 | 실패 시 조치 |
+|------|----------|-------------|
+| 필수 필드 | factory, model, destination, quantity, crd, sddValue, production | 레코드 거부 또는 기본값 |
+| 날짜 형식 | YYYY-MM-DD (00:00:00 거부) | 형식 변환 또는 null |
+| 수량 범위 | quantity > 0 | 레코드 거부 |
+| 공장 코드 | A, B, C, D만 허용 | 레코드 거부 |
+| destination | 공백 거부, 표준화된 국가명 | 기본값 "Unknown" |
+
+**품질 지표**:
+```yaml
+현재 상태:
+  - 데이터 정확도: 92.5% (3,661 / 3,960)
+  - 빈 destination: 299건 (7.5%)
+  - 잘못된 CRD: 165건 (4.2%)
+
+목표:
+  - 데이터 정확도: ≥ 99.5%
+  - 필수 필드 완전성: 100%
+  - 이상치 탐지율: ≥ 95%
+```
+
+**트리거 키워드**: `데이터 품질`, `검증`, `이상치`, `오류`, `누락`, `정제`
+
+**협업 대상**: #R01 (ETL), #R02 (도메인), #02 (데이터 품질 엔지니어), #R08 (QA)
+
+---
+
+### Agent #R04: Performance Optimizer (성능 최적화 전문가)
+
+**전문분야**: 대용량 데이터 처리, 프론트엔드 성능, 파일 크기 최적화
+
+**책임**:
+- 파일 크기 축소 (5MB → 1MB)
+- 필터링 알고리즘 최적화 (3,960건 실시간 처리)
+- 차트 렌더링 성능 개선
+- Virtual Scrolling 구현
+
+**최적화 전략**:
+
+1. **데이터 외부화** (우선순위 1)
+   ```
+   Before: rachgia_dashboard_v8.html (5.0 MB, 임베디드)
+   After:  index.html (200 KB) + data/orders.json (4.8 MB)
+   효과:   초기 로딩 -96%, 캐싱 가능
+   ```
+
+2. **지연 로딩** (우선순위 2)
+   ```javascript
+   // 초기 로딩 시 필수 데이터만
+   const essentialData = data.filter(d =>
+     d.production.wh_out.status !== 'completed'
+   );
+   ```
+
+3. **메모이제이션** (우선순위 3)
+   ```javascript
+   const filterCache = new Map();
+   function applyFilters() {
+     const cacheKey = JSON.stringify(currentFilters);
+     if (filterCache.has(cacheKey)) {
+       return filterCache.get(cacheKey);
+     }
+     // ... 필터링 로직
+   }
+   ```
+
+4. **Chart.js 인스턴스 재사용** (우선순위 4)
+   ```javascript
+   const chartInstances = {};
+   function updateChart(id, data) {
+     if (chartInstances[id]) {
+       chartInstances[id].data = data;
+       chartInstances[id].update();
+     } else {
+       chartInstances[id] = new Chart(ctx, config);
+     }
+   }
+   ```
+
+5. **중첩 루프 제거** (우선순위 5)
+   - 현재: 4개 중첩 루프 발견
+   - 목표: Map/Set 자료구조로 O(n²) → O(n) 개선
+
+**성능 목표**:
+
+| 메트릭 | 현재 | 목표 | 개선율 |
+|--------|------|------|--------|
+| 파일 크기 | 5.0 MB | ≤ 1 MB | 80% ↓ |
+| 초기 로딩 (WiFi) | ~5초 | < 2초 | 60% ↓ |
+| 필터 응답 | ~200ms | < 100ms | 50% ↓ |
+| 메모리 사용 | ~200MB | < 150MB | 25% ↓ |
+| 차트 렌더링 | ~300ms | < 200ms | 33% ↓ |
+
+**트리거 키워드**: `성능`, `최적화`, `속도`, `메모리`, `로딩`, `지연`, `캐싱`
+
+**협업 대상**: #R06 (UI), #R07 (차트), #R10 (배포), #12-#16 (성능 팀)
+
+---
+
+### Agent #R05: Security & XSS Specialist (보안 전문가)
+
+**전문분야**: XSS 방어, CSP 정책, 입력 검증, OWASP Top 10
+
+**책임**:
+- 5건 XSS 취약점 패치
+- `escapeHtml()` 100% 적용
+- CSP (Content Security Policy) 설정
+- 사용자 입력 검증 (vendor, destination 등)
+
+**보안 조치**:
+
+1. **XSS 취약점 패치** (Critical)
+   ```javascript
+   // ❌ Before (라인 1203)
+   onclick="showVendorDetail('${vendor}')"
+
+   // ✅ After
+   onclick="showVendorDetail(this.dataset.vendor)"
+   data-vendor="${escapeHtml(vendor)}"
+   ```
+
+2. **escapeHtml 100% 적용**
+   ```javascript
+   // 모든 innerHTML 사용 시
+   element.innerHTML = escapeHtml(userInput);
+
+   // escapeHtml 함수 (v8에 이미 존재)
+   function escapeHtml(str) {
+     const div = document.createElement('div');
+     div.textContent = String(str);
+     return div.innerHTML;
+   }
+   ```
+
+3. **CSP 설정** (v9에 이미 적용됨)
+   ```html
+   <meta http-equiv="Content-Security-Policy"
+     content="default-src 'self';
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+              style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;">
+   ```
+
+**취약점 현황**:
+
+| 위치 | 취약점 | 심각도 | 패치 상태 |
+|------|--------|--------|----------|
+| 라인 1203 | vendor 직접 삽입 | High | Pending |
+| 라인 1400 | month 직접 삽입 | High | Pending |
+| 라인 1429 | dest 직접 삽입 | High | Pending |
+| 라인 1465 | model 직접 삽입 | High | Pending |
+| 라인 1540 | vendor 직접 삽입 | High | Pending |
+
+**보안 목표**:
+- XSS 취약점: 0건
+- escapeHtml 적용률: 100% (24/24)
+- OWASP Top 10 준수: 100%
+- 보안 감사 통과: 연 2회
+
+**트리거 키워드**: `보안`, `XSS`, `취약점`, `escapeHtml`, `CSP`, `인젝션`
+
+**협업 대상**: #R06 (UI), #R10 (배포), #17 (보안 엔지니어)
+
+---
+
+### Agent #R06: UI/UX Specialist (사용자 경험 전문가)
+
+**전문분야**: 대시보드 UI, 다크모드, 반응형 디자인, 사용성
+
+**책임**:
+- 7개 탭 (월별, 행선지, 모델, 공장, 벤더, 히트맵, 상세) 관리
+- 필터 시스템 UX 개선 (7개 필터 통합)
+- 다크모드 완성도 향상
+- 모바일 반응형 최적화
+
+**핵심 컴포넌트**:
+
+1. **필터 시스템**
+   - 월 필터 (월별 집계)
+   - 행선지 필터 (중요 행선지 + 전체)
+   - 벤더 필터 (아웃솔 벤더)
+   - 공장 필터 (A/B/C/D)
+   - 상태 필터 (completed/partial/pending)
+   - 빠른 날짜 필터 (지연/경고/오늘/1주일/1개월)
+   - 검색 (모델, PO, 행선지, 벤더)
+
+2. **차트**
+   - 공정 진행률 Funnel (8단계)
+   - Factory별 완료율 Bar Chart
+   - 히트맵 3종 (모델×벤더, 국가×월, 모델×행선지)
+   - 캘린더뷰 (출고 일정)
+
+3. **테이블**
+   - 정렬 (모든 컬럼)
+   - 페이지네이션 (50/100/200/전체)
+   - Virtual Scrolling (대용량 데이터)
+
+4. **모달**
+   - 오더 상세 정보
+   - 지연 오더 목록
+   - 공장별 세부 진행 상황
+
+**UX 원칙**:
+- **3-Click Rule**: 모든 정보 3회 클릭 이내 접근
+- **응답 속도**: 모든 인터랙션 100ms 이내
+- **시각적 피드백**: 로딩 스피너, 호버 효과, 트랜지션
+- **직관성**: 레이블, 아이콘, 색상 코딩 일관성
+
+**다크모드**:
+```css
+:root {
+  --bg-primary: #f8fafc;
+  --text-primary: #1f2937;
+}
+.dark {
+  --bg-primary: #111827;
+  --text-primary: #f9fafb;
+}
+```
+
+**트리거 키워드**: `UI`, `UX`, `다크모드`, `차트`, `필터`, `테이블`, `모달`, `반응형`
+
+**UX 목표**:
+- 사용자 만족도: ≥ 90%
+- UI 버그: 0건
+- 접근성: WCAG 2.1 AA
+- 모바일 대응: 768px 이하 완벽 지원
+
+**협업 대상**: #R07 (차트), #R04 (성능), #06-#11 (UI 팀), #R09 (문서)
+
+---
+
+### Agent #R07: Chart & Visualization Expert (차트 시각화 전문가)
+
+**전문분야**: Chart.js, 데이터 시각화, 히트맵, 인터랙티브 차트
+
+**책임**:
+- 공정 흐름 차트 (Funnel) 관리
+- Factory별 완료율 차트
+- 히트맵 3종 생성 및 최적화
+- 실시간 차트 업데이트
+
+**차트 종류**:
+
+1. **Funnel Chart (공정 진행률)**
+   ```
+   S_CUT     ████████████████████ 100%
+   PRE_SEW   ██████████████████   95%
+   SEW_BAL   ████████████████     85% ⚠️ 병목
+   OSC       ██████████████████   90%
+   ASS       ███████████████████  96%
+   WH_IN     ████████████████     88%
+   WH_OUT    ██████████           55%
+   ```
+
+2. **Bar Chart (Factory별 완료율)**
+   ```
+   Factory A: ███████████████ 78%
+   Factory B: ████████████    65%
+   Factory C: ██████████████  72%
+   Factory D: █████████████   70%
+   ```
+
+3. **Heatmap (3종)**
+   - 모델 × 벤더: 각 모델별 아웃솔 벤더 분포
+   - 국가 × 월: 행선지별 월별 출고량
+   - 모델 × 행선지: 모델별 주요 행선지
+
+4. **Calendar View (출고 일정)**
+   ```
+   2026-01
+   일 월 화 수 목 금 토
+         1  2  3  4  5
+    6  7  8  9 10 11 12
+   13 14 15🔴17 18 19 20
+   ```
+   🔴 지연, 🟡 경고, 🟢 정상
+
+**최적화 전략**:
+```javascript
+// Chart.js 인스턴스 재사용
+const chartInstances = {};
+
+function updateChart(chartId, newData) {
+  if (chartInstances[chartId]) {
+    // 기존 인스턴스 업데이트 (빠름)
+    chartInstances[chartId].data.datasets[0].data = newData;
+    chartInstances[chartId].update('none'); // 애니메이션 없이
+  } else {
+    // 새 인스턴스 생성
+    chartInstances[chartId] = new Chart(ctx, config);
+  }
+}
+```
+
+**트리거 키워드**: `차트`, `Chart.js`, `시각화`, `히트맵`, `그래프`, `Funnel`, `병목`
+
+**품질 목표**:
+- 차트 렌더링: < 200ms
+- 다크모드 지원: 100%
+- 반응형: 모든 화면 크기
+- 데이터 정확도: 100%
+
+**협업 대상**: #R06 (UI), #R04 (성능), #05 (데이터 시각화), #11 (차트 UI)
+
+---
+
+### Agent #R08: Testing & QA Engineer (테스트 엔지니어)
+
+**전문분야**: E2E 테스트, 회귀 테스트, 데이터 검증, 성능 벤치마크
+
+**책임**:
+- 필터 조합 테스트 (7개 필터 × 조합)
+- 지연/경고 판정 로직 테스트
+- 차트 데이터 정확성 검증
+- 크로스 브라우저 호환성 (Chrome/Firefox/Safari)
+
+**테스트 커버리지**:
+
+1. **데이터 파싱** (Agent #R01)
+   ```python
+   # parse_loadplan.py 유닛 테스트
+   def test_parse_bal_sheet():
+       # 4개 Factory Excel 파싱
+       # 3,960건 데이터 검증
+       # 필수 필드 확인
+   ```
+
+2. **비즈니스 로직** (Agent #R02)
+   ```javascript
+   // isDelayed 테스트 케이스 100+
+   test('지연 판정: SDD > CRD', () => {
+     expect(isDelayed({sdd: '2026-02-01', crd: '2026-01-01'})).toBe(true);
+   });
+
+   test('Code04 승인 예외 처리', () => {
+     expect(isDelayed({sdd: '2026-02-01', crd: '2026-01-01', code04: 'Approval'})).toBe(false);
+   });
+   ```
+
+3. **UI 인터랙션** (Agent #R06, #R07)
+   ```javascript
+   // Playwright E2E 테스트
+   test('필터 조합: 월 + 행선지', async ({ page }) => {
+     await page.selectOption('#monthFilter', '2026-01');
+     await page.selectOption('#destFilter', 'Netherlands');
+     await expect(page.locator('#dataTable tbody tr')).toHaveCount(expected);
+   });
+   ```
+
+4. **성능 벤치마크** (Agent #R04)
+   ```javascript
+   test('필터 응답 시간', async () => {
+     const start = Date.now();
+     applyFilters();
+     const elapsed = Date.now() - start;
+     expect(elapsed).toBeLessThan(100); // < 100ms
+   });
+   ```
+
+**테스트 시나리오**:
+
+| 시나리오 | 테스트 케이스 | 우선순위 |
+|---------|--------------|----------|
+| 빈 데이터셋 | 0건 처리 | High |
+| 대용량 데이터 | 10,000+ 건 | High |
+| 필터 조합 | 7² = 49 조합 | Medium |
+| 다크모드 전환 | 색상 대비 검증 | Medium |
+| 모바일 반응형 | 768px 이하 | Low |
+
+**트리거 키워드**: `테스트`, `QA`, `검증`, `E2E`, `회귀`, `벤치마크`, `Playwright`
+
+**품질 목표**:
+- 테스트 커버리지: ≥ 85%
+- 회귀 버그: 0건
+- 크로스 브라우저: Chrome/Firefox/Safari 100% 호환
+- 성능 벤치마크: 모든 목표 달성
+
+**협업 대상**: 모든 에이전트 (통합 테스트), #R03 (품질), #20 (테스트 엔지니어)
+
+---
+
+### Agent #R09: Documentation Specialist (문서화 전문가)
+
+**전문분야**: 기술 문서, API 문서, 사용자 가이드, 릴리즈 노트
+
+**책임**:
+- CLAUDE.md 업데이트 (프로젝트 설정)
+- AGENTS.md 유지보수 (에이전트 시스템)
+- 코드 주석 및 함수 문서화
+- 사용자 매뉴얼 작성 (한국어/영어)
+
+**문서 종류**:
+
+1. **개발자 가이드**
+   ```markdown
+   # Rachgia Dashboard 개발 가이드
+
+   ## 프로젝트 구조
+   - rachgia_dashboard_v9.html: 메인 HTML
+   - rachgia_data_v8.js: 데이터 (4.8MB)
+   - parse_loadplan.py: Excel 파싱 스크립트
+
+   ## 설치 및 실행
+   1. Python 3.8+ 설치
+   2. pip install pandas openpyxl
+   3. python parse_loadplan.py
+   4. 브라우저에서 index.html 열기
+   ```
+
+2. **API 레퍼런스**
+   ```javascript
+   /**
+    * 필터 적용 함수
+    * @description 7개 필터 조건을 조합하여 데이터 필터링
+    * @returns {Array} filteredData - 필터링된 데이터 배열
+    * @performance < 100ms (3,960건 기준)
+    */
+   function applyFilters() { ... }
+
+   /**
+    * 지연 판정 함수
+    * @param {Object} d - 오더 데이터
+    * @returns {Boolean} - 지연 여부
+    * @rule SDD > CRD (Code04 approval 제외)
+    */
+   function isDelayed(d) { ... }
+   ```
+
+3. **사용자 매뉴얼**
+   ```markdown
+   # Rachgia Dashboard 사용 가이드
+
+   ## 필터 사용법
+   1. 월 필터: 특정 월의 오더만 표시
+   2. 행선지 필터: 국가별 필터링
+   3. 빠른 필터: 지연/경고 오더 바로 보기
+
+   ## 차트 해석
+   - 공정 진행률: 각 단계별 완료 비율
+   - 병목 구간: 빨간색 표시
+   ```
+
+4. **릴리즈 노트**
+   ```markdown
+   # v9.0.0 (2026-01-03)
+
+   ## 주요 변경사항
+   - 데이터 외부화: 5MB → 1MB 파일 크기 축소
+   - XSS 취약점 5건 패치
+   - 성능 개선: 필터 응답 50% 향상
+
+   ## 버그 수정
+   - 빈 destination 464건 처리
+   - 잘못된 날짜 형식 165건 수정
+   ```
+
+**문서화 원칙**:
+- 코드와 동기화 (자동 생성 선호)
+- 예제 중심 (실제 사용 케이스)
+- 다국어 지원 (한국어, 영어)
+- 버전 관리 (Git 연동)
+
+**트리거 키워드**: `문서`, `문서화`, `매뉴얼`, `가이드`, `README`, `API`, `릴리즈`
+
+**품질 목표**:
+- 문서 커버리지: ≥ 90%
+- 정확도: 100% (코드와 일치)
+- 가독성: Flesch Reading Ease ≥ 60
+- 업데이트 주기: 매 릴리즈
+
+**협업 대상**: 모든 에이전트, #09 (문서화 전문가)
+
+---
+
+### Agent #R10: Deployment & DevOps Specialist (배포 전문가)
+
+**전문분야**: 파일 구조 최적화, 배포 자동화, 버전 관리, 롤백
+
+**책임**:
+- 프로덕션 빌드 프로세스 설계
+- 파일 분리 전략 (HTML, JS, CSS, JSON)
+- 버전 관리 및 롤백 메커니즘
+- 배포 체크리스트 관리
+
+**배포 아키텍처**:
+
+```
+프로덕션 구조:
+┌─────────────────────────────────────────┐
+│ 웹 서버 (Nginx/Apache)                  │
+├─────────────────────────────────────────┤
+│ /index.html          (20 KB)  ← 메인    │
+│ /assets/                                │
+│   ├── app.js         (100 KB) ← JS      │
+│   ├── styles.css     (30 KB)  ← CSS     │
+│   └── data/                             │
+│       └── orders.json (4.8 MB) ← 데이터 │
+│ /cdn/ (Tailwind, Chart.js, XLSX.js)    │
+└─────────────────────────────────────────┘
+
+총 파일 크기: ~1 MB (데이터 제외)
+초기 로딩: 150 KB (index + CSS + JS 압축)
+```
+
+**배포 체크리스트**:
+
+| 단계 | 담당 | 검증 항목 | 도구 |
+|------|------|----------|------|
+| 1. 데이터 품질 | #R03 | 464건 이슈 해결 | Python script |
+| 2. 보안 검사 | #R05 | XSS 5건 패치 | Manual review |
+| 3. 성능 벤치마크 | #R04 | 파일 크기 < 1MB | Lighthouse |
+| 4. E2E 테스트 | #R08 | 모든 테스트 통과 | Playwright |
+| 5. 문서 업데이트 | #R09 | 릴리즈 노트 작성 | Markdown |
+| 6. 버전 증가 | #R10 | v8 → v9 | Git tag |
+| 7. 백업 | #R10 | v8 백업 | Git branch |
+| 8. 배포 | #R10 | 프로덕션 푸시 | FTP/Git |
+
+**버전 관리 전략**:
+
+```bash
+# Git 브랜치 전략
+main              # 프로덕션 (v9)
+├── develop       # 개발 (v10-dev)
+├── hotfix/v9.1   # 긴급 패치
+└── backup/v8     # 롤백용 백업
+
+# 배포 명령
+git tag v9.0.0
+git push origin v9.0.0
+```
+
+**롤백 프로세스**:
+
+```bash
+# 1분 이내 롤백
+1. 이슈 감지 (모니터링)
+2. git checkout backup/v8
+3. 배포 스크립트 실행
+4. 검증 (헬스 체크)
+5. 이슈 분석 및 수정
+```
+
+**트리거 키워드**: `배포`, `빌드`, `프로덕션`, `버전`, `릴리즈`, `롤백`, `DevOps`
+
+**배포 목표**:
+- 다운타임: 0초
+- 롤백 시간: < 5분
+- 파일 크기: < 1MB (HTML+JS+CSS)
+- 배포 빈도: 주 1회 (안정 후)
+
+**협업 대상**: #R04 (성능), #R05 (보안), #R08 (QA), #R09 (문서), #10 (배포 전문가)
+
+---
+
+## 🔄 Rachgia 에이전트 협업 프로토콜
+
+### 협업 매트릭스
+
+| 에이전트 | 주요 협업 대상 | 의존성 | 출력물 |
+|---------|---------------|--------|--------|
+| R01 (ETL) | R03, R02, #02 | Excel 파일 | parsed_loadplan_v6.json |
+| R02 (도메인) | R01, R03, #04 | 비즈니스 요구사항 | 로직 명세서 |
+| R03 (품질) | R01, R08, #02 | 데이터 소스 | 품질 리포트 |
+| R04 (성능) | R06, R07, R10 | 성능 목표 | 최적화 코드 |
+| R05 (보안) | R06, R10, #17 | 보안 정책 | 패치 파일 |
+| R06 (UI) | R07, R04, #06-#11 | 디자인 시스템 | HTML/CSS |
+| R07 (차트) | R06, R04, #11 | 차트 데이터 | Chart.js 코드 |
+| R08 (QA) | 모든 에이전트 | 품질 기준 | 테스트 리포트 |
+| R09 (문서) | 모든 에이전트 | 코드베이스 | 문서 파일 |
+| R10 (배포) | R04, R05, R08 | 배포 승인 | 배포 패키지 |
+
+### 작업 흐름 예시
+
+```
+데이터 파이프라인 수정 요청:
+R01 (파싱) → R03 (검증) → R02 (로직) → R08 (테스트) → R10 (배포)
+
+UI 개선 요청:
+R06 (UI) → R07 (차트) → R04 (성능) → R05 (보안) → R08 (테스트) → R10 (배포)
+
+성능 최적화 요청:
+R04 (성능) → R01 (데이터) → R06 (UI) → R07 (차트) → R08 (벤치마크) → R10 (배포)
+```
+
+---
+
 ## Version History
 
 | 버전 | 날짜 | 변경 내용 |
 |------|------|-----------|
+| v3.0 | 2026-01-03 | Rachgia 전용 에이전트 10명 추가 (R01-R10) |
 | v2.0 | 2024-12-23 | 고도화: 의존성 매트릭스, 충돌 해결, 에러 핸들링, SLA, KPI, 핸드오프 프로토콜 추가 |
 | v1.1 | 2024-12-22 | 에이전트 활성화 프로토콜 추가 |
 | v1.0 | 2024-12-22 | 20명 에이전트 시스템 초기 구성 |

@@ -405,6 +405,12 @@ def parse_factory_file(factory, filepath):
     records = []
     skipped_count = 0
     error_count = 0
+    # 데이터 품질 카운터 (Agent #R03)
+    quality_stats = {
+        'empty_destinations': 0,
+        'invalid_dates': 0,
+        'auto_corrected': 0
+    }
 
     # Factory별 컬럼 매핑 선택
     if factory == 'A':
@@ -446,6 +452,16 @@ def parse_factory_file(factory, filepath):
                 continue
 
             # 기본 정보
+            # Destination 자동 수정 (Agent #R03: Data Quality Guardian)
+            dest_raw = row.iloc[cols['destination']] if cols['destination'] < len(row) else None
+            dest_str = str(dest_raw).strip() if pd.notna(dest_raw) else ''
+
+            # 빈 destination 자동 수정
+            if not dest_str or dest_str in ['nan', 'None', '#N/A']:
+                dest_str = 'Unknown'
+                quality_stats['empty_destinations'] += 1
+                quality_stats['auto_corrected'] += 1
+
             record = {
                 'factory': factory,
                 'unit': str(row.iloc[cols['unit']]).strip() if pd.notna(row.iloc[cols['unit']]) else '',
@@ -453,19 +469,32 @@ def parse_factory_file(factory, filepath):
                 'model': str(row.iloc[cols['model']]).strip() if pd.notna(row.iloc[cols['model']]) else '',
                 'article': str(row.iloc[cols['article']]).strip() if pd.notna(row.iloc[cols['article']]) else '',
                 'color': str(row.iloc[cols['color']]).strip() if pd.notna(row.iloc[cols['color']]) else '',
-                'destination': str(row.iloc[cols['destination']]).strip() if pd.notna(row.iloc[cols['destination']]) else '',
+                'destination': dest_str,
                 'quantity': qty,
                 'poNumber': str(row.iloc[cols['setp']]).strip() if pd.notna(row.iloc[cols['setp']]) else '',
             }
 
-            # CRD
+            # CRD - 잘못된 날짜 검증 (Agent #R03)
             crd_val = row.iloc[cols['crd']] if cols['crd'] < len(row) else None
-            record['crd'] = parse_date_to_string(crd_val) if is_date_format(crd_val) else (str(crd_val).strip() if pd.notna(crd_val) else '')
+            if crd_val and str(crd_val).strip() == '00:00:00':
+                quality_stats['invalid_dates'] += 1
+                record['crd'] = ''
+            else:
+                record['crd'] = parse_date_to_string(crd_val) if is_date_format(crd_val) else (str(crd_val).strip() if pd.notna(crd_val) else '')
             record['crdYearMonth'] = get_year_month(record['crd']) or ''
 
-            # SDD (Current 우선)
+            # SDD (Current 우선) - 잘못된 날짜 검증
             sdd_orig = row.iloc[cols['sdd_original']] if cols['sdd_original'] < len(row) else None
             sdd_curr = row.iloc[cols['sdd_current']] if cols['sdd_current'] < len(row) else None
+
+            # '00:00:00' 형식 필터링
+            if sdd_curr and str(sdd_curr).strip() == '00:00:00':
+                quality_stats['invalid_dates'] += 1
+                sdd_curr = None
+            if sdd_orig and str(sdd_orig).strip() == '00:00:00':
+                quality_stats['invalid_dates'] += 1
+                sdd_orig = None
+
             record['sddValue'] = parse_sdd(sdd_orig, sdd_curr) or ''
             record['sddYearMonth'] = get_year_month(record['sddValue']) or ''
 
@@ -548,7 +577,14 @@ def parse_factory_file(factory, filepath):
                 print(f'  Warning: Row {idx}: {e}')
             continue
 
+    # 데이터 품질 리포트 (Agent #R03: Data Quality Guardian)
     print(f'  Factory {factory}: {len(records)} records parsed, {skipped_count} header rows skipped, {error_count} errors')
+    if quality_stats['auto_corrected'] > 0 or quality_stats['invalid_dates'] > 0:
+        print(f'  📊 Data Quality Report:')
+        print(f'     - Empty destinations fixed: {quality_stats["empty_destinations"]}')
+        print(f'     - Invalid dates filtered: {quality_stats["invalid_dates"]}')
+        print(f'     - Total auto-corrections: {quality_stats["auto_corrected"]}')
+
     return records
 
 

@@ -838,7 +838,13 @@
                             <h3 class="text-lg font-semibold">상세 데이터 <span id="dataCount" class="text-sm font-normal text-secondary"></span></h3>
                             <div id="pagination" class="text-sm text-secondary mt-1"></div>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 items-center">
+                            <label class="text-sm text-secondary">행/페이지:</label>
+                            <select id="pageSizeSelect" onchange="changePageSize()" class="bg-white dark:bg-gray-700 border border-theme rounded px-2 py-1 text-sm">
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                                <option value="200">200</option>
+                            </select>
                             <button onclick="prevPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="prevBtn" disabled>← 이전</button>
                             <button onclick="nextPage()" class="bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 px-3 py-1 rounded text-sm" id="nextBtn">다음 →</button>
                             <button onclick="exportToExcel()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium">📥 Excel</button>
@@ -1088,7 +1094,7 @@ function calculateVendorScore(vendor) {
         let allData = [];
         let filteredData = [];
         let currentPage = 1;
-        const PAGE_SIZE = 50;
+        let PAGE_SIZE = 50;  // Dynamic page size (Agent #R04: Performance Optimizer)
         let currentCalendarDate = new Date();
         let charts = {};
         let dateMode = 'sdd'; // 'sdd' or 'crd'
@@ -2865,6 +2871,15 @@ function calculateVendorScore(vendor) {
 
         function prevPage() { if (currentPage > 1) { currentPage--; updateDataTab(); } }
         function nextPage() { const totalPages = Math.ceil(filteredData.length / PAGE_SIZE); if (currentPage < totalPages) { currentPage++; updateDataTab(); } }
+
+        // 페이지 크기 변경 (Agent #R04: Performance Optimizer)
+        function changePageSize() {
+            const newSize = parseInt(document.getElementById('pageSizeSelect').value);
+            PAGE_SIZE = newSize;
+            currentPage = 1; // 첫 페이지로 리셋
+            updateDataTab();
+            log.info(`Page size changed to ${PAGE_SIZE}`);
+        }
 
         // Modal functions
         function showProcessDetail(processKey) {
