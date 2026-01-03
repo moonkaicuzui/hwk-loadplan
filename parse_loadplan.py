@@ -9,6 +9,7 @@ Ground Truth 기준 BAL 컬럼 해석:
 import pandas as pd
 import json
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -552,7 +553,11 @@ def parse_factory_file(factory, filepath):
 
 
 def main():
-    base_path = Path('/Users/ksmoon/Coding/오더 현황 분석')
+    # Performance measurement (Agent #R04)
+    start_time = time.time()
+
+    # 환경 변수 또는 현재 스크립트 위치 기준
+    base_path = Path(__file__).parent.absolute()
     all_records = []
 
     for factory, filename in FACTORY_FILES.items():
@@ -570,7 +575,14 @@ def main():
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(all_records, f, ensure_ascii=False, indent=2)
 
+    # Performance measurement
+    elapsed_time = time.time() - start_time
     print(f'Saved to: {output_path}')
+    print(f'⚡ Performance: {elapsed_time:.2f}초 (목표: <30초)')
+    if elapsed_time < 30:
+        print(f'   ✅ 성능 목표 달성!')
+    else:
+        print(f'   ⚠️ 성능 개선 필요')
 
     # 샘플 출력
     print('\n=== Sample Records ===')
