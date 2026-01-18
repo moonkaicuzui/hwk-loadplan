@@ -2351,7 +2351,10 @@
                                 <div class="flex items-center gap-2">
                                     <span id="qmsUserEmail" class="text-sm text-secondary"></span>
                                     <button id="qmsSignOutBtn" class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" data-i18n="qms.signOut">로그아웃</button>
-                                    <button id="qmsSyncBtn" class="ml-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="동기화">
+                                    <button id="qmsSettingsBtn" class="ml-2 p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="QMS 설정">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    </button>
+                                    <button id="qmsSyncBtn" class="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors" title="동기화">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                     </button>
                                 </div>
@@ -3026,6 +3029,105 @@ function calculateVendorScore(vendor) {
                         <p class="mt-2 text-xs text-gray-600 dark:text-gray-400" data-i18n="help.notification.tip">💡 팁: 브라우저를 닫아도 알림은 시스템 트레이에 표시됩니다.</p>
                     </div>
                 </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- QMS 설정 모달 -->
+    <div id="qmsSettingsModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="qmsSettingsTitle">
+        <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-theme bg-gradient-to-r from-blue-500 to-purple-600">
+                <h3 class="text-lg font-semibold text-white" id="qmsSettingsTitle">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        QMS 설정
+                    </span>
+                </h3>
+                <button id="closeQmsSettingsBtn" class="text-white text-2xl hover:text-red-300 transition-colors">×</button>
+            </div>
+            <div class="p-6">
+                <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                    <p class="text-sm text-blue-700 dark:text-blue-300">
+                        <strong>📋 Google Cloud Console 설정 필요</strong><br>
+                        QMS 기능을 사용하려면 Google Cloud Console에서 프로젝트를 생성하고 OAuth 2.0 및 Sheets API를 활성화해야 합니다.
+                    </p>
+                </div>
+
+                <form id="qmsSettingsForm" class="space-y-4">
+                    <!-- Google Client ID -->
+                    <div>
+                        <label for="qmsClientId" class="block text-sm font-medium mb-2">
+                            Google Client ID <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="qmsClientId" name="clientId"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="xxxxx.apps.googleusercontent.com"
+                               required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">OAuth 2.0 클라이언트 ID</p>
+                    </div>
+
+                    <!-- Google API Key -->
+                    <div>
+                        <label for="qmsApiKey" class="block text-sm font-medium mb-2">
+                            Google API Key <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="qmsApiKey" name="apiKey"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="AIzaSy..."
+                               required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Sheets API용 API 키</p>
+                    </div>
+
+                    <!-- Spreadsheet ID -->
+                    <div>
+                        <label for="qmsSpreadsheetId" class="block text-sm font-medium mb-2">
+                            Spreadsheet ID <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="qmsSpreadsheetId" name="spreadsheetId"
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                               placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+                               required>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Google Sheets URL에서 /d/ 뒤의 ID</p>
+                    </div>
+
+                    <!-- 연결 상태 표시 -->
+                    <div id="qmsConnectionStatus" class="hidden p-3 rounded-lg">
+                        <span id="qmsStatusIcon"></span>
+                        <span id="qmsStatusText"></span>
+                    </div>
+
+                    <!-- 버튼들 -->
+                    <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <button type="button" id="testQmsConnectionBtn"
+                                class="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            연결 테스트
+                        </button>
+                        <button type="submit" id="saveQmsSettingsBtn"
+                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            저장
+                        </button>
+                    </div>
+                </form>
+
+                <!-- 도움말 링크 -->
+                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer"
+                       class="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        Google Cloud Console 열기
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -4516,6 +4618,144 @@ function calculateVendorScore(vendor) {
                     if (qmsManager) {
                         qmsManager.syncAll();
                         showToast('동기화를 시작합니다...', 'info');
+                    }
+                });
+            }
+
+            // QMS 설정 모달 이벤트 핸들러
+            const settingsBtn = document.getElementById('qmsSettingsBtn');
+            const settingsModal = document.getElementById('qmsSettingsModal');
+            const closeSettingsBtn = document.getElementById('closeQmsSettingsBtn');
+            const settingsForm = document.getElementById('qmsSettingsForm');
+            const testConnectionBtn = document.getElementById('testQmsConnectionBtn');
+            const connectionStatus = document.getElementById('qmsConnectionStatus');
+
+            // 설정 모달 열기
+            if (settingsBtn && settingsModal) {
+                addManagedEventListener(settingsBtn, 'click', () => {
+                    // 기존 설정 불러오기
+                    if (qmsManager && qmsManager.googleSheetsConfig) {
+                        const config = qmsManager.googleSheetsConfig;
+                        const clientIdInput = document.getElementById('qmsClientId');
+                        const apiKeyInput = document.getElementById('qmsApiKey');
+                        const spreadsheetIdInput = document.getElementById('qmsSpreadsheetId');
+
+                        if (clientIdInput && config.clientId) {
+                            clientIdInput.value = config.clientId;
+                        }
+                        if (apiKeyInput && config.apiKey) {
+                            apiKeyInput.value = config.apiKey;
+                        }
+                        if (spreadsheetIdInput && config.spreadsheetId) {
+                            spreadsheetIdInput.value = config.spreadsheetId;
+                        }
+                    }
+
+                    // 연결 상태 초기화
+                    if (connectionStatus) {
+                        connectionStatus.className = 'hidden';
+                        connectionStatus.textContent = '';
+                    }
+
+                    settingsModal.classList.remove('hidden');
+                    settingsModal.classList.add('flex');
+                });
+            }
+
+            // 설정 모달 닫기
+            if (closeSettingsBtn && settingsModal) {
+                addManagedEventListener(closeSettingsBtn, 'click', () => {
+                    settingsModal.classList.add('hidden');
+                    settingsModal.classList.remove('flex');
+                });
+            }
+
+            // 모달 외부 클릭 시 닫기
+            if (settingsModal) {
+                addManagedEventListener(settingsModal, 'click', (e) => {
+                    if (e.target === settingsModal) {
+                        settingsModal.classList.add('hidden');
+                        settingsModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            // 설정 저장
+            if (settingsForm) {
+                addManagedEventListener(settingsForm, 'submit', (e) => {
+                    e.preventDefault();
+
+                    const clientId = document.getElementById('qmsClientId')?.value?.trim();
+                    const apiKey = document.getElementById('qmsApiKey')?.value?.trim();
+                    const spreadsheetId = document.getElementById('qmsSpreadsheetId')?.value?.trim();
+
+                    if (!clientId || !apiKey || !spreadsheetId) {
+                        showToast('모든 필드를 입력해주세요.', 'error');
+                        return;
+                    }
+
+                    if (qmsManager) {
+                        const success = qmsManager.saveSettings({
+                            clientId,
+                            apiKey,
+                            spreadsheetId
+                        });
+
+                        if (success) {
+                            showToast('QMS 설정이 저장되었습니다.', 'success');
+                            settingsModal.classList.add('hidden');
+                            settingsModal.classList.remove('flex');
+                        } else {
+                            showToast('설정 저장에 실패했습니다.', 'error');
+                        }
+                    }
+                });
+            }
+
+            // 연결 테스트
+            if (testConnectionBtn) {
+                addManagedEventListener(testConnectionBtn, 'click', async () => {
+                    const clientId = document.getElementById('qmsClientId')?.value?.trim();
+                    const apiKey = document.getElementById('qmsApiKey')?.value?.trim();
+                    const spreadsheetId = document.getElementById('qmsSpreadsheetId')?.value?.trim();
+
+                    if (!clientId || !apiKey || !spreadsheetId) {
+                        showToast('모든 필드를 입력해주세요.', 'error');
+                        return;
+                    }
+
+                    if (connectionStatus) {
+                        connectionStatus.className = 'mt-4 p-3 rounded-lg text-sm bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200';
+                        connectionStatus.textContent = '연결 테스트 중...';
+                    }
+
+                    testConnectionBtn.disabled = true;
+                    testConnectionBtn.textContent = '테스트 중...';
+
+                    try {
+                        // 임시로 설정 적용
+                        if (qmsManager) {
+                            qmsManager.googleSheetsConfig.clientId = clientId;
+                            qmsManager.googleSheetsConfig.apiKey = apiKey;
+                            qmsManager.googleSheetsConfig.spreadsheetId = spreadsheetId;
+
+                            // Google API 초기화 시도
+                            await qmsManager.init();
+
+                            if (connectionStatus) {
+                                connectionStatus.className = 'mt-4 p-3 rounded-lg text-sm bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+                                connectionStatus.textContent = '✅ 연결 성공! Google API 초기화가 완료되었습니다.';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Connection test failed:', error);
+                        if (connectionStatus) {
+                            connectionStatus.className = 'mt-4 p-3 rounded-lg text-sm bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+                            connectionStatus.textContent = `❌ 연결 실패: ${error.message || '알 수 없는 오류'}`;
+                        }
+                    } finally {
+                        testConnectionBtn.disabled = false;
+                        testConnectionBtn.textContent = '연결 테스트';
                     }
                 });
             }
