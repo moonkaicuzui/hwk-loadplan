@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# Rachgia Dashboard v18 Production Build Script
+# Rachgia Dashboard v19 Production Build Script
 # Created: 2026-01-03
 # Purpose: Build production-ready deployment package
 
 set -e  # Exit on error
 
-VERSION="v18"
+VERSION="v19"
 BUILD_DIR="dist"
 DATE=$(date +%Y-%m-%d)
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -22,11 +22,11 @@ mkdir -p $BUILD_DIR/locales
 
 # Copy main files
 echo "📋 Copying main HTML file..."
-if [ -f rachgia_dashboard_v18.html ]; then
-    cp rachgia_dashboard_v18.html $BUILD_DIR/index.html
-    echo "   ✅ rachgia_dashboard_v18.html → dist/index.html"
+if [ -f rachgia_dashboard_v19.html ]; then
+    cp rachgia_dashboard_v19.html $BUILD_DIR/index.html
+    echo "   ✅ rachgia_dashboard_v19.html → dist/index.html"
 else
-    echo "   ❌ ERROR: rachgia_dashboard_v18.html not found!"
+    echo "   ❌ ERROR: rachgia_dashboard_v19.html not found!"
     exit 1
 fi
 
@@ -76,7 +76,7 @@ echo "   ✅ VERSION file created"
 # Create deployment guide
 echo "📖 Creating DEPLOYMENT.txt..."
 cat > "$BUILD_DIR/DEPLOYMENT.txt" <<EOF
-Rachgia Dashboard v18 Deployment Guide
+Rachgia Dashboard v19 Deployment Guide
 ======================================
 
 📦 Package Contents:
@@ -134,7 +134,7 @@ echo "   ✅ DEPLOYMENT.txt created"
 # Generate file list
 echo "📊 Generating file manifest..."
 cat > "$BUILD_DIR/MANIFEST.txt" <<EOF
-Rachgia Dashboard v18 - File Manifest
+Rachgia Dashboard v19 - File Manifest
 Generated: $DATE $TIMESTAMP
 ======================================
 
