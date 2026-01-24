@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "language": "Tiếng Việt",
+    "code": "vi",
+    "direction": "ltr"
+  },
+
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Lỗi",
+    "success": "Thành công",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "save": "Lưu",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "close": "Đóng",
+    "search": "Tìm kiếm",
+    "filter": "Lọc",
+    "export": "Xuất",
+    "import": "Nhập",
+    "refresh": "Làm mới",
+    "settings": "Cài đặt",
+    "help": "Trợ giúp",
+    "all": "Tất cả"
+  },
+
+  "header": {
+    "title": "Bảng Điều Khiển Sản Xuất Tích Hợp Rachgia Factory",
+    "subtitle": "Nhà máy A/B/C/D Việt Nam - Trạng thái thời gian thực",
+    "darkMode": "Chế độ tối",
+    "notifications": "Thông báo",
+    "language": "Ngôn ngữ",
+    "lastUpdate": "Cập nhật lần cuối"
+  },
+
+  "filters": {
+    "title": "Bộ lọc",
+    "month": "Tháng",
+    "destination": "Điểm đến",
+    "vendor": "Nhà cung cấp (Đế ngoài)",
+    "factory": "Nhà máy",
+    "status": "Trạng thái",
+    "search": "Tìm kiếm (Mẫu, PO, Điểm đến)",
+    "quickDate": "Lọc nhanh theo ngày",
+    "delayed": "Đơn hàng trễ",
+    "warning": "Cảnh báo (Trong D-7)",
+    "today": "Xuất hàng hôm nay",
+    "week": "Trong 1 tuần",
+    "month": "Trong 1 tháng",
+    "reset": "Đặt lại bộ lọc",
+    "apply": "Áp dụng",
+    "importantDestinations": "Điểm đến chính"
+  },
+
+  "tabs": {
+    "summary": "Tóm tắt",
+    "monthly": "Theo tháng",
+    "destination": "Điểm đến",
+    "model": "Mẫu",
+    "factory": "Nhà máy",
+    "vendor": "Nhà cung cấp",
+    "heatmap": "Bản đồ nhiệt",
+    "data": "Dữ liệu"
+  },
+
+  "summary": {
+    "title": "Tóm tắt sản xuất",
+    "totalOrders": "Tổng đơn hàng",
+    "totalQuantity": "Tổng số lượng",
+    "completedOrders": "Đơn hàng hoàn thành",
+    "completedQuantity": "Số lượng hoàn thành",
+    "delayedOrders": "Đơn hàng trễ",
+    "warningOrders": "Đơn hàng cảnh báo",
+    "completionRate": "Tỷ lệ hoàn thành",
+    "onTimeRate": "Tỷ lệ giao hàng đúng hạn",
+    "orders": "Đơn",
+    "pairs": "Đôi",
+    "processFlow": "Tiến độ quy trình",
+    "factoryCompletion": "Tỷ lệ hoàn thành theo nhà máy"
+  },
+
+  "processes": {
+    "s_cut": "Cắt",
+    "pre_sew": "Chuẩn bị may",
+    "sew_input": "Đầu vào may",
+    "sew_bal": "May",
+    "osc": "Gia công ngoài (Đế ngoài)",
+    "ass": "Lắp ráp",
+    "wh_in": "Nhập kho",
+    "wh_out": "Xuất kho"
+  },
+
+  "status": {
+    "completed": "Hoàn thành",
+    "partial": "Đang tiến hành",
+    "pending": "Chờ xử lý",
+    "delayed": "Trễ hạn",
+    "warning": "Cảnh báo",
+    "onTime": "Đúng hạn"
+  },
+
+  "table": {
+    "factory": "Nhà máy",
+    "poNumber": "Số PO",
+    "model": "Mẫu",
+    "destination": "Điểm đến",
+    "quantity": "Số lượng",
+    "crd": "CRD",
+    "sdd": "SDD",
+    "delayStatus": "Trạng thái trễ",
+    "sCut": "Cắt",
+    "sewBal": "May",
+    "whOut": "Xuất hàng",
+    "remaining": "Còn lại",
+    "progress": "Tiến độ",
+    "actions": "Thao tác",
+    "details": "Chi tiết",
+    "pageSize": "Kích thước trang",
+    "showing": "Hiển thị",
+    "of": "của",
+    "page": "Trang",
+    "prev": "Trước",
+    "next": "Tiếp"
+  },
+
+  "charts": {
+    "monthlyTrend": "Xu hướng sản xuất theo tháng",
+    "destinationAnalysis": "Phân tích theo điểm đến",
+    "modelBreakdown": "Phân tích theo mẫu",
+    "factoryPerformance": "Hiệu suất nhà máy",
+    "vendorAnalysis": "Phân tích nhà cung cấp",
+    "heatmap": "Bản đồ nhiệt",
+    "totalOrders": "Tổng đơn hàng",
+    "completedOrders": "Đơn hàng hoàn thành",
+    "avgCompletionRate": "Tỷ lệ hoàn thành trung bình",
+    "noData": "Không có dữ liệu"
+  },
+
+  "heatmap": {
+    "modelVendor": "Bản đồ nhiệt Mẫu × Nhà cung cấp",
+    "countryMonth": "Bản đồ nhiệt Quốc gia × Tháng",
+    "modelDestination": "Bản đồ nhiệt Mẫu × Điểm đến",
+    "intensity": "Cường độ",
+    "low": "Thấp",
+    "medium": "Trung bình",
+    "high": "Cao"
+  },
+
+  "modal": {
+    "orderDetails": "Chi tiết đơn hàng",
+    "delayedOrdersList": "Danh sách đơn hàng trễ",
+    "factoryDetails": "Tiến độ chi tiết theo nhà máy",
+    "close": "Đóng",
+    "export": "Xuất",
+    "print": "In"
+  },
+
+  "notifications": {
+    "title": "Thông báo trình duyệt",
+    "enable": "Bật thông báo",
+    "disable": "Tắt thông báo",
+    "permissionGranted": "✅ Đã bật thông báo",
+    "permissionDenied": "❌ Quyền thông báo bị từ chối",
+    "delayedOrders": "🚨 Phát hiện đơn hàng trễ",
+    "upcomingDeadline": "⏰ Sắp đến hạn",
+    "deadlineWarning": "📅 Hạn chót đã lên lịch",
+    "delayedMessage": "{count} đơn hàng ({quantity} đôi) đang bị trễ.",
+    "deadlineD3": "{count} đơn hàng sẽ đến hạn trong 3 ngày.",
+    "deadlineD7": "{count} đơn hàng sẽ đến hạn trong 7 ngày.",
+    "settings": "Cài đặt thông báo",
+    "checkDelayed": "Kiểm tra đơn hàng trễ",
+    "checkDeadlines": "Kiểm tra hạn chót sắp đến",
+    "customRules": "Quy tắc tùy chỉnh"
+  },
+
+  "keyboard": {
+    "title": "⌨️ Phím tắt",
+    "shortcuts": "Phím tắt",
+    "action": "Hành động",
+    "tab1": "Alt+1: Tab Tóm tắt",
+    "tab2": "Alt+2: Tab Theo tháng",
+    "tab3": "Alt+3: Tab Điểm đến",
+    "tab4": "Alt+4: Tab Mẫu",
+    "tab5": "Alt+5: Tab Nhà máy",
+    "tab6": "Alt+6: Tab Nhà cung cấp",
+    "tab7": "Alt+7: Tab Bản đồ nhiệt",
+    "tab8": "Alt+8: Tab Dữ liệu",
+    "search": "Alt+F: Tìm kiếm",
+    "export": "Alt+E: Xuất",
+    "settings": "Alt+S: Cài đặt",
+    "help": "Alt+H: Trợ giúp",
+    "reset": "Alt+R: Đặt lại bộ lọc",
+    "darkMode": "Alt+D: Chuyển chế độ tối",
+    "escape": "ESC: Đóng cửa sổ",
+    "slash": "/: Tìm kiếm",
+    "question": "?: Trợ giúp phím tắt",
+    "tip": "💡 Mẹo: Một số phím tắt không hoạt động trong các trường nhập liệu. Nhấn ESC để bỏ chọn."
+  },
+
+  "pwa": {
+    "installPrompt": "Thêm vào màn hình chính?",
+    "installButton": "Cài đặt",
+    "updateAvailable": "🎉 Phiên bản mới có sẵn",
+    "updateMessage": "Làm mới để cập nhật lên phiên bản mới nhất.",
+    "updateButton": "Làm mới",
+    "offlineMode": "Chế độ ngoại tuyến",
+    "onlineMode": "Chế độ trực tuyến"
+  },
+
+  "export": {
+    "title": "Xuất dữ liệu",
+    "excel": "Xuất Excel (.xlsx)",
+    "csv": "Xuất CSV (.csv)",
+    "pdf": "Xuất báo cáo PDF (.pdf)",
+    "json": "Xuất JSON (.json)",
+    "currentFilter": "Đang xuất {count} bản ghi đã lọc.",
+    "success": "✅ Đã xuất {count} bản ghi sang {format}.",
+    "error": "❌ Đã xảy ra lỗi trong quá trình xuất."
+  },
+
+  "settings": {
+    "title": "⚙️ Cài đặt người dùng",
+    "general": "Chung",
+    "appearance": "Giao diện",
+    "notifications": "Thông báo",
+    "advanced": "Nâng cao",
+    "language": "Ngôn ngữ",
+    "darkMode": "Chế độ tối",
+    "pageSize": "Kích thước trang mặc định",
+    "autoRefresh": "Tự động làm mới",
+    "refreshInterval": "Khoảng thời gian làm mới (giây)",
+    "enableNotifications": "Thông báo trình duyệt",
+    "reset": "🔄 Đặt lại cài đặt",
+    "resetConfirm": "Đặt lại tất cả cài đặt?",
+    "saved": "✅ Đã lưu cài đặt."
+  },
+
+  "errors": {
+    "networkError": "Lỗi mạng. Vui lòng kiểm tra kết nối của bạn.",
+    "dataLoadError": "Lỗi khi tải dữ liệu.",
+    "parseError": "Lỗi khi phân tích dữ liệu.",
+    "permissionError": "Quyền truy cập bị từ chối.",
+    "unknownError": "Đã xảy ra lỗi không xác định.",
+    "retry": "Thử lại"
+  },
+
+  "messages": {
+    "noData": "Không có dữ liệu để hiển thị.",
+    "noResults": "Không có kết quả tìm kiếm.",
+    "filterApplied": "Đã áp dụng bộ lọc.",
+    "dataUpdated": "Dữ liệu đã được cập nhật.",
+    "copied": "Đã sao chép.",
+    "saved": "Đã lưu."
+  },
+
+  "footer": {
+    "version": "Phiên bản",
+    "copyright": "© 2026 Rachgia Factory Dashboard. Tất cả các quyền được bảo lưu.",
+    "poweredBy": "Được hỗ trợ bởi",
+    "documentation": "Tài liệu",
+    "support": "Hỗ trợ",
+    "privacy": "Chính sách bảo mật"
+  },
+
+  "dates": {
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "tomorrow": "Ngày mai",
+    "thisWeek": "Tuần này",
+    "lastWeek": "Tuần trước",
+    "thisMonth": "Tháng này",
+    "lastMonth": "Tháng trước",
+    "daysAgo": "{days} ngày trước",
+    "daysLater": "trong {days} ngày",
+    "format": "DD-MM-YYYY"
+  },
+
+  "validation": {
+    "required": "Trường này là bắt buộc.",
+    "invalidEmail": "Địa chỉ email không hợp lệ.",
+    "invalidDate": "Ngày không hợp lệ.",
+    "invalidNumber": "Số không hợp lệ.",
+    "minLength": "Yêu cầu tối thiểu {min} ký tự.",
+    "maxLength": "Tối đa {max} ký tự được phép."
+  },
+
+  "mobile": {
+    "filterToggle": "Bộ lọc",
+    "menuToggle": "Thực đơn"
+  },
+
+  "shortcuts": {
+    "inlineHelp": "⌨️ Phím tắt: Alt+1~8(Tab), Alt+F(Tìm kiếm), Alt+E(Xuất), Alt+H(Trợ giúp), ?(Trợ giúp phím tắt)"
+  },
+
+  "modals": {
+    "columnSelection": {
+      "title": "Chọn cột để hiển thị",
+      "selectAll": "Chọn tất cả",
+      "deselectAll": "Bỏ chọn tất cả",
+      "apply": "Áp dụng"
+    },
+    "notificationSettings": {
+      "title": "Cài đặt thông báo",
+      "enable": "Bật thông báo",
+      "delayed": "Thông báo đơn hàng trễ",
+      "warning": "Thông báo đơn hàng cảnh báo (D-7)",
+      "checkInterval": "Khoảng thời gian kiểm tra (phút)",
+      "apply": "Áp dụng"
+    },
+    "chunkProgress": {
+      "title": "Tiến độ chunk",
+      "processing": "Đang xử lý...",
+      "close": "Đóng"
+    },
+    "dailyReport": {
+      "title": "Báo cáo hàng ngày",
+      "date": "Ngày",
+      "totalOrders": "Tổng đơn hàng",
+      "completed": "Hoàn thành",
+      "delayed": "Trễ hạn",
+      "close": "Đóng"
+    },
+    "keyboardShortcuts": {
+      "title": "Phím tắt",
+      "close": "Đóng"
+    },
+    "notificationHistory": {
+      "title": "Lịch sử thông báo",
+      "clear": "Xóa tất cả",
+      "close": "Đóng"
+    },
+    "reportHistory": {
+      "title": "Lịch sử báo cáo",
+      "download": "Tải xuống",
+      "delete": "Xóa",
+      "close": "Đóng"
+    }
+  },
+
+  "monthly": {
+    "title": "Tình trạng sản xuất theo tháng",
+    "chartTitle": "Xu hướng đơn hàng và hoàn thành theo tháng",
+    "noData": "Không có dữ liệu"
+  },
+
+  "destination": {
+    "title": "Tình trạng sản xuất theo điểm đến",
+    "chartTitle": "Phân bổ đơn hàng theo điểm đến",
+    "noData": "Không có dữ liệu"
+  },
+
+  "model": {
+    "title": "Tình trạng sản xuất theo mẫu",
+    "chartTitle": "Phân bổ đơn hàng theo mẫu",
+    "noData": "Không có dữ liệu"
+  },
+
+  "factory": {
+    "title": "Tình trạng sản xuất theo nhà máy",
+    "chartTitle": "Tỷ lệ hoàn thành theo nhà máy",
+    "noData": "Không có dữ liệu"
+  },
+
+  "vendor": {
+    "title": "Tình trạng sản xuất theo nhà cung cấp",
+    "chartTitle": "Hiệu suất nhà cung cấp",
+    "noData": "Không có dữ liệu"
+  },
+
+  "heatmap": {
+    "title": "Phân tích bản đồ nhiệt",
+    "modelVendorTitle": "Bản đồ nhiệt Mẫu × Nhà cung cấp",
+    "countryMonthTitle": "Bản đồ nhiệt Quốc gia × Tháng",
+    "modelDestinationTitle": "Bản đồ nhiệt Mẫu × Điểm đến",
+    "noData": "Không có dữ liệu"
+  },
+
+  "data": {
+    "title": "Dữ liệu chi tiết",
+    "sortAsc": "Sắp xếp tăng dần",
+    "sortDesc": "Sắp xếp giảm dần",
+    "filterColumn": "Lọc cột",
+    "selectColumns": "Chọn cột",
+    "analytics": "Phân tích AI",
+    "analyticsTitle": "Phân tích dự đoán và thông tin chi tiết dựa trên AI",
+    "analyticsAria": "Xem thông tin chi tiết phân tích AI",
+    "columns": {
+      "factory": "Nhà máy",
+      "poNumber": "Số PO",
+      "model": "Mẫu",
+      "destination": "Điểm đến",
+      "quantity": "Số lượng",
+      "crd": "CRD",
+      "sdd": "SDD",
+      "delayStatus": "Trạng thái trễ",
+      "sCut": "Cắt",
+      "sewBal": "May",
+      "whOut": "Xuất hàng",
+      "remaining": "Còn lại"
+    }
+  },
+
+  "help": {
+    "title": "Hướng dẫn sử dụng và trợ giúp",
+    "overviewTitle": "📊 Tổng quan bảng điều khiển",
+    "filterTitle": "🔍 Cách sử dụng bộ lọc",
+    "kpiTitle": "📈 Chỉ số hiệu suất chính (KPI)",
+    "processTitle": "⚙️ Quy trình sản xuất",
+    "vendorTitle": "🏭 Đánh giá hiệu suất nhà cung cấp",
+    "delayTitle": "⏰ Tiêu chí trễ hạn",
+    "dataFieldsTitle": "📋 Mô tả trường dữ liệu",
+    "notificationTitle": "🔔 Chức năng thông báo trình duyệt",
+    "keyboardTitle": "⌨️ Phím tắt",
+    "kpi": {
+      "totalOrdersLabel": "Tổng đơn hàng",
+      "totalOrdersDesc": "Tổng số đơn hàng và số lượng (đôi)",
+      "completedLabel": "Đơn hàng hoàn thành",
+      "completedDesc": "Số đơn hàng đã hoàn thành WH_OUT",
+      "delayedLabel": "Đơn hàng trễ",
+      "delayedDesc": "Đơn hàng có SDD > CRD (không bao gồm Code04)",
+      "completionRateLabel": "Tỷ lệ hoàn thành",
+      "completionRateDesc": "Tỷ lệ phần trăm đơn hàng hoàn thành trên tổng số (%)"
+    },
+    "processes": {
+      "sCut": "S_CUT (Cắt)",
+      "preSew": "PRE_SEW (Chuẩn bị may)",
+      "sewInput": "SEW_INPUT (Đầu vào may)",
+      "sewBal": "SEW_BAL (May)",
+      "osc": "OSC (Gia công ngoài)",
+      "ass": "ASS (Lắp ráp)",
+      "whIn": "WH_IN (Nhập kho)",
+      "whOut": "WH_OUT (Xuất kho)"
+    },
+    "vendorScoreCode": "// Điểm hiệu suất nhà cung cấp = (Tỷ lệ hoàn thành × 0.7) - (Tỷ lệ trễ × 0.3)\nfunction calculateVendorScore(vendor) {\n    const completionRate = (completed / total) * 100;\n    const delayRate = (delayed / total) * 100;\n    return (completionRate * 0.7) - (delayRate * 0.3);\n}\n\n// Giải thích:\n// 80+ điểm: Xuất sắc (Xanh lá)\n// 50-80 điểm: Trung bình (Vàng)\n// Dưới 50 điểm: Cần cải thiện (Đỏ)",
+    "severity": {
+      "minorTitle": "Nhẹ",
+      "minorDesc": "Trễ 1-3 ngày",
+      "moderateTitle": "Vừa phải",
+      "moderateDesc": "Trễ 4-7 ngày",
+      "severeTitle": "Nghiêm trọng",
+      "severeDesc": "Trễ hơn 7 ngày"
+    },
+    "fields": {
+      "tableCaption": "Bảng mô tả trường dữ liệu chính của bảng điều khiển (Tên trường và Mô tả)",
+      "fieldHeader": "Trường",
+      "descHeader": "Mô tả",
+      "sddDesc": "Ngày giao hàng dự kiến - Ngày xuất hàng dự kiến",
+      "crdDesc": "Ngày yêu cầu của khách hàng - Ngày khách hàng yêu cầu",
+      "code04Desc": "Trạng thái chấp thuận trễ (nếu đúng, không được coi là trễ)",
+      "aqlDesc": "Mức chất lượng chấp nhận được - Trạng thái kiểm tra chất lượng đạt",
+      "remainingDesc": "Số lượng còn lại theo quy trình (số lượng - hoàn thành)",
+      "outsoleVendorDesc": "Nhà cung cấp đế ngoài"
+    },
+    "notification": {
+      "subtitle": "Thông báo đơn hàng trễ theo thời gian thực",
+      "activation": "<strong>Cách kích hoạt:</strong> Nhấp vào nút 🔕 trong tiêu đề → Cho phép quyền → Thay đổi thành 🔔",
+      "conditionsLabel": "<strong>Điều kiện thông báo:</strong>",
+      "delayedCondition": "<strong>Đơn hàng trễ:</strong> Khi SDD vượt quá CRD (không bao gồm Code04)",
+      "warningCondition": "<strong>Đơn hàng cảnh báo:</strong> Khi còn trong vòng 7 ngày đến CRD (tùy chọn)",
+      "checkInterval": "<strong>Khoảng thời gian kiểm tra:</strong> Tự động kiểm tra mỗi 5 phút (chạy nền)",
+      "tip": "💡 Mẹo: Thông báo sẽ xuất hiện trong khay hệ thống ngay cả khi trình duyệt đã đóng."
+    }
+  }
+}

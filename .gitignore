@@ -1,0 +1,30 @@
+# Agent P02: 레거시 파일 정리
+# Archive directory (old versions)
+archive/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Large data files (optional - uncomment if needed)
+# *.json
+# *.xlsx

@@ -1,0 +1,45 @@
+{
+  "name": "rachgia-dashboard",
+  "version": "19.0.0",
+  "description": "Rachgia Factory 통합 생산관리 대시보드",
+  "private": true,
+  "scripts": {
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:unit:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report",
+    "test:ci": "npm run test:unit && playwright test --reporter=github",
+    "lighthouse": "lhci autorun",
+    "serve": "python -m http.server 8080",
+    "dev": "npm run serve",
+    "build": "echo 'Static site - no build needed'",
+    "install:browsers": "playwright install --with-deps"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.13.0",
+    "@playwright/test": "^1.40.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "jsdom": "^27.4.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ksmoon/rachgia-dashboard.git"
+  },
+  "keywords": [
+    "dashboard",
+    "production",
+    "factory",
+    "vietnam",
+    "rachgia"
+  ],
+  "author": "ksmoon",
+  "license": "MIT"
+}

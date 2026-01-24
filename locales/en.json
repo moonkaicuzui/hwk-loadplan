@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "language": "English",
+    "code": "en",
+    "direction": "ltr"
+  },
+
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "settings": "Settings",
+    "help": "Help",
+    "all": "All"
+  },
+
+  "header": {
+    "title": "Rachgia Factory Integrated Production Dashboard",
+    "subtitle": "Vietnam Factories A/B/C/D Real-time Status",
+    "darkMode": "Dark Mode",
+    "notifications": "Notifications",
+    "language": "Language",
+    "lastUpdate": "Last Update"
+  },
+
+  "filters": {
+    "title": "Filters",
+    "month": "Month",
+    "destination": "Destination",
+    "vendor": "Vendor (Outsole)",
+    "factory": "Factory",
+    "status": "Status",
+    "search": "Search (Model, PO, Destination)",
+    "quickDate": "Quick Date Filter",
+    "delayed": "Delayed Orders",
+    "warning": "Warning (Within D-7)",
+    "today": "Ship Today",
+    "week": "Within 1 Week",
+    "month": "Within 1 Month",
+    "reset": "Reset Filters",
+    "apply": "Apply",
+    "importantDestinations": "Key Destinations"
+  },
+
+  "tabs": {
+    "summary": "Summary",
+    "monthly": "Monthly",
+    "destination": "Destination",
+    "model": "Model",
+    "factory": "Factory",
+    "vendor": "Vendor",
+    "heatmap": "Heatmap",
+    "data": "Data"
+  },
+
+  "summary": {
+    "title": "Production Summary",
+    "totalOrders": "Total Orders",
+    "totalQuantity": "Total Quantity",
+    "completedOrders": "Completed Orders",
+    "completedQuantity": "Completed Quantity",
+    "delayedOrders": "Delayed Orders",
+    "warningOrders": "Warning Orders",
+    "completionRate": "Completion Rate",
+    "onTimeRate": "On-Time Delivery Rate",
+    "orders": "Orders",
+    "pairs": "Pairs",
+    "processFlow": "Process Flow",
+    "factoryCompletion": "Factory Completion Rate"
+  },
+
+  "processes": {
+    "s_cut": "Cutting",
+    "pre_sew": "Pre-Sewing",
+    "sew_input": "Sewing Input",
+    "sew_bal": "Sewing",
+    "osc": "Outsourcing (Outsole)",
+    "ass": "Assembly",
+    "wh_in": "Warehouse In",
+    "wh_out": "Warehouse Out"
+  },
+
+  "status": {
+    "completed": "Completed",
+    "partial": "In Progress",
+    "pending": "Pending",
+    "delayed": "Delayed",
+    "warning": "Warning",
+    "onTime": "On Time"
+  },
+
+  "table": {
+    "factory": "Factory",
+    "poNumber": "PO Number",
+    "model": "Model",
+    "destination": "Destination",
+    "quantity": "Quantity",
+    "crd": "CRD",
+    "sdd": "SDD",
+    "delayStatus": "Delay Status",
+    "sCut": "Cutting",
+    "sewBal": "Sewing",
+    "whOut": "Ship Out",
+    "remaining": "Remaining",
+    "progress": "Progress",
+    "actions": "Actions",
+    "details": "Details",
+    "pageSize": "Page Size",
+    "showing": "Showing",
+    "of": "of",
+    "page": "Page",
+    "prev": "Previous",
+    "next": "Next"
+  },
+
+  "charts": {
+    "monthlyTrend": "Monthly Production Trend",
+    "destinationAnalysis": "Destination Analysis",
+    "modelBreakdown": "Model Breakdown",
+    "factoryPerformance": "Factory Performance",
+    "vendorAnalysis": "Vendor Analysis",
+    "heatmap": "Heatmap",
+    "totalOrders": "Total Orders",
+    "completedOrders": "Completed Orders",
+    "avgCompletionRate": "Avg Completion Rate",
+    "noData": "No Data"
+  },
+
+  "heatmap": {
+    "modelVendor": "Model × Vendor Heatmap",
+    "countryMonth": "Country × Month Heatmap",
+    "modelDestination": "Model × Destination Heatmap",
+    "intensity": "Intensity",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+
+  "modal": {
+    "orderDetails": "Order Details",
+    "delayedOrdersList": "Delayed Orders List",
+    "factoryDetails": "Factory Detailed Progress",
+    "close": "Close",
+    "export": "Export",
+    "print": "Print"
+  },
+
+  "notifications": {
+    "title": "Browser Notifications",
+    "enable": "Enable Notifications",
+    "disable": "Disable Notifications",
+    "permissionGranted": "✅ Notifications enabled",
+    "permissionDenied": "❌ Notification permission denied",
+    "delayedOrders": "🚨 Delayed Orders Detected",
+    "upcomingDeadline": "⏰ Deadline Approaching",
+    "deadlineWarning": "📅 Deadline Scheduled",
+    "delayedMessage": "{count} order(s) ({quantity} pairs) are delayed.",
+    "deadlineD3": "{count} order(s) are due in 3 days.",
+    "deadlineD7": "{count} order(s) are due in 7 days.",
+    "settings": "Notification Settings",
+    "checkDelayed": "Check Delayed Orders",
+    "checkDeadlines": "Check Upcoming Deadlines",
+    "customRules": "Custom Rules"
+  },
+
+  "keyboard": {
+    "title": "⌨️ Keyboard Shortcuts",
+    "shortcuts": "Shortcuts",
+    "action": "Action",
+    "tab1": "Alt+1: Summary Tab",
+    "tab2": "Alt+2: Monthly Tab",
+    "tab3": "Alt+3: Destination Tab",
+    "tab4": "Alt+4: Model Tab",
+    "tab5": "Alt+5: Factory Tab",
+    "tab6": "Alt+6: Vendor Tab",
+    "tab7": "Alt+7: Heatmap Tab",
+    "tab8": "Alt+8: Data Tab",
+    "search": "Alt+F: Focus Search",
+    "export": "Alt+E: Export",
+    "settings": "Alt+S: Settings",
+    "help": "Alt+H: Help",
+    "reset": "Alt+R: Reset Filters",
+    "darkMode": "Alt+D: Toggle Dark Mode",
+    "escape": "ESC: Close Modal",
+    "slash": "/: Focus Search",
+    "question": "?: Keyboard Shortcuts Help",
+    "tip": "💡 Tip: Some shortcuts don't work in input fields. Press ESC to unfocus."
+  },
+
+  "pwa": {
+    "installPrompt": "Add to Home Screen?",
+    "installButton": "Install",
+    "updateAvailable": "🎉 New Version Available",
+    "updateMessage": "Refresh to update to the latest version.",
+    "updateButton": "Refresh",
+    "offlineMode": "Offline Mode",
+    "onlineMode": "Online Mode"
+  },
+
+  "export": {
+    "title": "Export Data",
+    "excel": "Export Excel (.xlsx)",
+    "csv": "Export CSV (.csv)",
+    "pdf": "Export PDF Report (.pdf)",
+    "json": "Export JSON (.json)",
+    "currentFilter": "Exporting {count} filtered record(s).",
+    "success": "✅ Exported {count} record(s) to {format}.",
+    "error": "❌ An error occurred during export."
+  },
+
+  "settings": {
+    "title": "⚙️ User Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "advanced": "Advanced",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "pageSize": "Default Page Size",
+    "autoRefresh": "Auto Refresh",
+    "refreshInterval": "Refresh Interval (seconds)",
+    "enableNotifications": "Browser Notifications",
+    "reset": "🔄 Reset Settings",
+    "resetConfirm": "Reset all settings?",
+    "saved": "✅ Settings saved."
+  },
+
+  "errors": {
+    "networkError": "Network error. Please check your connection.",
+    "dataLoadError": "Error loading data.",
+    "parseError": "Error parsing data.",
+    "permissionError": "Permission denied.",
+    "unknownError": "An unknown error occurred.",
+    "retry": "Retry"
+  },
+
+  "messages": {
+    "noData": "No data to display.",
+    "noResults": "No search results.",
+    "filterApplied": "Filter applied.",
+    "dataUpdated": "Data updated.",
+    "copied": "Copied.",
+    "saved": "Saved."
+  },
+
+  "footer": {
+    "version": "Version",
+    "copyright": "© 2026 Rachgia Factory Dashboard. All rights reserved.",
+    "poweredBy": "Powered by",
+    "documentation": "Documentation",
+    "support": "Support",
+    "privacy": "Privacy Policy"
+  },
+
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "daysAgo": "{days} days ago",
+    "daysLater": "in {days} days",
+    "format": "YYYY-MM-DD"
+  },
+
+  "validation": {
+    "required": "This field is required.",
+    "invalidEmail": "Invalid email address.",
+    "invalidDate": "Invalid date.",
+    "invalidNumber": "Invalid number.",
+    "minLength": "Minimum {min} characters required.",
+    "maxLength": "Maximum {max} characters allowed."
+  },
+
+  "mobile": {
+    "filterToggle": "Filters",
+    "menuToggle": "Menu"
+  },
+
+  "shortcuts": {
+    "inlineHelp": "⌨️ Shortcuts: Alt+1~8(Tabs), Alt+F(Search), Alt+E(Export), Alt+H(Help), ?(Shortcuts Help)"
+  },
+
+  "modals": {
+    "columnSelection": {
+      "title": "Select Columns to Display",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "apply": "Apply"
+    },
+    "notificationSettings": {
+      "title": "Notification Settings",
+      "enable": "Enable Notifications",
+      "delayed": "Delayed Order Notifications",
+      "warning": "Warning Order Notifications (D-7)",
+      "checkInterval": "Check Interval (minutes)",
+      "apply": "Apply"
+    },
+    "chunkProgress": {
+      "title": "Chunk Progress",
+      "processing": "Processing...",
+      "close": "Close"
+    },
+    "dailyReport": {
+      "title": "Daily Report",
+      "date": "Date",
+      "totalOrders": "Total Orders",
+      "completed": "Completed",
+      "delayed": "Delayed",
+      "close": "Close"
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "close": "Close"
+    },
+    "notificationHistory": {
+      "title": "Notification History",
+      "clear": "Clear All",
+      "close": "Close"
+    },
+    "reportHistory": {
+      "title": "Report History",
+      "download": "Download",
+      "delete": "Delete",
+      "close": "Close"
+    }
+  },
+
+  "monthly": {
+    "title": "Monthly Production Status",
+    "chartTitle": "Monthly Orders and Completion Trend",
+    "noData": "No Data"
+  },
+
+  "destination": {
+    "title": "Production Status by Destination",
+    "chartTitle": "Order Distribution by Destination",
+    "noData": "No Data"
+  },
+
+  "model": {
+    "title": "Production Status by Model",
+    "chartTitle": "Order Distribution by Model",
+    "noData": "No Data"
+  },
+
+  "factory": {
+    "title": "Production Status by Factory",
+    "chartTitle": "Completion Rate by Factory",
+    "noData": "No Data"
+  },
+
+  "vendor": {
+    "title": "Production Status by Vendor",
+    "chartTitle": "Vendor Performance",
+    "noData": "No Data"
+  },
+
+  "heatmap": {
+    "title": "Heatmap Analysis",
+    "modelVendorTitle": "Model × Vendor Heatmap",
+    "countryMonthTitle": "Country × Month Heatmap",
+    "modelDestinationTitle": "Model × Destination Heatmap",
+    "noData": "No Data"
+  },
+
+  "data": {
+    "title": "Detailed Data",
+    "sortAsc": "Sort Ascending",
+    "sortDesc": "Sort Descending",
+    "filterColumn": "Filter Column",
+    "selectColumns": "Select Columns",
+    "analytics": "AI Analysis",
+    "analyticsTitle": "AI-based Predictive Analysis and Insights",
+    "analyticsAria": "View AI Analysis Insights",
+    "columns": {
+      "factory": "Factory",
+      "poNumber": "PO Number",
+      "model": "Model",
+      "destination": "Destination",
+      "quantity": "Quantity",
+      "crd": "CRD",
+      "sdd": "SDD",
+      "delayStatus": "Delay Status",
+      "sCut": "Cutting",
+      "sewBal": "Sewing",
+      "whOut": "Ship Out",
+      "remaining": "Remaining"
+    }
+  },
+
+  "help": {
+    "title": "User Guide and Help",
+    "overviewTitle": "📊 Dashboard Overview",
+    "filterTitle": "🔍 How to Use Filters",
+    "kpiTitle": "📈 Key Performance Indicators (KPI)",
+    "processTitle": "⚙️ Production Process Flow",
+    "vendorTitle": "🏭 Vendor Performance Evaluation",
+    "delayTitle": "⏰ Delay Criteria",
+    "dataFieldsTitle": "📋 Data Field Descriptions",
+    "notificationTitle": "🔔 Browser Notification Feature",
+    "keyboardTitle": "⌨️ Keyboard Shortcuts",
+    "kpi": {
+      "totalOrdersLabel": "Total Orders",
+      "totalOrdersDesc": "Total number of orders and quantity (pairs)",
+      "completedLabel": "Completed Orders",
+      "completedDesc": "Number of orders with WH_OUT completed",
+      "delayedLabel": "Delayed Orders",
+      "delayedDesc": "Orders where SDD > CRD (excluding Code04)",
+      "completionRateLabel": "Completion Rate",
+      "completionRateDesc": "Percentage of completed orders out of total (%)"
+    },
+    "processes": {
+      "sCut": "S_CUT (Cutting)",
+      "preSew": "PRE_SEW (Pre-Sewing)",
+      "sewInput": "SEW_INPUT (Sewing Input)",
+      "sewBal": "SEW_BAL (Sewing)",
+      "osc": "OSC (Outsourcing)",
+      "ass": "ASS (Assembly)",
+      "whIn": "WH_IN (Warehouse In)",
+      "whOut": "WH_OUT (Warehouse Out)"
+    },
+    "vendorScoreCode": "// Vendor Performance Score = (Completion Rate × 0.7) - (Delay Rate × 0.3)\nfunction calculateVendorScore(vendor) {\n    const completionRate = (completed / total) * 100;\n    const delayRate = (delayed / total) * 100;\n    return (completionRate * 0.7) - (delayRate * 0.3);\n}\n\n// Interpretation:\n// 80+ points: Excellent (Green)\n// 50-80 points: Average (Yellow)\n// Below 50 points: Needs Improvement (Red)",
+    "severity": {
+      "minorTitle": "Minor",
+      "minorDesc": "1-3 days delayed",
+      "moderateTitle": "Moderate",
+      "moderateDesc": "4-7 days delayed",
+      "severeTitle": "Severe",
+      "severeDesc": "7+ days delayed"
+    },
+    "fields": {
+      "tableCaption": "Dashboard Key Data Field Description Table (Field Name and Description)",
+      "fieldHeader": "Field",
+      "descHeader": "Description",
+      "sddDesc": "Scheduled Delivery Date - Expected ship out date",
+      "crdDesc": "Customer Required Date - Customer requested date",
+      "code04Desc": "Delay approval status (if true, not considered delayed)",
+      "aqlDesc": "Acceptable Quality Level - Quality inspection pass status",
+      "remainingDesc": "Remaining quantity by process (quantity - completed)",
+      "outsoleVendorDesc": "Outsole supplier vendor"
+    },
+    "notification": {
+      "subtitle": "Real-time Delayed Order Notifications",
+      "activation": "<strong>How to activate:</strong> Click 🔕 button in header → Allow permission → Changes to 🔔",
+      "conditionsLabel": "<strong>Notification Conditions:</strong>",
+      "delayedCondition": "<strong>Delayed Orders:</strong> When SDD exceeds CRD (excluding Code04)",
+      "warningCondition": "<strong>Warning Orders:</strong> When within 7 days until CRD (optional)",
+      "checkInterval": "<strong>Check Interval:</strong> Automatic check every 5 minutes (background execution)",
+      "tip": "💡 Tip: Notifications will appear in system tray even when browser is closed."
+    }
+  }
+}
