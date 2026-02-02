@@ -4,9 +4,9 @@
 // 목표: 70+ 테스트 케이스, 80% 커버리지
 // =============================================================================
 
-const { defineConfig, devices } = require('@playwright/test');
+import { defineConfig, devices } from '@playwright/test';
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: './tests',
 
   // 병렬 실행 설정
@@ -20,10 +20,13 @@ module.exports = defineConfig({
 
   // 리포터 설정
   reporter: [
-    ['html', { outputFolder: 'test-results/html' }],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['list']
+    ['html', { outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'playwright-report/results.json' }],
+    ['list'],
   ],
+
+  // 테스트 결과 출력 폴더
+  outputDir: 'playwright-results',
 
   // 공통 설정
   use: {
@@ -83,6 +86,6 @@ module.exports = defineConfig({
 
   // expect 타임아웃
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
 });

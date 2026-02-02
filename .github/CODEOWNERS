@@ -1,0 +1,24 @@
+# Code Owners for Rachgia Dashboard
+# These owners will be requested for review when someone opens a PR that modifies code
+
+# Global owners
+* @ksmoon
+
+# Source code
+/src/ @ksmoon
+
+# Tests
+/tests/ @ksmoon
+
+# Documentation
+*.md @ksmoon
+/docs/ @ksmoon
+
+# Configuration
+/*.json @ksmoon
+/*.js @ksmoon
+/.github/ @ksmoon
+
+# Critical files (require explicit approval)
+/rachgia_dashboard_v19.html @ksmoon
+/rachgia_data_v8.js @ksmoon

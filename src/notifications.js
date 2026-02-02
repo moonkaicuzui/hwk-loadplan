@@ -79,7 +79,7 @@ class NotificationManager {
       body: '지연 오더와 마감 임박 알림을 받으실 수 있습니다.',
       icon: '/favicon.ico',
       tag: 'welcome',
-      requireInteraction: false
+      requireInteraction: false,
     });
   }
 
@@ -105,7 +105,7 @@ class NotificationManager {
         badge: '/favicon.ico',
         vibrate: [200, 100, 200],
         requireInteraction: false,
-        ...options
+        ...options,
       });
 
       // 클릭 이벤트
@@ -148,12 +148,15 @@ class NotificationManager {
     this.checkDelayedOrders();
 
     // 주기적 체크 (5분마다)
-    this.autoCheckInterval = setInterval(() => {
-      if (this.settings.enabled) {
-        this.checkDelayedOrders();
-        this.checkUpcomingDeadlines();
-      }
-    }, 5 * 60 * 1000);
+    this.autoCheckInterval = setInterval(
+      () => {
+        if (this.settings.enabled) {
+          this.checkDelayedOrders();
+          this.checkUpcomingDeadlines();
+        }
+      },
+      5 * 60 * 1000
+    );
 
     console.log('[Notifications] Auto-check started (every 5 minutes)');
   }
@@ -203,7 +206,7 @@ class NotificationManager {
               window.applyFilters();
             }
           }
-        }
+        },
       });
 
       console.log('[Notifications] Delayed orders found:', count);
@@ -230,8 +233,11 @@ class NotificationManager {
       const daysUntil = Math.ceil((crdDate - now) / (1000 * 60 * 60 * 24));
 
       // D-3 또는 D-7
-      return (daysUntil === 3 || daysUntil === 7) &&
-             (!d.production?.wh_out?.status || d.production.wh_out.status !== 'completed');
+      return (
+        (daysUntil === 3 || daysUntil === 7) &&
+        (!(d.production && d.production.wh_out && d.production.wh_out.status) ||
+          d.production.wh_out.status !== 'completed')
+      );
     });
 
     if (upcomingOrders.length > 0 && this.settings.upcomingDeadlines) {
@@ -253,7 +259,7 @@ class NotificationManager {
         this.send('⏰ 마감 임박 (D-3)', {
           body: `${d3Orders.length}건의 오더가 3일 후 마감입니다.`,
           tag: 'deadline-d3',
-          requireInteraction: true
+          requireInteraction: true,
         });
       }
 
@@ -261,13 +267,13 @@ class NotificationManager {
         this.send('📅 마감 예정 (D-7)', {
           body: `${d7Orders.length}건의 오더가 7일 후 마감입니다.`,
           tag: 'deadline-d7',
-          requireInteraction: false
+          requireInteraction: false,
         });
       }
 
       console.log('[Notifications] Upcoming deadlines:', {
         d3: d3Orders.length,
-        d7: d7Orders.length
+        d7: d7Orders.length,
       });
     }
   }
@@ -283,7 +289,7 @@ class NotificationManager {
     this.settings.customRules.push({
       id: Date.now(),
       enabled: true,
-      ...rule
+      ...rule,
     });
 
     this.saveSettings();
@@ -301,15 +307,13 @@ class NotificationManager {
     this.settings.customRules
       .filter(rule => rule.enabled)
       .forEach(rule => {
-        const matchedOrders = window.filteredData.filter(d =>
-          this.evaluateRule(d, rule)
-        );
+        const matchedOrders = window.filteredData.filter(d => this.evaluateRule(d, rule));
 
         if (matchedOrders.length > 0) {
           this.send(rule.title || '커스텀 알림', {
             body: rule.message.replace('{count}', matchedOrders.length),
             tag: `custom-${rule.id}`,
-            onClick: rule.onClick
+            onClick: rule.onClick,
           });
         }
       });
@@ -322,14 +326,22 @@ class NotificationManager {
     const value = this.getNestedValue(data, rule.field);
 
     switch (rule.operator) {
-      case '>': return Number(value) > Number(rule.value);
-      case '<': return Number(value) < Number(rule.value);
-      case '>=': return Number(value) >= Number(rule.value);
-      case '<=': return Number(value) <= Number(rule.value);
-      case '=': return value == rule.value;
-      case '!=': return value != rule.value;
-      case 'contains': return String(value).toLowerCase().includes(String(rule.value).toLowerCase());
-      default: return false;
+      case '>':
+        return Number(value) > Number(rule.value);
+      case '<':
+        return Number(value) < Number(rule.value);
+      case '>=':
+        return Number(value) >= Number(rule.value);
+      case '<=':
+        return Number(value) <= Number(rule.value);
+      case '=':
+        return value === rule.value;
+      case '!=':
+        return value !== rule.value;
+      case 'contains':
+        return String(value).toLowerCase().includes(String(rule.value).toLowerCase());
+      default:
+        return false;
     }
   }
 
@@ -337,7 +349,12 @@ class NotificationManager {
    * 중첩된 값 가져오기
    */
   getNestedValue(obj, path) {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path
+      .split('.')
+      .reduce(
+        (current, key) => (current && current[key] !== undefined ? current[key] : undefined),
+        obj
+      );
   }
 
   /**
@@ -345,7 +362,8 @@ class NotificationManager {
    */
   showToast(message, duration = 3000) {
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-700 text-white px-4 py-3 rounded-lg shadow-xl z-[9999] transition-opacity duration-300';
+    toast.className =
+      'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-700 text-white px-4 py-3 rounded-lg shadow-xl z-[9999] transition-opacity duration-300';
     toast.style.opacity = '0';
     toast.textContent = message;
 
@@ -381,7 +399,7 @@ class NotificationManager {
       enabled: false,
       delayedOrders: true,
       upcomingDeadlines: true,
-      customRules: []
+      customRules: [],
     };
   }
 
@@ -445,7 +463,7 @@ class NotificationManager {
     this.send('🔔 테스트 알림', {
       body: '알림이 정상적으로 작동합니다.',
       tag: 'test',
-      requireInteraction: false
+      requireInteraction: false,
     });
   }
 
@@ -459,7 +477,7 @@ class NotificationManager {
       enabled: this.settings.enabled,
       autoCheckRunning: !!this.autoCheckInterval,
       throttleInterval: this.throttleInterval / 1000 / 60 + ' minutes',
-      customRules: this.settings.customRules?.length || 0
+      customRules: (this.settings.customRules && this.settings.customRules.length) || 0,
     };
   }
 }

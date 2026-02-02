@@ -33,8 +33,8 @@ const mockExcelData = [
       osc: { completed: 800, status: 'partial' },
       ass: { completed: 700, status: 'partial' },
       wh_in: { completed: 600, status: 'partial' },
-      wh_out: { completed: 500, status: 'partial' }
-    }
+      wh_out: { completed: 500, status: 'partial' },
+    },
   },
   {
     factory: 'B',
@@ -55,9 +55,9 @@ const mockExcelData = [
       osc: { completed: 800, status: 'completed' },
       ass: { completed: 800, status: 'completed' },
       wh_in: { completed: 800, status: 'completed' },
-      wh_out: { completed: 800, status: 'completed' }
-    }
-  }
+      wh_out: { completed: 800, status: 'completed' },
+    },
+  },
 ];
 
 test.describe('Google Drive Integration (Phase 7-1)', () => {
@@ -67,10 +67,15 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     await page.evaluate(() => localStorage.clear());
 
     // Wait for app initialization
-    await page.waitForFunction(() => {
-      const overlay = document.getElementById('loadingOverlay');
-      return overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none');
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const overlay = document.getElementById('loadingOverlay');
+        return (
+          overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     await page.waitForTimeout(500);
   });
@@ -102,7 +107,7 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
       route.fulfill({
         status: 200,
         contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        body: mockBuffer
+        body: mockBuffer,
       });
     });
 
@@ -126,9 +131,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
 
     // Wait for googleDriveLoader to be initialized
     try {
-      await page.waitForFunction(() => {
-        return typeof window.googleDriveLoader !== 'undefined';
-      }, { timeout: 10000 });
+      await page.waitForFunction(
+        () => {
+          return typeof window.googleDriveLoader !== 'undefined';
+        },
+        { timeout: 10000 }
+      );
     } catch (error) {
       console.log('\n=== Console Logs ===');
       consoleLogs.forEach(log => console.log(log));
@@ -153,12 +161,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
   // =============================================================================
   test('TC-7-1-03: LocalStorage cache persistence', async ({ page }) => {
     // Set mock cache data
-    await page.evaluate((data) => {
+    await page.evaluate(data => {
       const cacheData = {
         data: data,
         timestamp: Date.now(),
         fileId: 'TEST_FILE_ID',
-        count: data.length
+        count: data.length,
       };
       localStorage.setItem('googleDrive_productionData', JSON.stringify(cacheData));
     }, mockExcelData);
@@ -189,12 +197,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
   // =============================================================================
   test('TC-7-1-05: Offline fallback to cache', async ({ page, context }) => {
     // Set cache data first
-    await page.evaluate((data) => {
+    await page.evaluate(data => {
       const cacheData = {
         data: data,
         timestamp: Date.now(),
         fileId: 'TEST_FILE_ID',
-        count: data.length
+        count: data.length,
       };
       localStorage.setItem('googleDrive_productionData', JSON.stringify(cacheData));
     }, mockExcelData);
@@ -243,12 +251,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
   test('TC-7-1-06: Cache info display in UI', async ({ page }) => {
     // Set cache data with known values
     const testTimestamp = Date.now();
-    await page.evaluate((data) => {
+    await page.evaluate(data => {
       const cacheData = {
         data: data,
         timestamp: Date.now(),
         fileId: 'TEST_FILE_12345',
-        count: data.length
+        count: data.length,
       };
       localStorage.setItem('googleDrive_productionData', JSON.stringify(cacheData));
     }, mockExcelData);
@@ -258,7 +266,10 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     await page.waitForTimeout(500);
 
     // Check if cache info section exists
-    const cacheInfoExists = await page.locator('text=/캐시 정보|Cache Info/i').isVisible().catch(() => false);
+    const cacheInfoExists = await page
+      .locator('text=/캐시 정보|Cache Info/i')
+      .isVisible()
+      .catch(() => false);
 
     if (cacheInfoExists) {
       // Verify cache count is displayed
@@ -291,11 +302,11 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     }
 
     // Save settings (trigger localStorage save)
-    await page.evaluate((fileId) => {
+    await page.evaluate(fileId => {
       const settings = {
         fileId: fileId,
         syncInterval: 30,
-        autoSync: true
+        autoSync: true,
       };
       localStorage.setItem('googleDrive_settings', JSON.stringify(settings));
     }, testFileId);
@@ -328,7 +339,7 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
       route.fulfill({
         status: 404,
         contentType: 'text/html',
-        body: 'Not Found'
+        body: 'Not Found',
       });
     });
 
@@ -357,8 +368,9 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     await page.waitForTimeout(2000);
 
     // Verify error was logged or toast displayed
-    const errorOccurred = consoleErrors.length > 0 ||
-                          await page.locator('.toast, .notification, [role="alert"]').count() > 0;
+    const errorOccurred =
+      consoleErrors.length > 0 ||
+      (await page.locator('.toast, .notification, [role="alert"]').count()) > 0;
 
     // Error handling should be graceful (no crash)
     const pageNotCrashed = await page.evaluate(() => {
@@ -411,12 +423,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
   // =============================================================================
   test('Cache deletion functionality', async ({ page }) => {
     // Set cache data
-    await page.evaluate((data) => {
+    await page.evaluate(data => {
       const cacheData = {
         data: data,
         timestamp: Date.now(),
         fileId: 'TEST_DELETE',
-        count: data.length
+        count: data.length,
       };
       localStorage.setItem('googleDrive_productionData', JSON.stringify(cacheData));
     }, mockExcelData);
@@ -432,7 +444,11 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     await page.waitForTimeout(300);
 
     // Find and click cache delete button
-    const deleteButton = page.locator('button:has-text("캐시 삭제"), button:has-text("Delete Cache"), button:has-text("🗑️")').first();
+    const deleteButton = page
+      .locator(
+        'button:has-text("캐시 삭제"), button:has-text("Delete Cache"), button:has-text("🗑️")'
+      )
+      .first();
     const deleteButtonExists = await deleteButton.isVisible().catch(() => false);
 
     if (deleteButtonExists) {
@@ -466,12 +482,12 @@ test.describe('Google Drive Integration (Phase 7-1)', () => {
     }
 
     // Test getCacheInfo method
-    await page.evaluate((data) => {
+    await page.evaluate(data => {
       const cacheData = {
         data: data,
         timestamp: Date.now() - 5 * 60 * 1000, // 5 minutes ago
         fileId: 'INFO_TEST',
-        count: data.length
+        count: data.length,
       };
       localStorage.setItem('googleDrive_productionData', JSON.stringify(cacheData));
     }, mockExcelData);

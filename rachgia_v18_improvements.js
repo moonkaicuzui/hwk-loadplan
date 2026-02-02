@@ -6,7 +6,124 @@
  * V02: 캐싱 레이어 - LRU Cache Implementation
  * V03: 메모리 최적화 - Chart Manager
  * V04: 차트 성능 - Conditional Animation
+ * V05: Safari 호환성 - Safe Property Access Helpers
  */
+
+// =============================================================================
+// V05: Safari Compatibility Helpers (Safari 13+ 호환)
+// =============================================================================
+
+/**
+ * 안전한 중첩 속성 접근 (Optional Chaining 대체)
+ * Safari 13 이하에서 ?. 연산자 미지원 대응
+ * @param {Object} obj - 대상 객체
+ * @param {string} path - 점으로 구분된 경로 (예: 'production.wh_out.completed')
+ * @param {*} defaultValue - 기본값 (undefined일 경우 반환)
+ * @returns {*} 속성 값 또는 기본값
+ */
+function safeGet(obj, path, defaultValue) {
+    if (obj === null || obj === undefined) {
+        return defaultValue;
+    }
+
+    var keys = path.split('.');
+    var result = obj;
+
+    for (var i = 0; i < keys.length; i++) {
+        if (result === null || result === undefined) {
+            return defaultValue;
+        }
+        result = result[keys[i]];
+    }
+
+    return result !== undefined ? result : defaultValue;
+}
+
+/**
+ * DOM 요소 안전 접근
+ * @param {string} id - 요소 ID
+ * @returns {HTMLElement|null}
+ */
+function safeGetElement(id) {
+    return document.getElementById(id) || null;
+}
+
+/**
+ * DOM 요소 값 안전 접근
+ * @param {string} id - 요소 ID
+ * @param {string} defaultValue - 기본값
+ * @returns {string}
+ */
+function safeGetValue(id, defaultValue) {
+    var el = document.getElementById(id);
+    if (el && el.value !== undefined) {
+        return el.value.trim ? el.value.trim() : el.value;
+    }
+    return defaultValue !== undefined ? defaultValue : '';
+}
+
+/**
+ * 안전한 날짜 파싱 (Safari 호환)
+ * Safari는 'YYYY-MM-DD' 형식을 제대로 파싱하지 못할 수 있음
+ * @param {string} dateStr - 날짜 문자열
+ * @returns {Date|null}
+ */
+function safeParseDate(dateStr) {
+    if (!dateStr) return null;
+
+    // ISO 형식 (YYYY-MM-DD)인 경우 Safari 호환 처리
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        var parts = dateStr.split('-');
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    }
+
+    // ISO 8601 datetime 형식
+    if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+        var datePart = dateStr.split('T')[0];
+        var parts = datePart.split('-');
+        var timePart = dateStr.split('T')[1];
+        var date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+
+        if (timePart) {
+            var timeMatch = timePart.match(/(\d{2}):(\d{2}):?(\d{2})?/);
+            if (timeMatch) {
+                date.setHours(parseInt(timeMatch[1], 10) || 0);
+                date.setMinutes(parseInt(timeMatch[2], 10) || 0);
+                date.setSeconds(parseInt(timeMatch[3], 10) || 0);
+            }
+        }
+        return date;
+    }
+
+    // 기타 형식은 기본 파싱 시도
+    var parsed = new Date(dateStr);
+    return isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/**
+ * 생산 데이터 안전 접근 헬퍼
+ * @param {Object} d - 데이터 객체
+ * @param {string} process - 공정명 (예: 'wh_out', 's_cut')
+ * @param {string} field - 필드명 (예: 'completed', 'status')
+ * @param {*} defaultValue - 기본값
+ * @returns {*}
+ */
+function getProductionData(d, process, field, defaultValue) {
+    if (!d || !d.production) return defaultValue;
+    var proc = d.production[process];
+    if (!proc) return defaultValue;
+    var val = proc[field];
+    return val !== undefined ? val : defaultValue;
+}
+
+// 전역으로 노출
+if (typeof window !== 'undefined') {
+    window.safeGet = safeGet;
+    window.safeGetElement = safeGetElement;
+    window.safeGetValue = safeGetValue;
+    window.safeParseDate = safeParseDate;
+    window.getProductionData = getProductionData;
+}
 
 // =============================================================================
 // V02: LRU Cache Implementation (필터 결과 캐싱)

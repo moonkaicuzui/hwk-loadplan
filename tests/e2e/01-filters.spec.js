@@ -5,7 +5,7 @@
 // v19 Fix: Wait for app initialization before interacting with filters
 // =============================================================================
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('필터 기능 테스트', () => {
   test.beforeEach(async ({ page }) => {
@@ -15,11 +15,16 @@ test.describe('필터 기능 테스트', () => {
     // v19: Wait for app initialization to complete
     // The app shows loading overlay until data is loaded and initApp() is called
     // Event handlers are only attached after initApp()
-    await page.waitForFunction(() => {
-      const overlay = document.getElementById('loadingOverlay');
-      // Loading overlay is hidden when app is initialized
-      return overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none');
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const overlay = document.getElementById('loadingOverlay');
+        // Loading overlay is hidden when app is initialized
+        return (
+          overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     // Additional wait for event handlers to be attached
     await page.waitForTimeout(500);
@@ -48,7 +53,7 @@ test.describe('필터 기능 테스트', () => {
   test('행선지 필터: 첫 번째 행선지 선택', async ({ page }) => {
     const destSelect = page.locator('#destFilter');
     // v19에서는 select가 있는지 확인
-    if (await destSelect.count() > 0) {
+    if ((await destSelect.count()) > 0) {
       const options = await destSelect.locator('option').count();
       if (options > 1) {
         // v19: 행선지 옵션은 동적으로 생성되므로 index 기반 선택
@@ -79,7 +84,7 @@ test.describe('필터 기능 테스트', () => {
   test('공장 필터: Factory A 선택', async ({ page }) => {
     // v19에서는 버튼 그룹으로 구현됨
     const factoryChip = page.locator('#factoryFilter .filter-chip[data-factory="A"]');
-    if (await factoryChip.count() > 0) {
+    if ((await factoryChip.count()) > 0) {
       await factoryChip.click();
       await page.waitForTimeout(500);
 
@@ -134,7 +139,7 @@ test.describe('필터 기능 테스트', () => {
     }
 
     const destSelect = page.locator('#destFilter');
-    if (await destSelect.count() > 0) {
+    if ((await destSelect.count()) > 0) {
       const destOptions = await destSelect.locator('option').count();
       if (destOptions > 1) {
         await destSelect.selectOption({ index: 1 });
@@ -150,7 +155,7 @@ test.describe('필터 기능 테스트', () => {
   test('필터 조합: 공장 + 상태', async ({ page }) => {
     // 공장 필터: 버튼 클릭
     const factoryChip = page.locator('#factoryFilter .filter-chip[data-factory="B"]');
-    if (await factoryChip.count() > 0) {
+    if ((await factoryChip.count()) > 0) {
       await factoryChip.click();
     }
     await page.selectOption('#statusFilter', 'partial');
@@ -184,7 +189,7 @@ test.describe('필터 기능 테스트', () => {
   // 12. 페이지 크기 변경: 50 → 100
   test('페이지 크기 변경: 50 → 100', async ({ page }) => {
     const pageSizeSelect = page.locator('#pageSizeSelect');
-    if (await pageSizeSelect.count() > 0) {
+    if ((await pageSizeSelect.count()) > 0) {
       await pageSizeSelect.selectOption('100');
       await page.waitForTimeout(1000);
 
@@ -196,7 +201,7 @@ test.describe('필터 기능 테스트', () => {
   // 13. 페이지 크기 변경: 전체
   test('페이지 크기: 전체 표시', async ({ page }) => {
     const pageSizeSelect = page.locator('#pageSizeSelect');
-    if (await pageSizeSelect.count() > 0) {
+    if ((await pageSizeSelect.count()) > 0) {
       await pageSizeSelect.selectOption('all');
       await page.waitForTimeout(2000);
 
@@ -208,7 +213,7 @@ test.describe('필터 기능 테스트', () => {
   // 14. 정렬: PO번호 오름차순
   test('정렬: PO번호 오름차순', async ({ page }) => {
     const poHeader = page.locator('th:has-text("PO")');
-    if (await poHeader.count() > 0) {
+    if ((await poHeader.count()) > 0) {
       await poHeader.click();
       await page.waitForTimeout(500);
 
@@ -220,13 +225,13 @@ test.describe('필터 기능 테스트', () => {
   // 15. 정렬: 수량 내림차순
   test('정렬: 수량 내림차순', async ({ page }) => {
     const qtyHeader = page.locator('th:has-text("수량")');
-    if (await qtyHeader.count() > 0) {
+    if ((await qtyHeader.count()) > 0) {
       await qtyHeader.click();
       await qtyHeader.click(); // 두 번 클릭으로 내림차순
       await page.waitForTimeout(500);
 
       const firstRow = page.locator('#dataTable tbody tr:first-child');
-      if (await firstRow.count() > 0) {
+      if ((await firstRow.count()) > 0) {
         const firstQty = await firstRow.locator('td').nth(4).textContent();
         expect(firstQty).toBeTruthy();
       }
@@ -258,7 +263,7 @@ test.describe('필터 기능 테스트', () => {
 
   // 18. 날짜 범위 필터 (커스텀 날짜)
   test('날짜 범위: startDate/endDate', async ({ page }) => {
-    const hasDateFilters = await page.locator('#startDate').count() > 0;
+    const hasDateFilters = (await page.locator('#startDate').count()) > 0;
 
     if (hasDateFilters) {
       await page.fill('#startDate', '2026-01-01');
@@ -280,7 +285,7 @@ test.describe('필터 기능 테스트', () => {
     }
     // 공장 필터: 버튼 클릭
     const factoryChip = page.locator('#factoryFilter .filter-chip[data-factory="A"]');
-    if (await factoryChip.count() > 0) {
+    if ((await factoryChip.count()) > 0) {
       await factoryChip.click();
     }
     await page.selectOption('#statusFilter', 'pending');
@@ -294,7 +299,7 @@ test.describe('필터 기능 테스트', () => {
   test('필터 + 검색 조합', async ({ page }) => {
     // 공장 필터: 버튼 클릭
     const factoryChip = page.locator('#factoryFilter .filter-chip[data-factory="B"]');
-    if (await factoryChip.count() > 0) {
+    if ((await factoryChip.count()) > 0) {
       await factoryChip.click();
     }
     await page.fill('#searchInput', 'RS');

@@ -49,5 +49,66 @@ dist/
 
 # Test results
 test-results/
+playwright-report/
 .playwright-mcp/
+coverage/
+
+# Node.js
 node_modules/
+package-lock.json
+
+# Environment variables (NEVER commit!)
+.env
+.env.local
+.env.*.local
+
+# React migration (separate project)
+react-app/node_modules/
+react-app/dist/
+react-app/.env
+
+# Lighthouse reports
+.lighthouseci/
+
+# Editor directories and files
+*.sublime-workspace
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
+
+# TypeScript
+*.tsbuildinfo
+
+# Vitest
+vitest.config.ts.timestamp-*
+
+# Husky
+.husky/_
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Playwright
+playwright-results/
+blob-report/
+playwright/.cache/
+
+# Optional: Backup files
+*.bak
+*.backup
+*~
+
+# Security - never commit
+*.secret
+*.secrets
+secrets.json
+
+# Temporary files
+*.tmp
+tmp/
+temp/

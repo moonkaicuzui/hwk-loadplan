@@ -1,0 +1,51 @@
+# Dependabot configuration
+# Automatically checks for dependency updates
+
+version: 2
+updates:
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Seoul"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      development:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "@playwright/*"
+          - "vitest*"
+          - "@vitest/*"
+        update-types:
+          - "minor"
+          - "patch"
+      production:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "eslint*"
+          - "prettier*"
+          - "@playwright/*"
+          - "vitest*"
+          - "@vitest/*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "ci"
+      - "automated"
+    commit-message:
+      prefix: "chore(ci)"

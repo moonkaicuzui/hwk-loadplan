@@ -1,0 +1,34 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    "checkJs": true,
+    "allowJs": true,
+    "strict": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@models/*": ["src/models/*"],
+      "@views/*": ["src/views/*"],
+      "@types/*": ["src/types/*"]
+    },
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.js",
+    "src/**/*.d.ts",
+    "tests/**/*.js",
+    "scripts/**/*.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "archive",
+    "react-app"
+  ]
+}

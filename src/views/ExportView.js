@@ -51,10 +51,10 @@ let getFilteredData = null;
 
 /** @type {Object} Logger object */
 let log = {
-    info: console.log,
-    debug: console.debug,
-    warn: console.warn,
-    error: console.error
+  info: console.log,
+  debug: console.debug,
+  warn: console.warn,
+  error: console.error,
 };
 
 // ============================================================================
@@ -77,18 +77,18 @@ let log = {
  * @param {Object} [dependencies.log] - Logger object
  */
 export function initExportView(dependencies) {
-    if (dependencies.XLSX) XLSX = dependencies.XLSX;
-    if (dependencies.jspdf) jspdf = dependencies.jspdf;
-    if (dependencies.ChunkProcessor) ChunkProcessor = dependencies.ChunkProcessor;
-    if (dependencies.prepareExportData) prepareExportData = dependencies.prepareExportData;
-    if (dependencies.showChunkProgress) showChunkProgress = dependencies.showChunkProgress;
-    if (dependencies.updateChunkProgress) updateChunkProgress = dependencies.updateChunkProgress;
-    if (dependencies.hideChunkProgress) hideChunkProgress = dependencies.hideChunkProgress;
-    if (dependencies.formatNumber) formatNumber = dependencies.formatNumber;
-    if (dependencies.getFilteredData) getFilteredData = dependencies.getFilteredData;
-    if (dependencies.log) log = dependencies.log;
+  if (dependencies.XLSX) XLSX = dependencies.XLSX;
+  if (dependencies.jspdf) jspdf = dependencies.jspdf;
+  if (dependencies.ChunkProcessor) ChunkProcessor = dependencies.ChunkProcessor;
+  if (dependencies.prepareExportData) prepareExportData = dependencies.prepareExportData;
+  if (dependencies.showChunkProgress) showChunkProgress = dependencies.showChunkProgress;
+  if (dependencies.updateChunkProgress) updateChunkProgress = dependencies.updateChunkProgress;
+  if (dependencies.hideChunkProgress) hideChunkProgress = dependencies.hideChunkProgress;
+  if (dependencies.formatNumber) formatNumber = dependencies.formatNumber;
+  if (dependencies.getFilteredData) getFilteredData = dependencies.getFilteredData;
+  if (dependencies.log) log = dependencies.log;
 
-    log.info('[ExportView] Initialized with dependencies');
+  log.info('[ExportView] Initialized with dependencies');
 }
 
 // ============================================================================
@@ -102,18 +102,18 @@ export function initExportView(dependencies) {
  * @returns {void}
  */
 export function downloadReportHTML() {
-    const today = new Date().toISOString().slice(0, 10);
-    const reportContentEl = document.getElementById('reportContent');
+  const today = new Date().toISOString().slice(0, 10);
+  const reportContentEl = document.getElementById('reportContent');
 
-    if (!reportContentEl) {
-        log.error('[ExportView] Report content element not found');
-        return;
-    }
+  if (!reportContentEl) {
+    log.error('[ExportView] Report content element not found');
+    return;
+  }
 
-    const reportContent = reportContentEl.innerHTML;
+  const reportContent = reportContentEl.innerHTML;
 
-    // 독립적인 HTML 파일 생성 (외부 의존성 없음)
-    const html = `<!DOCTYPE html>
+  // 독립적인 HTML 파일 생성 (외부 의존성 없음)
+  const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -149,18 +149,18 @@ export function downloadReportHTML() {
 </body>
 </html>`;
 
-    // Blob 생성 및 다운로드
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Rachgia_Daily_Report_${today}.html`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  // Blob 생성 및 다운로드
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Rachgia_Daily_Report_${today}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
-    log.info(`[ExportView] HTML report downloaded: Rachgia_Daily_Report_${today}.html`);
+  log.info(`[ExportView] HTML report downloaded: Rachgia_Daily_Report_${today}.html`);
 }
 
 // ============================================================================
@@ -174,40 +174,46 @@ export function downloadReportHTML() {
  * @returns {void}
  */
 export function exportToExcel() {
-    if (!XLSX) {
-        log.error('[ExportView] XLSX library not available');
-        alert('Excel 내보내기 기능을 사용할 수 없습니다.');
-        return;
-    }
+  if (!XLSX) {
+    log.error('[ExportView] XLSX library not available');
+    alert('Excel 내보내기 기능을 사용할 수 없습니다.');
+    return;
+  }
 
-    const exportData = prepareExportData ? prepareExportData() : [];
-    if (exportData.length === 0) {
-        alert('내보낼 데이터가 없습니다.');
-        return;
-    }
+  const exportData = prepareExportData ? prepareExportData() : [];
+  if (exportData.length === 0) {
+    alert('내보낼 데이터가 없습니다.');
+    return;
+  }
 
-    log.info(`[ExportView] Exporting ${exportData.length} rows to Excel`);
+  log.info(`[ExportView] Exporting ${exportData.length} rows to Excel`);
 
-    // 대용량 데이터 처리
-    if (exportData.length > 1000 && ChunkProcessor && showChunkProgress && updateChunkProgress && hideChunkProgress) {
-        showChunkProgress('Excel 내보내기 준비 중...');
+  // 대용량 데이터 처리
+  if (
+    exportData.length > 1000 &&
+    ChunkProcessor &&
+    showChunkProgress &&
+    updateChunkProgress &&
+    hideChunkProgress
+  ) {
+    showChunkProgress('Excel 내보내기 준비 중...');
 
-        const processor = new ChunkProcessor(exportData, {
-            chunkSize: 500,
-            delayMs: 10,
-            onProgress: (processed, total) => {
-                updateChunkProgress(Math.round((processed / total) * 100));
-            },
-            onComplete: (results) => {
-                hideChunkProgress();
-                createAndDownloadExcel(results);
-            }
-        });
+    const processor = new ChunkProcessor(exportData, {
+      chunkSize: 500,
+      delayMs: 10,
+      onProgress: (processed, total) => {
+        updateChunkProgress(Math.round((processed / total) * 100));
+      },
+      onComplete: results => {
+        hideChunkProgress();
+        createAndDownloadExcel(results);
+      },
+    });
 
-        processor.process(item => item);
-    } else {
-        createAndDownloadExcel(exportData);
-    }
+    processor.process(item => item);
+  } else {
+    createAndDownloadExcel(exportData);
+  }
 }
 
 /**
@@ -217,20 +223,20 @@ export function exportToExcel() {
  * @private
  */
 function createAndDownloadExcel(data) {
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Orders');
 
-    // 컬럼 너비 자동 조정
-    const colWidths = Object.keys(data[0] || {}).map(key => ({
-        wch: Math.max(key.length, 15)
-    }));
-    ws['!cols'] = colWidths;
+  // 컬럼 너비 자동 조정
+  const colWidths = Object.keys(data[0] || {}).map(key => ({
+    wch: Math.max(key.length, 15),
+  }));
+  ws['!cols'] = colWidths;
 
-    const today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `Rachgia_Orders_${today}.xlsx`);
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(wb, `Rachgia_Orders_${today}.xlsx`);
 
-    log.info(`[ExportView] Excel file created: Rachgia_Orders_${today}.xlsx`);
+  log.info(`[ExportView] Excel file created: Rachgia_Orders_${today}.xlsx`);
 }
 
 // ============================================================================
@@ -245,73 +251,75 @@ function createAndDownloadExcel(data) {
  * @returns {void}
  */
 export function exportToExcelMultiSheet(groupBy = 'month') {
-    if (!XLSX) {
-        log.error('[ExportView] XLSX library not available');
-        alert('Excel 내보내기 기능을 사용할 수 없습니다.');
-        return;
+  if (!XLSX) {
+    log.error('[ExportView] XLSX library not available');
+    alert('Excel 내보내기 기능을 사용할 수 없습니다.');
+    return;
+  }
+
+  const exportData = prepareExportData ? prepareExportData() : [];
+  if (exportData.length === 0) {
+    alert('내보낼 데이터가 없습니다.');
+    return;
+  }
+
+  log.info(
+    `[ExportView] Exporting ${exportData.length} rows to multi-sheet Excel (groupBy: ${groupBy})`
+  );
+
+  const wb = XLSX.utils.book_new();
+
+  // 데이터 그룹화
+  const groups = {};
+  exportData.forEach(item => {
+    let key;
+    if (groupBy === 'month') {
+      key = item['CRD'] ? item['CRD'].substring(0, 7) : 'Unknown';
+    } else if (groupBy === 'factory') {
+      key = item['Factory'] || 'Unknown';
+    } else {
+      key = 'All';
     }
 
-    const exportData = prepareExportData ? prepareExportData() : [];
-    if (exportData.length === 0) {
-        alert('내보낼 데이터가 없습니다.');
-        return;
+    if (!groups[key]) {
+      groups[key] = [];
     }
+    groups[key].push(item);
+  });
 
-    log.info(`[ExportView] Exporting ${exportData.length} rows to multi-sheet Excel (groupBy: ${groupBy})`);
+  // 각 그룹별 시트 생성
+  const sortedKeys = Object.keys(groups).sort();
+  sortedKeys.forEach(key => {
+    const sheetData = groups[key];
+    const ws = XLSX.utils.json_to_sheet(sheetData);
 
-    const wb = XLSX.utils.book_new();
-
-    // 데이터 그룹화
-    const groups = {};
-    exportData.forEach(item => {
-        let key;
-        if (groupBy === 'month') {
-            key = item['CRD'] ? item['CRD'].substring(0, 7) : 'Unknown';
-        } else if (groupBy === 'factory') {
-            key = item['Factory'] || 'Unknown';
-        } else {
-            key = 'All';
-        }
-
-        if (!groups[key]) {
-            groups[key] = [];
-        }
-        groups[key].push(item);
-    });
-
-    // 각 그룹별 시트 생성
-    const sortedKeys = Object.keys(groups).sort();
-    sortedKeys.forEach(key => {
-        const sheetData = groups[key];
-        const ws = XLSX.utils.json_to_sheet(sheetData);
-
-        // 컬럼 너비 자동 조정
-        const colWidths = Object.keys(sheetData[0] || {}).map(colKey => ({
-            wch: Math.max(colKey.length, 15)
-        }));
-        ws['!cols'] = colWidths;
-
-        // 시트 이름 정리 (Excel 시트 이름 규칙: 31자 이하, 특수문자 제한)
-        let sheetName = key.replace(/[\\\/\*\?\[\]:]/g, '_').substring(0, 31);
-        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    });
-
-    // 요약 시트 추가
-    const summaryData = sortedKeys.map(key => ({
-        [groupBy === 'month' ? 'Month' : 'Factory']: key,
-        'Total Orders': groups[key].length,
-        'Total Quantity': groups[key].reduce((sum, item) => sum + (parseInt(item['Quantity']) || 0), 0)
+    // 컬럼 너비 자동 조정
+    const colWidths = Object.keys(sheetData[0] || {}).map(colKey => ({
+      wch: Math.max(colKey.length, 15),
     }));
+    ws['!cols'] = colWidths;
 
-    const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-    summaryWs['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }];
-    XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+    // 시트 이름 정리 (Excel 시트 이름 규칙: 31자 이하, 특수문자 제한)
+    const sheetName = key.replace(/[\\\/\*\?\[\]:]/g, '_').substring(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
 
-    const today = new Date().toISOString().slice(0, 10);
-    const filename = `Rachgia_Orders_by_${groupBy}_${today}.xlsx`;
-    XLSX.writeFile(wb, filename);
+  // 요약 시트 추가
+  const summaryData = sortedKeys.map(key => ({
+    [groupBy === 'month' ? 'Month' : 'Factory']: key,
+    'Total Orders': groups[key].length,
+    'Total Quantity': groups[key].reduce((sum, item) => sum + (parseInt(item['Quantity']) || 0), 0),
+  }));
 
-    log.info(`[ExportView] Multi-sheet Excel file created: ${filename}`);
+  const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+  summaryWs['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 15 }];
+  XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+  const today = new Date().toISOString().slice(0, 10);
+  const filename = `Rachgia_Orders_by_${groupBy}_${today}.xlsx`;
+  XLSX.writeFile(wb, filename);
+
+  log.info(`[ExportView] Multi-sheet Excel file created: ${filename}`);
 }
 
 // ============================================================================
@@ -325,56 +333,56 @@ export function exportToExcelMultiSheet(groupBy = 'month') {
  * @returns {void}
  */
 export function exportToCSV() {
-    const exportData = prepareExportData ? prepareExportData() : [];
-    if (exportData.length === 0) {
-        alert('내보낼 데이터가 없습니다.');
-        return;
-    }
+  const exportData = prepareExportData ? prepareExportData() : [];
+  if (exportData.length === 0) {
+    alert('내보낼 데이터가 없습니다.');
+    return;
+  }
 
-    log.info(`[ExportView] Exporting ${exportData.length} rows to CSV`);
+  log.info(`[ExportView] Exporting ${exportData.length} rows to CSV`);
 
-    // 헤더 추출
-    const headers = Object.keys(exportData[0]);
+  // 헤더 추출
+  const headers = Object.keys(exportData[0]);
 
-    // CSV 문자열 생성
-    const csvRows = [];
+  // CSV 문자열 생성
+  const csvRows = [];
 
-    // 헤더 행
-    csvRows.push(headers.map(header => `"${header}"`).join(','));
+  // 헤더 행
+  csvRows.push(headers.map(header => `"${header}"`).join(','));
 
-    // 데이터 행
-    exportData.forEach(item => {
-        const row = headers.map(header => {
-            let value = item[header];
-            if (value === null || value === undefined) {
-                value = '';
-            }
-            // 쉼표, 따옴표, 줄바꿈이 포함된 값 처리
-            value = String(value).replace(/"/g, '""');
-            return `"${value}"`;
-        });
-        csvRows.push(row.join(','));
+  // 데이터 행
+  exportData.forEach(item => {
+    const row = headers.map(header => {
+      let value = item[header];
+      if (value === null || value === undefined) {
+        value = '';
+      }
+      // 쉼표, 따옴표, 줄바꿈이 포함된 값 처리
+      value = String(value).replace(/"/g, '""');
+      return `"${value}"`;
     });
+    csvRows.push(row.join(','));
+  });
 
-    // UTF-8 BOM 추가 (한글 엑셀 호환성)
-    const BOM = '\uFEFF';
-    const csvContent = BOM + csvRows.join('\n');
+  // UTF-8 BOM 추가 (한글 엑셀 호환성)
+  const BOM = '\uFEFF';
+  const csvContent = BOM + csvRows.join('\n');
 
-    // Blob 생성 및 다운로드
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
+  // Blob 생성 및 다운로드
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
 
-    const today = new Date().toISOString().slice(0, 10);
-    a.download = `Rachgia_Orders_${today}.csv`;
+  const today = new Date().toISOString().slice(0, 10);
+  a.download = `Rachgia_Orders_${today}.csv`;
 
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
-    log.info(`[ExportView] CSV file created: Rachgia_Orders_${today}.csv`);
+  log.info(`[ExportView] CSV file created: Rachgia_Orders_${today}.csv`);
 }
 
 // ============================================================================
@@ -388,104 +396,113 @@ export function exportToCSV() {
  * @returns {void}
  */
 export function exportToPDF() {
-    if (!jspdf || !jspdf.jsPDF) {
-        log.error('[ExportView] jsPDF library not available');
-        alert('PDF 내보내기 기능을 사용할 수 없습니다.');
-        return;
-    }
+  if (!jspdf || !jspdf.jsPDF) {
+    log.error('[ExportView] jsPDF library not available');
+    alert('PDF 내보내기 기능을 사용할 수 없습니다.');
+    return;
+  }
 
-    const exportData = prepareExportData ? prepareExportData() : [];
-    if (exportData.length === 0) {
-        alert('내보낼 데이터가 없습니다.');
-        return;
-    }
+  const exportData = prepareExportData ? prepareExportData() : [];
+  if (exportData.length === 0) {
+    alert('내보낼 데이터가 없습니다.');
+    return;
+  }
 
-    log.info(`[ExportView] Exporting ${exportData.length} rows to PDF`);
+  log.info(`[ExportView] Exporting ${exportData.length} rows to PDF`);
 
-    const { jsPDF } = jspdf;
-    const doc = new jsPDF('landscape', 'mm', 'a4');
+  const { jsPDF } = jspdf;
+  const doc = new jsPDF('landscape', 'mm', 'a4');
 
-    const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
 
-    // 제목
-    doc.setFontSize(16);
-    doc.text('Rachgia Factory Production Report', 14, 15);
+  // 제목
+  doc.setFontSize(16);
+  doc.text('Rachgia Factory Production Report', 14, 15);
 
-    // 날짜
-    doc.setFontSize(10);
-    doc.text(`Generated: ${today}`, 14, 22);
+  // 날짜
+  doc.setFontSize(10);
+  doc.text(`Generated: ${today}`, 14, 22);
 
-    // 필터 정보
-    const filterInfo = getFilterInfo();
-    doc.setFontSize(9);
-    doc.text(`Filters: ${filterInfo}`, 14, 28);
+  // 필터 정보
+  const filterInfo = getFilterInfo();
+  doc.setFontSize(9);
+  doc.text(`Filters: ${filterInfo}`, 14, 28);
 
-    // 요약 통계
-    const filteredData = getFilteredData ? getFilteredData() : [];
-    const stats = calculateExportStats(filteredData);
-    doc.text(`Total: ${formatNumber ? formatNumber(stats.totalOrders) : stats.totalOrders} orders | ` +
-             `Quantity: ${formatNumber ? formatNumber(stats.totalQuantity) : stats.totalQuantity} | ` +
-             `Delayed: ${stats.delayedOrders} | ` +
-             `Completion: ${stats.completionRate}%`, 14, 34);
+  // 요약 통계
+  const filteredData = getFilteredData ? getFilteredData() : [];
+  const stats = calculateExportStats(filteredData);
+  doc.text(
+    `Total: ${formatNumber ? formatNumber(stats.totalOrders) : stats.totalOrders} orders | ` +
+      `Quantity: ${formatNumber ? formatNumber(stats.totalQuantity) : stats.totalQuantity} | ` +
+      `Delayed: ${stats.delayedOrders} | ` +
+      `Completion: ${stats.completionRate}%`,
+    14,
+    34
+  );
 
-    // 테이블 헤더 정의 (축약된 컬럼)
-    const tableHeaders = ['Factory', 'PO', 'Model', 'Dest', 'Qty', 'CRD', 'SDD', 'Status'];
+  // 테이블 헤더 정의 (축약된 컬럼)
+  const tableHeaders = ['Factory', 'PO', 'Model', 'Dest', 'Qty', 'CRD', 'SDD', 'Status'];
 
-    // 테이블 데이터 (최대 500행)
-    const maxRows = 500;
-    const tableData = exportData.slice(0, maxRows).map(item => [
-        item['Factory'] || '',
-        (item['PO'] || '').substring(0, 12),
-        (item['Model'] || '').substring(0, 15),
-        (item['Destination'] || '').substring(0, 12),
-        item['Quantity'] || '',
-        item['CRD'] || '',
-        item['SDD'] || '',
-        item['WH_OUT Status'] || ''
+  // 테이블 데이터 (최대 500행)
+  const maxRows = 500;
+  const tableData = exportData
+    .slice(0, maxRows)
+    .map(item => [
+      item['Factory'] || '',
+      (item['PO'] || '').substring(0, 12),
+      (item['Model'] || '').substring(0, 15),
+      (item['Destination'] || '').substring(0, 12),
+      item['Quantity'] || '',
+      item['CRD'] || '',
+      item['SDD'] || '',
+      item['WH_OUT Status'] || '',
     ]);
 
-    // autoTable로 테이블 생성
-    doc.autoTable({
-        head: [tableHeaders],
-        body: tableData,
-        startY: 40,
-        styles: {
-            fontSize: 7,
-            cellPadding: 2
-        },
-        headStyles: {
-            fillColor: [59, 130, 246],
-            textColor: 255,
-            fontStyle: 'bold'
-        },
-        alternateRowStyles: {
-            fillColor: [249, 250, 251]
-        },
-        columnStyles: {
-            0: { cellWidth: 15 }, // Factory
-            1: { cellWidth: 25 }, // PO
-            2: { cellWidth: 35 }, // Model
-            3: { cellWidth: 25 }, // Dest
-            4: { cellWidth: 15, halign: 'right' }, // Qty
-            5: { cellWidth: 22 }, // CRD
-            6: { cellWidth: 22 }, // SDD
-            7: { cellWidth: 20 }  // Status
-        }
-    });
+  // autoTable로 테이블 생성
+  doc.autoTable({
+    head: [tableHeaders],
+    body: tableData,
+    startY: 40,
+    styles: {
+      fontSize: 7,
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [59, 130, 246],
+      textColor: 255,
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [249, 250, 251],
+    },
+    columnStyles: {
+      0: { cellWidth: 15 }, // Factory
+      1: { cellWidth: 25 }, // PO
+      2: { cellWidth: 35 }, // Model
+      3: { cellWidth: 25 }, // Dest
+      4: { cellWidth: 15, halign: 'right' }, // Qty
+      5: { cellWidth: 22 }, // CRD
+      6: { cellWidth: 22 }, // SDD
+      7: { cellWidth: 20 }, // Status
+    },
+  });
 
-    // 행 수 제한 표시
-    if (exportData.length > maxRows) {
-        const finalY = doc.lastAutoTable.finalY || 200;
-        doc.setFontSize(8);
-        doc.setTextColor(150);
-        doc.text(`* Showing first ${maxRows} of ${exportData.length} records. Use Excel export for full data.`,
-                 14, finalY + 10);
-    }
+  // 행 수 제한 표시
+  if (exportData.length > maxRows) {
+    const finalY = doc.lastAutoTable.finalY || 200;
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text(
+      `* Showing first ${maxRows} of ${exportData.length} records. Use Excel export for full data.`,
+      14,
+      finalY + 10
+    );
+  }
 
-    // 저장
-    doc.save(`Rachgia_Orders_${today}.pdf`);
+  // 저장
+  doc.save(`Rachgia_Orders_${today}.pdf`);
 
-    log.info(`[ExportView] PDF file created: Rachgia_Orders_${today}.pdf`);
+  log.info(`[ExportView] PDF file created: Rachgia_Orders_${today}.pdf`);
 }
 
 // ============================================================================
@@ -499,31 +516,31 @@ export function exportToPDF() {
  * @private
  */
 function getFilterInfo() {
-    const filters = [];
+  const filters = [];
 
-    const monthEl = document.getElementById('monthFilter');
-    const destEl = document.getElementById('destFilter');
-    const vendorEl = document.getElementById('vendorFilter');
-    const statusEl = document.getElementById('statusFilter');
-    const factoryEl = document.getElementById('factoryFilter');
+  const monthEl = document.getElementById('monthFilter');
+  const destEl = document.getElementById('destFilter');
+  const vendorEl = document.getElementById('vendorFilter');
+  const statusEl = document.getElementById('statusFilter');
+  const factoryEl = document.getElementById('factoryFilter');
 
-    if (monthEl && monthEl.value && monthEl.value !== 'all') {
-        filters.push(`Month: ${monthEl.value}`);
-    }
-    if (destEl && destEl.value && destEl.value !== 'all') {
-        filters.push(`Dest: ${destEl.value}`);
-    }
-    if (vendorEl && vendorEl.value && vendorEl.value !== 'all') {
-        filters.push(`Vendor: ${vendorEl.value}`);
-    }
-    if (statusEl && statusEl.value && statusEl.value !== 'all') {
-        filters.push(`Status: ${statusEl.value}`);
-    }
-    if (factoryEl && factoryEl.value && factoryEl.value !== 'all') {
-        filters.push(`Factory: ${factoryEl.value}`);
-    }
+  if (monthEl && monthEl.value && monthEl.value !== 'all') {
+    filters.push(`Month: ${monthEl.value}`);
+  }
+  if (destEl && destEl.value && destEl.value !== 'all') {
+    filters.push(`Dest: ${destEl.value}`);
+  }
+  if (vendorEl && vendorEl.value && vendorEl.value !== 'all') {
+    filters.push(`Vendor: ${vendorEl.value}`);
+  }
+  if (statusEl && statusEl.value && statusEl.value !== 'all') {
+    filters.push(`Status: ${statusEl.value}`);
+  }
+  if (factoryEl && factoryEl.value && factoryEl.value !== 'all') {
+    filters.push(`Factory: ${factoryEl.value}`);
+  }
 
-    return filters.length > 0 ? filters.join(', ') : 'All data';
+  return filters.length > 0 ? filters.join(', ') : 'All data';
 }
 
 /**
@@ -534,47 +551,45 @@ function getFilterInfo() {
  * @private
  */
 function calculateExportStats(data) {
-    if (!data || data.length === 0) {
-        return {
-            totalOrders: 0,
-            totalQuantity: 0,
-            delayedOrders: 0,
-            completionRate: 0
-        };
+  if (!data || data.length === 0) {
+    return {
+      totalOrders: 0,
+      totalQuantity: 0,
+      delayedOrders: 0,
+      completionRate: 0,
+    };
+  }
+
+  const totalOrders = data.length;
+  const totalQuantity = data.reduce((sum, d) => sum + (d.quantity || 0), 0);
+
+  let delayedOrders = 0;
+  let completedOrders = 0;
+
+  data.forEach(d => {
+    // Check delayed status
+    if (d.sddValue && d.crd) {
+      const sdd = new Date(d.sddValue);
+      const crd = new Date(d.crd);
+      if (sdd > crd && !(d.code04 && d.code04.toLowerCase().includes('approval'))) {
+        delayedOrders++;
+      }
     }
 
-    const totalOrders = data.length;
-    const totalQuantity = data.reduce((sum, d) => sum + (d.quantity || 0), 0);
+    // Check completion status
+    if (d.production && d.production.wh_out && d.production.wh_out.status === 'completed') {
+      completedOrders++;
+    }
+  });
 
-    let delayedOrders = 0;
-    let completedOrders = 0;
+  const completionRate = totalOrders > 0 ? Math.round((completedOrders / totalOrders) * 100) : 0;
 
-    data.forEach(d => {
-        // Check delayed status
-        if (d.sddValue && d.crd) {
-            const sdd = new Date(d.sddValue);
-            const crd = new Date(d.crd);
-            if (sdd > crd && !(d.code04 && d.code04.toLowerCase().includes('approval'))) {
-                delayedOrders++;
-            }
-        }
-
-        // Check completion status
-        if (d.production && d.production.wh_out && d.production.wh_out.status === 'completed') {
-            completedOrders++;
-        }
-    });
-
-    const completionRate = totalOrders > 0
-        ? Math.round((completedOrders / totalOrders) * 100)
-        : 0;
-
-    return {
-        totalOrders,
-        totalQuantity,
-        delayedOrders,
-        completionRate
-    };
+  return {
+    totalOrders,
+    totalQuantity,
+    delayedOrders,
+    completionRate,
+  };
 }
 
 // ============================================================================

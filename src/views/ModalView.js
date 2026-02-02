@@ -17,38 +17,38 @@
 // ============================================================================
 
 let deps = {
-    // Data
-    getAllData: () => [],
-    getFilteredData: () => [],
+  // Data
+  getAllData: () => [],
+  getFilteredData: () => [],
 
-    // Order state functions (from OrderModel)
-    isDelayed: () => false,
-    isWarning: () => false,
-    isShipped: () => false,
+  // Order state functions (from OrderModel)
+  isDelayed: () => false,
+  isWarning: () => false,
+  isShipped: () => false,
 
-    // Utility functions
-    formatNumber: (n) => String(n),
-    escapeHtml: (s) => s,
-    getStatusIcon: () => '',
+  // Utility functions
+  formatNumber: n => String(n),
+  escapeHtml: s => s,
+  getStatusIcon: () => '',
 
-    // Focus management
-    trapFocus: () => {},
-    releaseFocus: () => {},
+  // Focus management
+  trapFocus: () => {},
+  releaseFocus: () => {},
 
-    // Constants
-    PROCESS_ORDER: [],
-    PROCESS_NAMES: {},
-    IMPORTANT_DESTINATIONS: {},
-    UNIT_PRICE: 30,
+  // Constants
+  PROCESS_ORDER: [],
+  PROCESS_NAMES: {},
+  IMPORTANT_DESTINATIONS: {},
+  UNIT_PRICE: 30,
 
-    // Analytics functions (from ChartModel)
-    calculateOTDRate: () => ({ rate: 0, onTime: 0, total: 0 }),
-    calculateRevenueAtRisk: () => ({ total: 0, items: [] }),
-    calculateAQLStats: () => ({ passRate: 0, defects: [] }),
-    predictBottleneck: () => ({ process: '', severity: 0 }),
+  // Analytics functions (from ChartModel)
+  calculateOTDRate: () => ({ rate: 0, onTime: 0, total: 0 }),
+  calculateRevenueAtRisk: () => ({ total: 0, items: [] }),
+  calculateAQLStats: () => ({ passRate: 0, defects: [] }),
+  predictBottleneck: () => ({ process: '', severity: 0 }),
 
-    // Other modal closers
-    closeDailyReport: () => {}
+  // Other modal closers
+  closeDailyReport: () => {},
 };
 
 // ============================================================================
@@ -79,7 +79,7 @@ let deps = {
  * @param {Function} dependencies.closeDailyReport - Close daily report modal
  */
 export function initModalView(dependencies) {
-    deps = { ...deps, ...dependencies };
+  deps = { ...deps, ...dependencies };
 }
 
 // ============================================================================
@@ -92,13 +92,16 @@ export function initModalView(dependencies) {
  * @returns {string} HTML string for table row
  */
 export function createModalTableRowHTML(d) {
-    const statusClass = deps.isDelayed(d) ? 'text-red-600 dark:text-red-400 font-bold' :
-                        deps.isWarning(d) ? 'text-yellow-600 dark:text-yellow-400' : '';
+  const statusClass = deps.isDelayed(d)
+    ? 'text-red-600 dark:text-red-400 font-bold'
+    : deps.isWarning(d)
+      ? 'text-yellow-600 dark:text-yellow-400'
+      : '';
 
-    const whOutCompleted = d.production?.wh_out?.completed || 0;
-    const completionRate = d.quantity > 0 ? Math.round((whOutCompleted / d.quantity) * 100) : 0;
+  const whOutCompleted = d.production?.wh_out?.completed || 0;
+  const completionRate = d.quantity > 0 ? Math.round((whOutCompleted / d.quantity) * 100) : 0;
 
-    return `
+  return `
         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-600 ${statusClass}">
             <td class="px-3 py-2 text-sm">${deps.escapeHtml(d.factory || '')}</td>
             <td class="px-3 py-2 text-sm">${deps.escapeHtml(d.poNumber || '')}</td>
@@ -118,20 +121,21 @@ export function createModalTableRowHTML(d) {
  * @param {string} description - Notification description text
  */
 export function showShortcutNotification(description) {
-    // Remove existing notification
-    const existing = document.getElementById('shortcutNotification');
-    if (existing) existing.remove();
+  // Remove existing notification
+  const existing = document.getElementById('shortcutNotification');
+  if (existing) existing.remove();
 
-    const notification = document.createElement('div');
-    notification.id = 'shortcutNotification';
-    notification.className = 'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 px-4 py-2 rounded-lg shadow-lg z-[10001] transition-opacity duration-300';
-    notification.textContent = description;
-    document.body.appendChild(notification);
+  const notification = document.createElement('div');
+  notification.id = 'shortcutNotification';
+  notification.className =
+    'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 px-4 py-2 rounded-lg shadow-lg z-[10001] transition-opacity duration-300';
+  notification.textContent = description;
+  document.body.appendChild(notification);
 
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        setTimeout(() => notification.remove(), 300);
-    }, 2000);
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 2000);
 }
 
 // ============================================================================
@@ -144,26 +148,31 @@ export function showShortcutNotification(description) {
  * @param {Array} orders - Array of order objects to display
  */
 export function showOrderListModal(title, orders) {
-    const modal = document.getElementById('orderDetailModal');
-    if (!modal) return;
+  const modal = document.getElementById('orderDetailModal');
+  if (!modal) return;
 
-    const titleEl = document.getElementById('orderDetailModalTitle');
-    const bodyEl = document.getElementById('orderDetailModalBody');
+  // Defensive: ensure orders is an array
+  const safeOrders = Array.isArray(orders) ? orders : [];
 
-    if (titleEl) titleEl.textContent = title;
+  const titleEl = document.getElementById('orderDetailModalTitle');
+  const bodyEl = document.getElementById('orderDetailModalBody');
 
-    if (bodyEl) {
-        // Calculate summary statistics
-        const totalQty = orders.reduce((sum, d) => sum + (d.quantity || 0), 0);
-        const delayedCount = orders.filter(d => deps.isDelayed(d)).length;
-        const warningCount = orders.filter(d => deps.isWarning(d)).length;
-        const completedCount = orders.filter(d => d.production?.wh_out?.status === 'completed').length;
+  if (titleEl) titleEl.textContent = title;
 
-        // Generate summary HTML
-        const summaryHtml = `
+  if (bodyEl) {
+    // Calculate summary statistics
+    const totalQty = safeOrders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+    const delayedCount = safeOrders.filter(d => deps.isDelayed(d)).length;
+    const warningCount = safeOrders.filter(d => deps.isWarning(d)).length;
+    const _completedCount = safeOrders.filter(
+      d => d.production?.wh_out?.status === 'completed'
+    ).length;
+
+    // Generate summary HTML
+    const summaryHtml = `
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg text-center">
-                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${deps.formatNumber(orders.length)}</div>
+                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${deps.formatNumber(safeOrders.length)}</div>
                     <div class="text-sm text-gray-600 dark:text-gray-400">총 오더</div>
                 </div>
                 <div class="bg-green-50 dark:bg-green-900/30 p-3 rounded-lg text-center">
@@ -181,8 +190,8 @@ export function showOrderListModal(title, orders) {
             </div>
         `;
 
-        // Generate table HTML
-        const tableHtml = `
+    // Generate table HTML
+    const tableHtml = `
             <div class="overflow-x-auto max-h-96">
                 <table class="min-w-full">
                     <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
@@ -204,53 +213,56 @@ export function showOrderListModal(title, orders) {
             </div>
         `;
 
-        bodyEl.innerHTML = summaryHtml + tableHtml;
+    bodyEl.innerHTML = summaryHtml + tableHtml;
 
-        // Progressive rendering for large datasets
-        const tbody = document.getElementById('orderDetailModalTableBody');
-        if (tbody && orders.length > 0) {
-            const BATCH_SIZE = 50;
-            let currentIndex = 0;
+    // Progressive rendering for large datasets
+    const tbody = document.getElementById('orderDetailModalTableBody');
+    if (tbody && safeOrders.length > 0) {
+      const BATCH_SIZE = 50;
+      let currentIndex = 0;
 
-            function renderBatch() {
-                const fragment = document.createDocumentFragment();
-                const endIndex = Math.min(currentIndex + BATCH_SIZE, orders.length);
+      function renderBatch() {
+        const fragment = document.createDocumentFragment();
+        const endIndex = Math.min(currentIndex + BATCH_SIZE, safeOrders.length);
 
-                for (let i = currentIndex; i < endIndex; i++) {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = createModalTableRowHTML(orders[i]).trim().slice(4, -5); // Remove <tr> tags
-                    tr.className = `hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-600 ${
-                        deps.isDelayed(orders[i]) ? 'text-red-600 dark:text-red-400 font-bold' :
-                        deps.isWarning(orders[i]) ? 'text-yellow-600 dark:text-yellow-400' : ''
-                    }`;
-                    fragment.appendChild(tr);
-                }
-
-                tbody.appendChild(fragment);
-                currentIndex = endIndex;
-
-                if (currentIndex < orders.length) {
-                    requestAnimationFrame(renderBatch);
-                }
-            }
-
-            renderBatch();
+        for (let i = currentIndex; i < endIndex; i++) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = createModalTableRowHTML(safeOrders[i]).trim().slice(4, -5); // Remove <tr> tags
+          tr.className = `hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-600 ${
+            deps.isDelayed(safeOrders[i])
+              ? 'text-red-600 dark:text-red-400 font-bold'
+              : deps.isWarning(safeOrders[i])
+                ? 'text-yellow-600 dark:text-yellow-400'
+                : ''
+          }`;
+          fragment.appendChild(tr);
         }
-    }
 
-    modal.classList.remove('hidden');
-    deps.trapFocus(modal);
+        tbody.appendChild(fragment);
+        currentIndex = endIndex;
+
+        if (currentIndex < safeOrders.length) {
+          requestAnimationFrame(renderBatch);
+        }
+      }
+
+      renderBatch();
+    }
+  }
+
+  modal.classList.remove('hidden');
+  deps.trapFocus(modal);
 }
 
 /**
  * Close order detail modal
  */
 export function closeOrderModal() {
-    const modal = document.getElementById('orderDetailModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    deps.releaseFocus();
+  const modal = document.getElementById('orderDetailModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  deps.releaseFocus();
 }
 
 // ============================================================================
@@ -261,40 +273,40 @@ export function closeOrderModal() {
  * Show delayed orders modal
  */
 export function showDelayedOrders() {
-    const allData = deps.getAllData();
-    const delayed = allData.filter(d => deps.isDelayed(d));
-    showOrderListModal('🚨 지연 오더', delayed);
+  const allData = deps.getAllData();
+  const delayed = allData.filter(d => deps.isDelayed(d));
+  showOrderListModal('🚨 지연 오더', delayed);
 }
 
 /**
  * Show warning orders modal (3 days until deadline, not completed)
  */
 export function showWarningOrders() {
-    const allData = deps.getAllData();
-    const warning = allData.filter(d => deps.isWarning(d));
-    showOrderListModal('⚡ 3일 내 예정 (미완료)', warning);
+  const allData = deps.getAllData();
+  const warning = allData.filter(d => deps.isWarning(d));
+  showOrderListModal('⚡ 3일 내 예정 (미완료)', warning);
 }
 
 /**
  * Show inventory orders modal (wh_in > wh_out)
  */
 export function showInventoryOrders() {
-    const allData = deps.getAllData();
-    const inventory = allData.filter(d => {
-        const whIn = d.production?.wh_in?.completed || 0;
-        const whOut = d.production?.wh_out?.completed || 0;
-        return whIn > whOut;
-    });
-    showOrderListModal('📦 재고 현황 (입고 > 출고)', inventory);
+  const allData = deps.getAllData();
+  const inventory = allData.filter(d => {
+    const whIn = d.production?.wh_in?.completed || 0;
+    const whOut = d.production?.wh_out?.completed || 0;
+    return whIn > whOut;
+  });
+  showOrderListModal('📦 재고 현황 (입고 > 출고)', inventory);
 }
 
 /**
  * Show shipped orders modal
  */
 export function showShippedOrders() {
-    const allData = deps.getAllData();
-    const shipped = allData.filter(d => deps.isShipped(d));
-    showOrderListModal('🚢 선적 완료 오더', shipped);
+  const allData = deps.getAllData();
+  const shipped = allData.filter(d => deps.isShipped(d));
+  showOrderListModal('🚢 선적 완료 오더', shipped);
 }
 
 // ============================================================================
@@ -306,9 +318,9 @@ export function showShippedOrders() {
  * @param {string} vendor - Vendor name
  */
 export function showVendorDetail(vendor) {
-    const filteredData = deps.getFilteredData();
-    const vendorOrders = filteredData.filter(d => (d.outsoleVendor || '(미지정)') === vendor);
-    showOrderListModal(`${deps.escapeHtml(vendor)} 상세`, vendorOrders);
+  const filteredData = deps.getFilteredData();
+  const vendorOrders = filteredData.filter(d => (d.outsoleVendor || '(미지정)') === vendor);
+  showOrderListModal(`${deps.escapeHtml(vendor)} 상세`, vendorOrders);
 }
 
 /**
@@ -316,9 +328,9 @@ export function showVendorDetail(vendor) {
  * @param {string} factory - Factory identifier (A, B, C, D)
  */
 export function showFactoryDetail(factory) {
-    const filteredData = deps.getFilteredData();
-    const factoryOrders = filteredData.filter(d => d.factory === factory);
-    showOrderListModal(`Factory ${deps.escapeHtml(factory)} 상세`, factoryOrders);
+  const filteredData = deps.getFilteredData();
+  const factoryOrders = filteredData.filter(d => d.factory === factory);
+  showOrderListModal(`Factory ${deps.escapeHtml(factory)} 상세`, factoryOrders);
 }
 
 /**
@@ -326,16 +338,16 @@ export function showFactoryDetail(factory) {
  * @param {string} country - Country name
  */
 export function showCountryDetail(country) {
-    const filteredData = deps.getFilteredData();
-    // Handle Korea/South Korea alias
-    const countryOrders = filteredData.filter(d => {
-        const dest = d.destination || '';
-        if (country === 'South Korea' || country === 'Korea') {
-            return dest === 'South Korea' || dest === 'Korea';
-        }
-        return dest === country;
-    });
-    showOrderListModal(`${deps.escapeHtml(country)} 상세`, countryOrders);
+  const filteredData = deps.getFilteredData();
+  // Handle Korea/South Korea alias
+  const countryOrders = filteredData.filter(d => {
+    const dest = d.destination || '';
+    if (country === 'South Korea' || country === 'Korea') {
+      return dest === 'South Korea' || dest === 'Korea';
+    }
+    return dest === country;
+  });
+  showOrderListModal(`${deps.escapeHtml(country)} 상세`, countryOrders);
 }
 
 /**
@@ -343,9 +355,9 @@ export function showCountryDetail(country) {
  * @param {string} model - Model name
  */
 export function showModelDetail(model) {
-    const filteredData = deps.getFilteredData();
-    const modelOrders = filteredData.filter(d => d.model === model);
-    showOrderListModal(`${deps.escapeHtml(model)} 상세`, modelOrders);
+  const filteredData = deps.getFilteredData();
+  const modelOrders = filteredData.filter(d => d.model === model);
+  showOrderListModal(`${deps.escapeHtml(model)} 상세`, modelOrders);
 }
 
 // ============================================================================
@@ -356,37 +368,37 @@ export function showModelDetail(model) {
  * Toggle help modal visibility
  */
 export function toggleHelpModal() {
-    const modal = document.getElementById('helpModal');
-    if (!modal) return;
+  const modal = document.getElementById('helpModal');
+  if (!modal) return;
 
-    modal.classList.toggle('hidden');
+  modal.classList.toggle('hidden');
 
-    if (!modal.classList.contains('hidden')) {
-        deps.trapFocus(modal);
-    } else {
-        deps.releaseFocus();
-    }
+  if (!modal.classList.contains('hidden')) {
+    deps.trapFocus(modal);
+  } else {
+    deps.releaseFocus();
+  }
 }
 
 /**
  * Toggle insights help section
  */
 export function toggleInsightsHelp() {
-    const helpSection = document.getElementById('insightsHelp');
-    if (helpSection) {
-        helpSection.classList.toggle('hidden');
-    }
+  const helpSection = document.getElementById('insightsHelp');
+  if (helpSection) {
+    helpSection.classList.toggle('hidden');
+  }
 }
 
 /**
  * Close help modal
  */
 export function closeHelpModal() {
-    const modal = document.getElementById('helpModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    deps.releaseFocus();
+  const modal = document.getElementById('helpModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  deps.releaseFocus();
 }
 
 // ============================================================================
@@ -399,18 +411,19 @@ export function closeHelpModal() {
  * @param {string} content - HTML content for modal body
  */
 export function showInfoModal(title, content) {
-    let modal = document.getElementById('infoModal');
+  let modal = document.getElementById('infoModal');
 
-    // Create modal if it doesn't exist
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'infoModal';
-        modal.className = 'fixed inset-0 bg-black/50 z-[10000] hidden flex items-center justify-center p-4';
-        modal.setAttribute('role', 'dialog');
-        modal.setAttribute('aria-modal', 'true');
-        modal.setAttribute('aria-labelledby', 'infoModalTitle');
+  // Create modal if it doesn't exist
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'infoModal';
+    modal.className =
+      'fixed inset-0 bg-black/50 z-[10000] hidden flex items-center justify-center p-4';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'infoModalTitle');
 
-        modal.innerHTML = `
+    modal.innerHTML = `
             <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
                 <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
                     <h3 id="infoModalTitle" class="text-lg font-bold text-gray-900 dark:text-white"></h3>
@@ -424,36 +437,36 @@ export function showInfoModal(title, content) {
             </div>
         `;
 
-        // Close on backdrop click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeInfoModal();
-            }
-        });
+    // Close on backdrop click
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        closeInfoModal();
+      }
+    });
 
-        document.body.appendChild(modal);
-    }
+    document.body.appendChild(modal);
+  }
 
-    // Set content
-    const titleEl = document.getElementById('infoModalTitle');
-    const contentEl = document.getElementById('infoModalContent');
+  // Set content
+  const titleEl = document.getElementById('infoModalTitle');
+  const contentEl = document.getElementById('infoModalContent');
 
-    if (titleEl) titleEl.textContent = title;
-    if (contentEl) contentEl.innerHTML = content;
+  if (titleEl) titleEl.textContent = title;
+  if (contentEl) contentEl.innerHTML = content;
 
-    modal.classList.remove('hidden');
-    deps.trapFocus(modal);
+  modal.classList.remove('hidden');
+  deps.trapFocus(modal);
 }
 
 /**
  * Close info modal
  */
 export function closeInfoModal() {
-    const modal = document.getElementById('infoModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    deps.releaseFocus();
+  const modal = document.getElementById('infoModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  deps.releaseFocus();
 }
 
 // ============================================================================
@@ -464,13 +477,15 @@ export function closeInfoModal() {
  * Show OTD (On-Time Delivery) detail modal
  */
 export function showOTDDetail() {
-    const filteredData = deps.getFilteredData();
-    const otdData = deps.calculateOTDRate(filteredData);
+  const filteredData = deps.getFilteredData();
+  const otdData = deps.calculateOTDRate(filteredData);
 
-    const onTimeOrders = filteredData.filter(d => !deps.isDelayed(d) && d.production?.wh_out?.status === 'completed');
-    const lateOrders = filteredData.filter(d => deps.isDelayed(d));
+  const _onTimeOrders = filteredData.filter(
+    d => !deps.isDelayed(d) && d.production?.wh_out?.status === 'completed'
+  );
+  const lateOrders = filteredData.filter(d => deps.isDelayed(d));
 
-    const html = `
+  const html = `
         <div class="space-y-4">
             <div class="grid grid-cols-3 gap-4">
                 <div class="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg text-center">
@@ -498,42 +513,45 @@ export function showOTDDetail() {
         </div>
     `;
 
-    showInfoModal('📈 OTD 상세 분석', html);
+  showInfoModal('📈 OTD 상세 분석', html);
 }
 
 /**
  * Show Revenue at Risk detail modal
  */
 export function showRevenueRiskDetail() {
-    const filteredData = deps.getFilteredData();
-    const delayedOrders = filteredData.filter(d => deps.isDelayed(d));
-    const totalRiskQty = delayedOrders.reduce((sum, d) => sum + (d.quantity || 0), 0);
-    const totalRiskRevenue = totalRiskQty * deps.UNIT_PRICE;
+  const filteredData = deps.getFilteredData();
+  const delayedOrders = filteredData.filter(d => deps.isDelayed(d));
+  const totalRiskQty = delayedOrders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+  const totalRiskRevenue = totalRiskQty * deps.UNIT_PRICE;
 
-    // Group by destination
-    const byDest = {};
-    delayedOrders.forEach(d => {
-        const dest = d.destination || '(미지정)';
-        if (!byDest[dest]) {
-            byDest[dest] = { orders: 0, qty: 0 };
-        }
-        byDest[dest].orders++;
-        byDest[dest].qty += (d.quantity || 0);
-    });
+  // Group by destination
+  const byDest = {};
+  delayedOrders.forEach(d => {
+    const dest = d.destination || '(미지정)';
+    if (!byDest[dest]) {
+      byDest[dest] = { orders: 0, qty: 0 };
+    }
+    byDest[dest].orders++;
+    byDest[dest].qty += d.quantity || 0;
+  });
 
-    const destRows = Object.entries(byDest)
-        .sort((a, b) => b[1].qty - a[1].qty)
-        .slice(0, 5)
-        .map(([dest, data]) => `
+  const destRows = Object.entries(byDest)
+    .sort((a, b) => b[1].qty - a[1].qty)
+    .slice(0, 5)
+    .map(
+      ([dest, data]) => `
             <tr class="border-b border-gray-200 dark:border-gray-600">
                 <td class="py-2">${deps.escapeHtml(dest)}</td>
                 <td class="py-2 text-right">${data.orders}</td>
                 <td class="py-2 text-right">${deps.formatNumber(data.qty)}</td>
                 <td class="py-2 text-right">$${deps.formatNumber(data.qty * deps.UNIT_PRICE)}</td>
             </tr>
-        `).join('');
+        `
+    )
+    .join('');
 
-    const html = `
+  const html = `
         <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg text-center">
@@ -567,37 +585,42 @@ export function showRevenueRiskDetail() {
         </div>
     `;
 
-    showInfoModal('💰 위험 매출액 상세', html);
+  showInfoModal('💰 위험 매출액 상세', html);
 }
 
 /**
  * Show AQL (Acceptable Quality Level) detail modal
  */
 export function showAQLDetail() {
-    const filteredData = deps.getFilteredData();
-    const aqlStats = deps.calculateAQLStats(filteredData);
+  const filteredData = deps.getFilteredData();
+  const aqlStats = deps.calculateAQLStats(filteredData);
 
-    // Calculate process completion stats
-    const processStats = {};
-    deps.PROCESS_ORDER.forEach(proc => {
-        const completed = filteredData.reduce((sum, d) => sum + (d.production?.[proc]?.completed || 0), 0);
-        const total = filteredData.reduce((sum, d) => sum + (d.quantity || 0), 0);
-        processStats[proc] = {
-            completed,
-            total,
-            rate: total > 0 ? (completed / total * 100).toFixed(1) : 0
-        };
-    });
+  // Calculate process completion stats
+  const processStats = {};
+  deps.PROCESS_ORDER.forEach(proc => {
+    const completed = filteredData.reduce(
+      (sum, d) => sum + (d.production?.[proc]?.completed || 0),
+      0
+    );
+    const total = filteredData.reduce((sum, d) => sum + (d.quantity || 0), 0);
+    processStats[proc] = {
+      completed,
+      total,
+      rate: total > 0 ? ((completed / total) * 100).toFixed(1) : 0,
+    };
+  });
 
-    const processRows = deps.PROCESS_ORDER.map(proc => `
+  const processRows = deps.PROCESS_ORDER.map(
+    proc => `
         <tr class="border-b border-gray-200 dark:border-gray-600">
             <td class="py-2">${deps.PROCESS_NAMES[proc] || proc}</td>
             <td class="py-2 text-right">${deps.formatNumber(processStats[proc].completed)}</td>
             <td class="py-2 text-right">${processStats[proc].rate}%</td>
         </tr>
-    `).join('');
+    `
+  ).join('');
 
-    const html = `
+  const html = `
         <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
                 <div class="bg-green-50 dark:bg-green-900/30 p-4 rounded-lg text-center">
@@ -626,33 +649,39 @@ export function showAQLDetail() {
         </div>
     `;
 
-    showInfoModal('🔍 AQL 품질 분석', html);
+  showInfoModal('🔍 AQL 품질 분석', html);
 }
 
 /**
  * Show Bottleneck detail modal
  */
 export function showBottleneckDetail() {
-    const filteredData = deps.getFilteredData();
-    const bottleneck = deps.predictBottleneck(filteredData);
+  const filteredData = deps.getFilteredData();
+  const bottleneck = deps.predictBottleneck(filteredData);
 
-    // Calculate all process completion rates
-    const processRates = deps.PROCESS_ORDER.map(proc => {
-        const completed = filteredData.reduce((sum, d) => sum + (d.production?.[proc]?.completed || 0), 0);
-        const total = filteredData.reduce((sum, d) => sum + (d.quantity || 0), 0);
-        return {
-            process: proc,
-            name: deps.PROCESS_NAMES[proc] || proc,
-            completed,
-            total,
-            rate: total > 0 ? (completed / total * 100) : 0
-        };
-    }).sort((a, b) => a.rate - b.rate);
+  // Calculate all process completion rates
+  const processRates = deps.PROCESS_ORDER.map(proc => {
+    const completed = filteredData.reduce(
+      (sum, d) => sum + (d.production?.[proc]?.completed || 0),
+      0
+    );
+    const total = filteredData.reduce((sum, d) => sum + (d.quantity || 0), 0);
+    return {
+      process: proc,
+      name: deps.PROCESS_NAMES[proc] || proc,
+      completed,
+      total,
+      rate: total > 0 ? (completed / total) * 100 : 0,
+    };
+  }).sort((a, b) => a.rate - b.rate);
 
-    const processRows = processRates.map((p, i) => {
-        const isBottleneck = i === 0;
-        const rowClass = isBottleneck ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold' : '';
-        return `
+  const processRows = processRates
+    .map((p, i) => {
+      const isBottleneck = i === 0;
+      const rowClass = isBottleneck
+        ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold'
+        : '';
+      return `
             <tr class="border-b border-gray-200 dark:border-gray-600 ${rowClass}">
                 <td class="py-2">${isBottleneck ? '🚨 ' : ''}${p.name}</td>
                 <td class="py-2 text-right">${deps.formatNumber(p.completed)}</td>
@@ -660,15 +689,16 @@ export function showBottleneckDetail() {
                 <td class="py-2 text-right">${p.rate.toFixed(1)}%</td>
             </tr>
         `;
-    }).join('');
+    })
+    .join('');
 
-    const html = `
+  const html = `
         <div class="space-y-4">
             <div class="bg-red-50 dark:bg-red-900/30 p-4 rounded-lg">
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-2xl">🚨</span>
                     <span class="text-xl font-bold text-red-600 dark:text-red-400">
-                        ${bottleneck.process ? (deps.PROCESS_NAMES[bottleneck.process] || bottleneck.process) : '분석 중...'}
+                        ${bottleneck.process ? deps.PROCESS_NAMES[bottleneck.process] || bottleneck.process : '분석 중...'}
                     </span>
                 </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -702,7 +732,7 @@ export function showBottleneckDetail() {
         </div>
     `;
 
-    showInfoModal('🔧 병목 공정 분석', html);
+  showInfoModal('🔧 병목 공정 분석', html);
 }
 
 // ============================================================================
@@ -713,22 +743,22 @@ export function showBottleneckDetail() {
  * Open keyboard shortcuts modal
  */
 export function openKeyboardShortcutsModal() {
-    const modal = document.getElementById('keyboardShortcutsModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        deps.trapFocus(modal);
-    }
+  const modal = document.getElementById('keyboardShortcutsModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    deps.trapFocus(modal);
+  }
 }
 
 /**
  * Close keyboard shortcuts modal
  */
 export function closeKeyboardShortcutsModal() {
-    const modal = document.getElementById('keyboardShortcutsModal');
-    if (modal) {
-        modal.classList.add('hidden');
-    }
-    deps.releaseFocus();
+  const modal = document.getElementById('keyboardShortcutsModal');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+  deps.releaseFocus();
 }
 
 // ============================================================================
@@ -739,39 +769,39 @@ export function closeKeyboardShortcutsModal() {
  * Close all open modals
  */
 export function closeAllModals() {
-    // Close specific known modals
-    const modalIds = [
-        'orderDetailModal',
-        'helpModal',
-        'infoModal',
-        'keyboardShortcutsModal',
-        'dailyReportModal'
-    ];
+  // Close specific known modals
+  const modalIds = [
+    'orderDetailModal',
+    'helpModal',
+    'infoModal',
+    'keyboardShortcutsModal',
+    'dailyReportModal',
+  ];
 
-    modalIds.forEach(id => {
-        const modal = document.getElementById(id);
-        if (modal && !modal.classList.contains('hidden')) {
-            modal.classList.add('hidden');
-        }
-    });
-
-    // Close daily report if function exists
-    if (typeof deps.closeDailyReport === 'function') {
-        try {
-            deps.closeDailyReport();
-        } catch (e) {
-            // Ignore errors
-        }
+  modalIds.forEach(id => {
+    const modal = document.getElementById(id);
+    if (modal && !modal.classList.contains('hidden')) {
+      modal.classList.add('hidden');
     }
+  });
 
-    // Close any other open modals with standard structure
-    document.querySelectorAll('.fixed.inset-0:not(.hidden)').forEach(modal => {
-        if (modal.getAttribute('role') === 'dialog' || modal.classList.contains('z-[10000]')) {
-            modal.classList.add('hidden');
-        }
-    });
+  // Close daily report if function exists
+  if (typeof deps.closeDailyReport === 'function') {
+    try {
+      deps.closeDailyReport();
+    } catch (_e) {
+      // Ignore errors
+    }
+  }
 
-    deps.releaseFocus();
+  // Close any other open modals with standard structure
+  document.querySelectorAll('.fixed.inset-0:not(.hidden)').forEach(modal => {
+    if (modal.getAttribute('role') === 'dialog' || modal.classList.contains('z-[10000]')) {
+      modal.classList.add('hidden');
+    }
+  });
+
+  deps.releaseFocus();
 }
 
 // ============================================================================
@@ -783,21 +813,21 @@ export function closeAllModals() {
  * @param {Object} order - Order data object
  */
 export function showOrderProcessDetail(order) {
-    if (!order || !order.production) return;
+  if (!order || !order.production) return;
 
-    const processRows = deps.PROCESS_ORDER.map(proc => {
-        const procData = order.production[proc] || {};
-        const completed = procData.completed || 0;
-        const status = procData.status || 'pending';
-        const rate = order.quantity > 0 ? (completed / order.quantity * 100).toFixed(1) : 0;
+  const processRows = deps.PROCESS_ORDER.map(proc => {
+    const procData = order.production[proc] || {};
+    const completed = procData.completed || 0;
+    const status = procData.status || 'pending';
+    const rate = order.quantity > 0 ? ((completed / order.quantity) * 100).toFixed(1) : 0;
 
-        const statusColors = {
-            completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            partial: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
-        };
+    const statusColors = {
+      completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+      partial: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400',
+    };
 
-        return `
+    return `
             <tr class="border-b border-gray-200 dark:border-gray-600">
                 <td class="py-2">${deps.PROCESS_NAMES[proc] || proc}</td>
                 <td class="py-2 text-right">${deps.formatNumber(completed)}</td>
@@ -809,9 +839,9 @@ export function showOrderProcessDetail(order) {
                 </td>
             </tr>
         `;
-    }).join('');
+  }).join('');
 
-    const html = `
+  const html = `
         <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <div><span class="font-semibold">PO:</span> ${deps.escapeHtml(order.poNumber || '')}</div>
@@ -839,7 +869,7 @@ export function showOrderProcessDetail(order) {
         </div>
     `;
 
-    showInfoModal(`📋 오더 상세: ${deps.escapeHtml(order.poNumber || '')}`, html);
+  showInfoModal(`📋 오더 상세: ${deps.escapeHtml(order.poNumber || '')}`, html);
 }
 
 // ============================================================================

@@ -3,7 +3,7 @@
 // Agent W02: E2E Test Automation Engineer
 // =============================================================================
 
-const { test, expect, devices } = require('@playwright/test');
+import { test, expect, devices } from '@playwright/test';
 
 // 세로 모드 테스트 (Portrait)
 test.describe('모바일 UX 테스트 (Portrait)', () => {
@@ -39,9 +39,7 @@ test.describe('모바일 UX 테스트 (Portrait)', () => {
       await page.waitForTimeout(500);
 
       const modal = page.locator('#orderDetailModal');
-      const transform = await modal.evaluate(el =>
-        window.getComputedStyle(el).transform
-      );
+      const transform = await modal.evaluate(el => window.getComputedStyle(el).transform);
 
       // 애니메이션 적용 확인 (transform 또는 transition)
       expect(transform).toBeTruthy();
@@ -68,9 +66,7 @@ test.describe('모바일 UX 테스트 (Portrait)', () => {
     await page.waitForTimeout(500);
 
     const table = page.locator('#dataTable');
-    const display = await table.evaluate(el =>
-      window.getComputedStyle(el).display
-    );
+    const display = await table.evaluate(el => window.getComputedStyle(el).display);
 
     // 모바일에서는 block, flex, grid 또는 table (반응형에 따라 다름)
     expect(['block', 'flex', 'grid', 'table']).toContain(display);
@@ -88,10 +84,11 @@ test.describe('모바일 UX 테스트 (Portrait)', () => {
       await page.waitForTimeout(100);
 
       // 리플 효과 또는 활성 상태 확인
-      const hasActiveState = await firstRow.evaluate(el =>
-        el.classList.contains('active') ||
-        el.classList.contains('touched') ||
-        window.getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)'
+      const hasActiveState = await firstRow.evaluate(
+        el =>
+          el.classList.contains('active') ||
+          el.classList.contains('touched') ||
+          window.getComputedStyle(el).backgroundColor !== 'rgba(0, 0, 0, 0)'
       );
 
       expect(hasActiveState).toBeTruthy();
@@ -105,9 +102,7 @@ test.describe('모바일 UX 테스트 (Portrait)', () => {
 
     if (await tableContainer.isVisible()) {
       // 가로 스크롤 가능 여부 확인
-      const isScrollable = await tableContainer.evaluate(el =>
-        el.scrollWidth > el.clientWidth
-      );
+      const isScrollable = await tableContainer.evaluate(el => el.scrollWidth > el.clientWidth);
 
       if (isScrollable) {
         // 스크롤 가능하면 인디케이터 표시되어야 함
@@ -160,7 +155,7 @@ test.describe('모바일 UX 테스트 (Portrait)', () => {
 
       if (await modal.isVisible()) {
         // 드래그 핸들이 있으면 표시 확인 (선택적 기능)
-        const handleExists = await dragHandle.count() > 0;
+        const handleExists = (await dragHandle.count()) > 0;
         expect(true).toBeTruthy(); // 있어도 되고 없어도 됨
       }
     }

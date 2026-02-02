@@ -4,7 +4,7 @@
 // WCAG 2.1 AA 준수 검증
 // =============================================================================
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,10 +12,15 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
     await page.waitForLoadState('networkidle');
 
     // v19: Wait for app initialization to complete
-    await page.waitForFunction(() => {
-      const overlay = document.getElementById('loadingOverlay');
-      return overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none');
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const overlay = document.getElementById('loadingOverlay');
+        return (
+          overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     // Additional wait for event handlers to be attached
     await page.waitForTimeout(500);
@@ -28,8 +33,8 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
     const navigation = page.locator('[role="navigation"], nav');
     const banner = page.locator('[role="banner"], header');
 
-    const mainExists = await main.count() > 0;
-    const navExists = await navigation.count() > 0;
+    const mainExists = (await main.count()) > 0;
+    const navExists = (await navigation.count()) > 0;
 
     // 최소한 main 랜드마크는 있어야 함
     expect(mainExists || navExists).toBeTruthy();
@@ -56,7 +61,7 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
       return {
         tagName: el?.tagName,
         id: el?.id,
-        className: el?.className
+        className: el?.className,
       };
     });
 
@@ -79,7 +84,7 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
         outline: styles.outline,
         outlineWidth: styles.outlineWidth,
         outlineColor: styles.outlineColor,
-        boxShadow: styles.boxShadow
+        boxShadow: styles.boxShadow,
       };
     });
 
@@ -100,7 +105,9 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
       const found = {};
 
       roles.forEach(role => {
-        const elements = document.querySelectorAll(`[role="${role}"], ${role === 'banner' ? 'header' : role === 'contentinfo' ? 'footer' : role === 'navigation' ? 'nav' : role}`);
+        const elements = document.querySelectorAll(
+          `[role="${role}"], ${role === 'banner' ? 'header' : role === 'contentinfo' ? 'footer' : role === 'navigation' ? 'nav' : role}`
+        );
         found[role] = elements.length;
       });
 
@@ -155,7 +162,8 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
         const fontSize = parseFloat(styles.fontSize);
 
         const contrast = getContrast(color, bgColor);
-        const isLargeText = fontSize >= 18 || (fontSize >= 14 && parseInt(styles.fontWeight) >= 700);
+        const isLargeText =
+          fontSize >= 18 || (fontSize >= 14 && parseInt(styles.fontWeight) >= 700);
         const requiredRatio = isLargeText ? 3 : 4.5;
 
         if (contrast < requiredRatio) {
@@ -163,7 +171,7 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
             text: text.substring(0, 30),
             contrast: contrast.toFixed(2),
             required: requiredRatio,
-            fontSize
+            fontSize,
           });
         }
       }
@@ -205,7 +213,7 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
       const el = document.activeElement;
       return {
         text: el?.textContent?.trim(),
-        href: el?.getAttribute('href')
+        href: el?.getAttribute('href'),
       };
     });
 
@@ -238,7 +246,8 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
       console.log(`Input ${name || id}: hasLabel=${hasLabel}`);
 
       // 모든 입력 요소는 레이블이 있어야 함
-      if (name !== 'theme') { // theme toggle은 예외
+      if (name !== 'theme') {
+        // theme toggle은 예외
         expect(hasLabel).toBeTruthy();
       }
     }
@@ -251,7 +260,9 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
     await page.waitForTimeout(1000);
 
     // 에러 메시지 또는 "결과 없음" 메시지 확인
-    const errorMessage = page.locator('text=검색 결과가 없습니다, text=결과를 찾을 수 없습니다, [role="alert"]');
+    const errorMessage = page.locator(
+      'text=검색 결과가 없습니다, text=결과를 찾을 수 없습니다, [role="alert"]'
+    );
     const errorVisible = await errorMessage.isVisible().catch(() => false);
 
     // 에러 메시지가 표시되거나 빈 테이블이 표시되어야 함
@@ -266,12 +277,12 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
     // npm install --save-dev @axe-core/playwright 필요
 
     try {
-      const { injectAxe, checkA11y } = require('@axe-core/playwright');
+      const { injectAxe, checkA11y } = await import('@axe-core/playwright');
 
       await injectAxe(page);
 
       const violations = await page.evaluate(() => {
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           // @ts-ignore
           window.axe.run().then(results => {
             resolve(results.violations);
@@ -282,17 +293,21 @@ test.describe('접근성 테스트 (WCAG 2.1 AA)', () => {
       console.log(`Axe violations found: ${violations.length}`);
 
       if (violations.length > 0) {
-        console.log('Sample violations:', violations.slice(0, 3).map(v => ({
-          id: v.id,
-          impact: v.impact,
-          description: v.description
-        })));
+        console.log(
+          'Sample violations:',
+          violations.slice(0, 3).map(v => ({
+            id: v.id,
+            impact: v.impact,
+            description: v.description,
+          }))
+        );
       }
 
       // Critical/Serious 위반은 없어야 함
-      const criticalViolations = violations.filter(v => v.impact === 'critical' || v.impact === 'serious');
+      const criticalViolations = violations.filter(
+        v => v.impact === 'critical' || v.impact === 'serious'
+      );
       expect(criticalViolations.length).toBe(0);
-
     } catch (e) {
       // Axe-core가 설치되지 않은 경우 건너뛰기
       console.log('Axe-core not installed, skipping automated check');

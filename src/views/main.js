@@ -27,25 +27,25 @@
 // Chart rendering, lazy loading, heatmaps, and chart instance management
 
 export {
-    // Initialization
-    initChartView,
+  // Initialization
+  initChartView,
 
-    // Chart Instance Management
-    updateOrCreateChart,
-    destroyAllCharts,
-    getChart,
+  // Chart Instance Management
+  updateOrCreateChart,
+  destroyAllCharts,
+  getChart,
 
-    // Lazy Loading
-    LazyChartObserver,
-    initLazyChartLoading,
-    getLazyChartObserver,
+  // Lazy Loading
+  LazyChartObserver,
+  initLazyChartLoading,
+  getLazyChartObserver,
 
-    // Heatmap & Specialized Charts
-    renderModelVendorHeatmap,
-    updateHeatmapTab,
-    updateDelaySeverityChart,
-    updateRootCauseChart,
-    updateVendorPerformanceList
+  // Heatmap & Specialized Charts
+  renderModelVendorHeatmap,
+  updateHeatmapTab,
+  updateDelaySeverityChart,
+  updateRootCauseChart,
+  updateVendorPerformanceList,
 } from './ChartView.js';
 
 // ============================================================================
@@ -54,29 +54,29 @@ export {
 // Table rendering, sorting, pagination, and progressive/virtual rendering
 
 export {
-    // Initialization
-    initTableView,
+  // Initialization
+  initTableView,
 
-    // Row Rendering
-    createTableRowHTML,
-    createModalTableRowHTML,
+  // Row Rendering
+  createTableRowHTML,
+  createModalTableRowHTML,
 
-    // Rendering Strategies
-    renderTableProgressively,
-    renderTableVirtually,
-    renderDataCards,
+  // Rendering Strategies
+  renderTableProgressively,
+  renderTableVirtually,
+  renderDataCards,
 
-    // Sorting
-    sortData,
-    handleSort,
+  // Sorting
+  sortData,
+  handleSort,
 
-    // Pagination
-    prevPage,
-    nextPage,
-    changePageSize,
+  // Pagination
+  prevPage,
+  nextPage,
+  changePageSize,
 
-    // Tab Updates
-    updateDataTab
+  // Tab Updates
+  updateDataTab,
 } from './TableView.js';
 
 // ============================================================================
@@ -85,49 +85,49 @@ export {
 // Modal dialogs, detail views, help overlays, and keyboard shortcuts
 
 export {
-    // Initialization
-    initModalView,
+  // Initialization
+  initModalView,
 
-    // Row Rendering (for modals)
-    createModalTableRowHTML as createModalRowHTML,
+  // Row Rendering (for modals)
+  createModalTableRowHTML as createModalRowHTML,
 
-    // Notification
-    showShortcutNotification,
+  // Notification
+  showShortcutNotification,
 
-    // Order List Modals
-    showOrderListModal,
-    closeOrderModal,
-    showDelayedOrders,
-    showWarningOrders,
-    showInventoryOrders,
-    showShippedOrders,
+  // Order List Modals
+  showOrderListModal,
+  closeOrderModal,
+  showDelayedOrders,
+  showWarningOrders,
+  showInventoryOrders,
+  showShippedOrders,
 
-    // Detail Modals
-    showVendorDetail,
-    showFactoryDetail,
-    showCountryDetail,
-    showModelDetail,
-    showOrderProcessDetail,
+  // Detail Modals
+  showVendorDetail,
+  showFactoryDetail,
+  showCountryDetail,
+  showModelDetail,
+  showOrderProcessDetail,
 
-    // Help & Info Modals
-    toggleHelpModal,
-    toggleInsightsHelp,
-    closeHelpModal,
-    showInfoModal,
-    closeInfoModal,
+  // Help & Info Modals
+  toggleHelpModal,
+  toggleInsightsHelp,
+  closeHelpModal,
+  showInfoModal,
+  closeInfoModal,
 
-    // KPI Detail Modals
-    showOTDDetail,
-    showRevenueRiskDetail,
-    showAQLDetail,
-    showBottleneckDetail,
+  // KPI Detail Modals
+  showOTDDetail,
+  showRevenueRiskDetail,
+  showAQLDetail,
+  showBottleneckDetail,
 
-    // Keyboard Shortcuts Modal
-    openKeyboardShortcutsModal,
-    closeKeyboardShortcutsModal,
+  // Keyboard Shortcuts Modal
+  openKeyboardShortcutsModal,
+  closeKeyboardShortcutsModal,
 
-    // Close All
-    closeAllModals
+  // Close All
+  closeAllModals,
 } from './ModalView.js';
 
 // ============================================================================
@@ -136,21 +136,21 @@ export {
 // Data export functionality: Excel, CSV, PDF, HTML reports
 
 export {
-    // Initialization
-    initExportView,
+  // Initialization
+  initExportView,
 
-    // HTML Report
-    downloadReportHTML,
+  // HTML Report
+  downloadReportHTML,
 
-    // Excel Export
-    exportToExcel,
-    exportToExcelMultiSheet,
+  // Excel Export
+  exportToExcel,
+  exportToExcelMultiSheet,
 
-    // CSV Export
-    exportToCSV,
+  // CSV Export
+  exportToCSV,
 
-    // PDF Export
-    exportToPDF
+  // PDF Export
+  exportToPDF,
 } from './ExportView.js';
 
 // ============================================================================
@@ -159,24 +159,24 @@ export {
 // KPI dashboard, summary cards, alerts, process flow, and factory cards
 
 export {
-    // Initialization
-    initKPIView,
+  // Initialization
+  initKPIView,
 
-    // KPI Updates
-    updateKPIData,
-    updateWeeklySummary,
-    updateAllKPIs,
+  // KPI Updates
+  updateKPIData,
+  updateWeeklySummary,
+  updateAllKPIs,
 
-    // Analysis
-    findBottleneck,
+  // Analysis
+  findBottleneck,
 
-    // Section Updates
-    updateSummary,
-    updateAlerts,
-    updateProcessFlow,
-    updateVendorSection,
-    updateFactoryCards,
-    updateAsiaCards
+  // Section Updates
+  updateSummary,
+  updateAlerts,
+  updateProcessFlow,
+  updateVendorSection,
+  updateFactoryCards,
+  updateAsiaCards,
 } from './KPIView.js';
 
 // ============================================================================

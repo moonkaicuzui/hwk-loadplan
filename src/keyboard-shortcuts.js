@@ -57,10 +57,14 @@ class KeyboardShortcuts {
     this.register('Alt+H', () => this.openHelpModal(), '도움말');
     this.register('Alt+R', () => this.resetFilters(), '필터 초기화');
     this.register('Alt+D', () => this.toggleDarkMode(), '다크모드 전환');
-    this.register('Alt+P', (e) => {
-      e.preventDefault();
-      this.printPage();
-    }, '인쇄');
+    this.register(
+      'Alt+P',
+      e => {
+        e.preventDefault();
+        this.printPage();
+      },
+      '인쇄'
+    );
 
     // 특수 키
     this.register('Escape', () => this.closeModal(), '모달 닫기');
@@ -72,15 +76,23 @@ class KeyboardShortcuts {
     this.register('Alt+ArrowRight', () => this.nextTab(), '다음 탭');
 
     // 데이터 조작
-    this.register('Ctrl+S', (e) => {
-      e.preventDefault();
-      this.saveData();
-    }, '데이터 저장');
+    this.register(
+      'Ctrl+S',
+      e => {
+        e.preventDefault();
+        this.saveData();
+      },
+      '데이터 저장'
+    );
 
-    this.register('Ctrl+P', (e) => {
-      e.preventDefault();
-      this.printPage();
-    }, '인쇄');
+    this.register(
+      'Ctrl+P',
+      e => {
+        e.preventDefault();
+        this.printPage();
+      },
+      '인쇄'
+    );
   }
 
   /**
@@ -90,7 +102,7 @@ class KeyboardShortcuts {
     this.shortcuts.set(key, {
       callback,
       description,
-      enabled: true
+      enabled: true,
     });
   }
 
@@ -105,7 +117,7 @@ class KeyboardShortcuts {
    * 이벤트 리스너 연결
    */
   attachEventListeners() {
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', e => {
       if (!this.enabled) return;
 
       // 입력 필드에서는 일부 단축키 무시
@@ -131,7 +143,7 @@ class KeyboardShortcuts {
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class'],
     });
   }
 
@@ -161,8 +173,7 @@ class KeyboardShortcuts {
    */
   isInputField(element) {
     const tagName = element.tagName.toLowerCase();
-    return ['input', 'textarea', 'select'].includes(tagName) ||
-           element.isContentEditable;
+    return ['input', 'textarea', 'select'].includes(tagName) || element.isContentEditable;
   }
 
   /**
@@ -192,7 +203,16 @@ class KeyboardShortcuts {
    * 이전 탭
    */
   previousTab() {
-    const tabs = ['summary', 'monthly', 'destination', 'model', 'factory', 'vendor', 'heatmap', 'data'];
+    const tabs = [
+      'summary',
+      'monthly',
+      'destination',
+      'model',
+      'factory',
+      'vendor',
+      'heatmap',
+      'data',
+    ];
     const currentTab = this.getCurrentTab();
     const currentIndex = tabs.indexOf(currentTab);
     const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
@@ -204,7 +224,16 @@ class KeyboardShortcuts {
    * 다음 탭
    */
   nextTab() {
-    const tabs = ['summary', 'monthly', 'destination', 'model', 'factory', 'vendor', 'heatmap', 'data'];
+    const tabs = [
+      'summary',
+      'monthly',
+      'destination',
+      'model',
+      'factory',
+      'vendor',
+      'heatmap',
+      'data',
+    ];
     const currentTab = this.getCurrentTab();
     const currentIndex = tabs.indexOf(currentTab);
     const nextIndex = (currentIndex + 1) % tabs.length;
@@ -269,7 +298,7 @@ class KeyboardShortcuts {
   closeModal() {
     const visibleModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
 
-    visibleModals.forEach((modal) => {
+    visibleModals.forEach(modal => {
       modal.classList.add('hidden');
     });
 
@@ -323,11 +352,12 @@ class KeyboardShortcuts {
       .filter(([_, shortcut]) => shortcut.description)
       .map(([key, shortcut]) => ({
         key,
-        description: shortcut.description
+        description: shortcut.description,
       }));
 
     const modal = document.createElement('div');
-    modal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.className =
+      'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     modal.innerHTML = `
       <div class="modal-content bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
@@ -340,14 +370,18 @@ class KeyboardShortcuts {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          ${shortcuts.map(({ key, description }) => `
+          ${shortcuts
+            .map(
+              ({ key, description }) => `
             <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <span class="text-sm text-gray-600 dark:text-gray-300">${description}</span>
               <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-white border border-gray-300 rounded dark:bg-gray-600 dark:text-white dark:border-gray-500">
                 ${key.replace(/\+/g, ' + ')}
               </kbd>
             </div>
-          `).join('')}
+          `
+            )
+            .join('')}
         </div>
 
         <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
@@ -371,7 +405,8 @@ class KeyboardShortcuts {
    */
   showToast(message, duration = 2000) {
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300';
+    toast.className =
+      'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300';
     toast.textContent = message;
 
     document.body.appendChild(toast);
@@ -401,9 +436,12 @@ class KeyboardShortcuts {
    * 사용자 설정 저장
    */
   saveUserPreferences() {
-    localStorage.setItem('keyboardShortcuts', JSON.stringify({
-      enabled: this.enabled
-    }));
+    localStorage.setItem(
+      'keyboardShortcuts',
+      JSON.stringify({
+        enabled: this.enabled,
+      })
+    );
   }
 
   /**
@@ -432,7 +470,7 @@ class KeyboardShortcuts {
     return Array.from(this.shortcuts.entries()).map(([key, shortcut]) => ({
       key,
       description: shortcut.description,
-      enabled: shortcut.enabled
+      enabled: shortcut.enabled,
     }));
   }
 }

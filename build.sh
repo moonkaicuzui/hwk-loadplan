@@ -20,15 +20,40 @@ rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR
 mkdir -p $BUILD_DIR/locales
 
-# Copy main files
-echo "📋 Copying main HTML file..."
+# Transpile and copy main files (Safari compatibility)
+echo "🔄 Transpiling JavaScript for Safari compatibility..."
 if [ -f rachgia_dashboard_v19.html ]; then
-    cp rachgia_dashboard_v19.html $BUILD_DIR/index.html
-    echo "   ✅ rachgia_dashboard_v19.html → dist/index.html"
+    # HTML 내의 인라인 JavaScript를 Babel로 트랜스파일
+    node scripts/transpile-html.js rachgia_dashboard_v19.html $BUILD_DIR/index.html
+    echo "   ✅ rachgia_dashboard_v19.html → dist/index.html (transpiled)"
 else
     echo "   ❌ ERROR: rachgia_dashboard_v19.html not found!"
     exit 1
 fi
+
+# Transpile external JS files in src/
+echo "🔄 Transpiling external JavaScript files..."
+if [ -d src ]; then
+    mkdir -p $BUILD_DIR/src
+    for jsfile in src/*.js; do
+        if [ -f "$jsfile" ]; then
+            filename=$(basename "$jsfile")
+            npx babel "$jsfile" --out-file "$BUILD_DIR/src/$filename"
+            echo "   ✅ $jsfile → dist/src/$filename (transpiled)"
+        fi
+    done
+fi
+
+# Transpile root JS files
+echo "🔄 Transpiling root JavaScript files..."
+for jsfile in rachgia_data_v8.js rachgia_v18_improvements.js; do
+    if [ -f "$jsfile" ]; then
+        npx babel "$jsfile" --out-file "$BUILD_DIR/$jsfile"
+        echo "   ✅ $jsfile → dist/$jsfile (transpiled)"
+    else
+        echo "   ⚠️  WARNING: $jsfile not found"
+    fi
+done
 
 # Copy locales
 echo "🌐 Copying i18n translation files..."

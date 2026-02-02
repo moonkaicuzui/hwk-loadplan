@@ -213,9 +213,11 @@ class I18n {
     this.updateLanguageSwitcher();
 
     // 이벤트 발생 (다른 컴포넌트에서 언어 변경 감지 가능)
-    window.dispatchEvent(new CustomEvent('languageChanged', {
-      detail: { language: lang }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('languageChanged', {
+        detail: { language: lang },
+      })
+    );
 
     this.showToast(this.t('settings.saved'));
 
@@ -294,9 +296,12 @@ class I18n {
       long: { year: 'numeric', month: 'long', day: '2-digit', weekday: 'long' },
       time: { hour: '2-digit', minute: '2-digit' },
       datetime: {
-        year: 'numeric', month: '2-digit', day: '2-digit',
-        hour: '2-digit', minute: '2-digit'
-      }
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
     };
 
     const locale = this.getLocale();
@@ -322,7 +327,7 @@ class I18n {
     const locale = this.getLocale();
     const formatter = new Intl.NumberFormat(locale, {
       style: 'currency',
-      currency: currency
+      currency: currency,
     });
 
     return formatter.format(amount);
@@ -336,7 +341,7 @@ class I18n {
     const formatter = new Intl.NumberFormat(locale, {
       style: 'percent',
       minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
+      maximumFractionDigits: decimals,
     });
 
     return formatter.format(value / 100);
@@ -349,7 +354,7 @@ class I18n {
     const localeMap = {
       ko: 'ko-KR',
       en: 'en-US',
-      vi: 'vi-VN'
+      vi: 'vi-VN',
     };
 
     return localeMap[this.currentLang] || 'en-US';
@@ -368,8 +373,16 @@ class I18n {
   getSupportedLanguages() {
     return this.supportedLangs.map(code => ({
       code,
-      name: this.translations[code]?.meta?.language || code,
-      direction: this.translations[code]?.meta?.direction || 'ltr'
+      name:
+        (this.translations[code] &&
+          this.translations[code].meta &&
+          this.translations[code].meta.language) ||
+        code,
+      direction:
+        (this.translations[code] &&
+          this.translations[code].meta &&
+          this.translations[code].meta.direction) ||
+        'ltr',
     }));
   }
 
@@ -378,7 +391,8 @@ class I18n {
    */
   showToast(message, duration = 2000) {
     const toast = document.createElement('div');
-    toast.className = 'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-700 text-white px-4 py-3 rounded-lg shadow-xl z-[9999] transition-opacity duration-300';
+    toast.className =
+      'fixed bottom-4 right-4 bg-gray-800 dark:bg-gray-700 text-white px-4 py-3 rounded-lg shadow-xl z-[9999] transition-opacity duration-300';
     toast.style.opacity = '0';
     toast.textContent = message;
 

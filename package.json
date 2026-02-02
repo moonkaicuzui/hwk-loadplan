@@ -1,6 +1,7 @@
 {
   "name": "rachgia-dashboard",
   "version": "19.0.0",
+  "type": "module",
   "description": "Rachgia Factory 통합 생산관리 대시보드",
   "private": true,
   "scripts": {
@@ -12,18 +13,33 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:report": "playwright show-report",
-    "test:ci": "npm run test:unit && playwright test --reporter=github",
+    "test:ci": "npm run lint && npm run test:unit && playwright test --reporter=github",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.js\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\" \"tests/**/*.js\"",
     "lighthouse": "lhci autorun",
     "serve": "python -m http.server 8080",
     "dev": "npm run serve",
-    "build": "echo 'Static site - no build needed'",
-    "install:browsers": "playwright install --with-deps"
+    "build": "bash build.sh",
+    "install:browsers": "playwright install --with-deps",
+    "analyze:bundle": "node scripts/analyze-bundle.js",
+    "analyze:a11y": "node scripts/check-accessibility.js",
+    "analyze:security": "node scripts/security-scan.js",
+    "analyze": "npm run analyze:bundle && npm run analyze:a11y && npm run analyze:security"
   },
   "devDependencies": {
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
     "@lhci/cli": "^0.13.0",
     "@playwright/test": "^1.40.0",
     "@vitest/coverage-v8": "^1.0.0",
+    "cheerio": "^1.2.0",
+    "eslint": "^9.20.0",
+    "globals": "^16.0.0",
     "jsdom": "^27.4.0",
+    "prettier": "^3.5.0",
     "vitest": "^1.0.0"
   },
   "engines": {

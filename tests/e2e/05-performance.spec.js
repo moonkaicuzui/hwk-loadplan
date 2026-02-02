@@ -4,7 +4,7 @@
 // Agent W04: Performance Specialist
 // =============================================================================
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('성능 벤치마크 테스트', () => {
   test.beforeEach(async ({ page }) => {
@@ -12,10 +12,15 @@ test.describe('성능 벤치마크 테스트', () => {
     await page.waitForLoadState('networkidle');
 
     // v19: Wait for app initialization to complete
-    await page.waitForFunction(() => {
-      const overlay = document.getElementById('loadingOverlay');
-      return overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none');
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const overlay = document.getElementById('loadingOverlay');
+        return (
+          overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     // Additional wait for event handlers to be attached
     await page.waitForTimeout(500);
@@ -169,8 +174,8 @@ test.describe('성능 벤치마크 테스트', () => {
     await page.goto('/rachgia_dashboard_v19.html');
 
     const metrics = await page.evaluate(() => {
-      return new Promise((resolve) => {
-        const observer = new PerformanceObserver((list) => {
+      return new Promise(resolve => {
+        const observer = new PerformanceObserver(list => {
           const entries = list.getEntries();
           const vitals = {};
 

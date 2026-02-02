@@ -22,13 +22,13 @@ import { isDelayed, isWarning, isShipped } from './OrderModel.js';
  * Used for 'asia' filter aggregation
  * @type {Object<string, string>}
  */
-export const IMPORTANT_DESTINATIONS = {
-    'Japan': '🇯🇵',
-    'South Korea': '🇰🇷',
-    'China': '🇨🇳',
-    'Taiwan': '🇹🇼',
-    'India': '🇮🇳'
-};
+export const IMPORTANT_DESTINATIONS = Object.freeze({
+  Japan: '🇯🇵',
+  'South Korea': '🇰🇷',
+  China: '🇨🇳',
+  Taiwan: '🇹🇼',
+  India: '🇮🇳',
+});
 
 // ============================================================================
 // Helper Functions
@@ -46,7 +46,7 @@ export const IMPORTANT_DESTINATIONS = {
  * getDateValue(order, 'crd') // => '2026-01-10'
  */
 function getDateValue(d, mode) {
-    return mode === 'sdd' ? d.sddValue : (d.crd || d.sddValue);
+  return mode === 'sdd' ? d.sddValue : d.crd || d.sddValue;
 }
 
 /**
@@ -61,7 +61,7 @@ function getDateValue(d, mode) {
  * getYearMonth(order, 'crd') // => '2026-01'
  */
 function getYearMonth(d, mode) {
-    return mode === 'sdd' ? d.sddYearMonth : (d.crdYearMonth || d.sddYearMonth);
+  return mode === 'sdd' ? d.sddYearMonth : d.crdYearMonth || d.sddYearMonth;
 }
 
 /**
@@ -76,17 +76,17 @@ function getYearMonth(d, mode) {
  * isToday(order, 'crd') // => true if CRD is today
  */
 function isToday(d, mode) {
-    const dateVal = getDateValue(d, mode);
-    if (!dateVal || dateVal === '00:00:00') return false;
+  const dateVal = getDateValue(d, mode);
+  if (!dateVal || dateVal === '00:00:00') return false;
 
-    try {
-        const targetDate = new Date(dateVal.replace(/\./g, '-'));
-        const today = new Date();
-        return targetDate.toDateString() === today.toDateString();
-    } catch (e) {
-        console.warn("Date parsing error:", e);
-        return false;
-    }
+  try {
+    const targetDate = new Date(dateVal.replace(/\./g, '-'));
+    const today = new Date();
+    return targetDate.toDateString() === today.toDateString();
+  } catch {
+    // Invalid date format, return false for safety
+    return false;
+  }
 }
 
 /**
@@ -100,22 +100,22 @@ function isToday(d, mode) {
  * isWithinWeek(order, 'sdd') // => true if SDD is within 7 days
  */
 function isWithinWeek(d, mode) {
-    const dateVal = getDateValue(d, mode);
-    if (!dateVal || dateVal === '00:00:00') return false;
+  const dateVal = getDateValue(d, mode);
+  if (!dateVal || dateVal === '00:00:00') return false;
 
-    try {
-        const targetDate = new Date(dateVal.replace(/\./g, '-'));
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+  try {
+    const targetDate = new Date(dateVal.replace(/\./g, '-'));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        const weekLater = new Date(today);
-        weekLater.setDate(weekLater.getDate() + 7);
+    const weekLater = new Date(today);
+    weekLater.setDate(weekLater.getDate() + 7);
 
-        return targetDate >= today && targetDate <= weekLater;
-    } catch (e) {
-        console.warn("Date parsing error:", e);
-        return false;
-    }
+    return targetDate >= today && targetDate <= weekLater;
+  } catch {
+    // Invalid date format, return false for safety
+    return false;
+  }
 }
 
 /**
@@ -129,19 +129,20 @@ function isWithinWeek(d, mode) {
  * isCurrentMonth(order, 'sdd') // => true if SDD is this month
  */
 function isCurrentMonth(d, mode) {
-    const dateVal = getDateValue(d, mode);
-    if (!dateVal || dateVal === '00:00:00') return false;
+  const dateVal = getDateValue(d, mode);
+  if (!dateVal || dateVal === '00:00:00') return false;
 
-    try {
-        const targetDate = new Date(dateVal.replace(/\./g, '-'));
-        const today = new Date();
+  try {
+    const targetDate = new Date(dateVal.replace(/\./g, '-'));
+    const today = new Date();
 
-        return targetDate.getFullYear() === today.getFullYear() &&
-               targetDate.getMonth() === today.getMonth();
-    } catch (e) {
-        console.warn("Date parsing error:", e);
-        return false;
-    }
+    return (
+      targetDate.getFullYear() === today.getFullYear() && targetDate.getMonth() === today.getMonth()
+    );
+  } catch {
+    // Invalid date format, return false for safety
+    return false;
+  }
 }
 
 // ============================================================================
@@ -165,23 +166,23 @@ function isCurrentMonth(d, mode) {
  * matchesDateRange(order, 'week', 'sdd') // => true if SDD within 7 days
  */
 export function matchesDateRange(d, rangeFilter, mode) {
-    if (rangeFilter === 'all') return true;
+  if (rangeFilter === 'all') return true;
 
-    const dateField = mode === 'sdd' ? d.sddValue : d.crd;
-    if (!dateField || dateField === '00:00:00') return true;
+  const dateField = mode === 'sdd' ? d.sddValue : d.crd;
+  if (!dateField || dateField === '00:00:00') return true;
 
-    const targetDate = new Date(dateField.replace(/\./g, '-'));
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  const targetDate = new Date(dateField.replace(/\./g, '-'));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-    let maxDate = new Date(today);
-    if (rangeFilter === 'week') {
-        maxDate.setDate(maxDate.getDate() + 7);
-    } else if (rangeFilter === 'month') {
-        maxDate.setMonth(maxDate.getMonth() + 1);
-    }
+  const maxDate = new Date(today);
+  if (rangeFilter === 'week') {
+    maxDate.setDate(maxDate.getDate() + 7);
+  } else if (rangeFilter === 'month') {
+    maxDate.setMonth(maxDate.getMonth() + 1);
+  }
 
-    return targetDate <= maxDate;
+  return targetDate <= maxDate;
 }
 
 /**
@@ -203,32 +204,32 @@ export function matchesDateRange(d, rangeFilter, mode) {
  * // => true if SDD is in January 2026
  */
 export function matchesCustomDateRange(d, startDate, endDate, mode) {
-    if (!startDate && !endDate) return true;
+  if (!startDate && !endDate) return true;
 
-    const dateField = mode === 'sdd' ? d.sddValue : d.crd;
-    if (!dateField || dateField === '00:00:00') return false;
+  const dateField = mode === 'sdd' ? d.sddValue : d.crd;
+  if (!dateField || dateField === '00:00:00') return false;
 
-    try {
-        const targetDate = new Date(dateField.replace(/\./g, '-'));
-        targetDate.setHours(0, 0, 0, 0);
+  try {
+    const targetDate = new Date(dateField.replace(/\./g, '-'));
+    targetDate.setHours(0, 0, 0, 0);
 
-        if (startDate) {
-            const start = new Date(startDate);
-            start.setHours(0, 0, 0, 0);
-            if (targetDate < start) return false;
-        }
-
-        if (endDate) {
-            const end = new Date(endDate);
-            end.setHours(23, 59, 59, 999);
-            if (targetDate > end) return false;
-        }
-
-        return true;
-    } catch (e) {
-        console.warn('Date range filter parsing error:', e);
-        return false;
+    if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      if (targetDate < start) return false;
     }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      if (targetDate > end) return false;
+    }
+
+    return true;
+  } catch {
+    // Invalid date range format, return false for safety
+    return false;
+  }
 }
 
 /**
@@ -255,22 +256,22 @@ export function matchesCustomDateRange(d, startDate, endDate, mode) {
  * // => true if all conditions match
  */
 export function matchesBasicFilters(d, month, dest, vendor, factory, mode) {
-    const yearMonth = getYearMonth(d, mode);
+  const yearMonth = getYearMonth(d, mode);
 
-    // Month filter
-    if (month && yearMonth !== month) return false;
+  // Month filter
+  if (month && yearMonth !== month) return false;
 
-    // Destination filter
-    if (dest === 'asia' && !IMPORTANT_DESTINATIONS[d.destination]) return false;
-    if (dest && dest !== 'asia' && d.destination !== dest) return false;
+  // Destination filter
+  if (dest === 'asia' && !IMPORTANT_DESTINATIONS[d.destination]) return false;
+  if (dest && dest !== 'asia' && d.destination !== dest) return false;
 
-    // Vendor filter
-    if (vendor && d.outsoleVendor !== vendor) return false;
+  // Vendor filter
+  if (vendor && d.outsoleVendor !== vendor) return false;
 
-    // Factory filter
-    if (factory && d.factory !== factory) return false;
+  // Factory filter
+  if (factory && d.factory !== factory) return false;
 
-    return true;
+  return true;
 }
 
 /**
@@ -290,18 +291,18 @@ export function matchesBasicFilters(d, month, dest, vendor, factory, mode) {
  * matchesStatusFilter(order, 'shipped') // => true if fully shipped
  */
 export function matchesStatusFilter(d, status) {
-    if (!status) return true;
+  if (!status) return true;
 
-    // Shipped check uses OrderModel
-    if (status === 'shipped' && !isShipped(d)) return false;
+  // Shipped check uses OrderModel
+  if (status === 'shipped' && !isShipped(d)) return false;
 
-    // Other statuses check WH_IN
-    const s = d.production?.wh_in?.status;
-    if (status === 'completed' && s !== 'completed') return false;
-    if (status === 'partial' && s !== 'partial') return false;
-    if (status === 'pending' && s !== 'pending') return false;
+  // Other statuses check WH_IN
+  const s = d.production?.wh_in?.status;
+  if (status === 'completed' && s !== 'completed') return false;
+  if (status === 'partial' && s !== 'partial') return false;
+  if (status === 'pending' && s !== 'pending') return false;
 
-    return true;
+  return true;
 }
 
 /**
@@ -323,18 +324,18 @@ export function matchesStatusFilter(d, status) {
  * matchesQuickFilter(order, 'delayed', 'sdd') // => true if delayed
  */
 export function matchesQuickFilter(d, quick, mode) {
-    if (!quick) return true;
+  if (!quick) return true;
 
-    // Use OrderModel functions for delay/warning
-    if (quick === 'delayed' && !isDelayed(d)) return false;
-    if (quick === 'warning' && !isWarning(d)) return false;
+  // Use OrderModel functions for delay/warning
+  if (quick === 'delayed' && !isDelayed(d)) return false;
+  if (quick === 'warning' && !isWarning(d)) return false;
 
-    // Use local date helper functions
-    if (quick === 'today' && !isToday(d, mode)) return false;
-    if (quick === 'week' && !isWithinWeek(d, mode)) return false;
-    if (quick === 'month' && !isCurrentMonth(d, mode)) return false;
+  // Use local date helper functions
+  if (quick === 'today' && !isToday(d, mode)) return false;
+  if (quick === 'week' && !isWithinWeek(d, mode)) return false;
+  if (quick === 'month' && !isCurrentMonth(d, mode)) return false;
 
-    return true;
+  return true;
 }
 
 /**
@@ -352,18 +353,14 @@ export function matchesQuickFilter(d, quick, mode) {
  * matchesSearch(order, 'nike') // => true if any field contains 'nike'
  */
 export function matchesSearch(d, search) {
-    if (!search) return true;
+  if (!search) return true;
 
-    const searchFields = [
-        d.model,
-        d.destination,
-        d.outsoleVendor,
-        d.poNumber,
-        d.factory,
-        d.article
-    ].join(' ').toLowerCase();
+  const searchFields = [d.model, d.destination, d.outsoleVendor, d.poNumber, d.factory, d.article]
+    .join(' ')
+    .toLowerCase();
 
-    return searchFields.includes(search);
+  // Convert search to lowercase for case-insensitive matching
+  return searchFields.includes(search.toLowerCase());
 }
 
 /**
@@ -383,12 +380,12 @@ export function matchesSearch(d, search) {
  * matchesQuantityRange(order, 1000, 5000) // => true if 1000 <= qty <= 5000
  */
 export function matchesQuantityRange(d, minQty, maxQty) {
-    const qty = d.quantity || 0;
+  const qty = d.quantity || 0;
 
-    if (minQty && qty < minQty) return false;
-    if (maxQty && qty > maxQty) return false;
+  if (minQty && qty < minQty) return false;
+  if (maxQty && qty > maxQty) return false;
 
-    return true;
+  return true;
 }
 
 // ============================================================================

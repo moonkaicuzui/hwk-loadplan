@@ -27,33 +27,33 @@
  * @private
  */
 let deps = {
-    // State references
-    getFilteredData: () => [],
-    getAllData: () => [],
-    getCurrentPage: () => 1,
-    setCurrentPage: (page) => {},
-    getPageSize: () => 50,
-    setPageSize: (size) => {},
-    getSortState: () => ({}),
-    setSortState: (table, state) => {},
+  // State references
+  getFilteredData: () => [],
+  getAllData: () => [],
+  getCurrentPage: () => 1,
+  setCurrentPage: _page => {},
+  getPageSize: () => 50,
+  setPageSize: _size => {},
+  getSortState: () => ({}),
+  setSortState: (_table, _state) => {},
 
-    // Model functions (from OrderModel)
-    isShipped: () => false,
-    isDelayed: () => false,
-    isWarning: () => false,
+  // Model functions (from OrderModel)
+  isShipped: () => false,
+  isDelayed: () => false,
+  isWarning: () => false,
 
-    // Utility functions
-    escapeHtml: (str) => str,
-    formatNumber: (num) => num.toLocaleString(),
-    getStatusIcon: (status) => '⏳',
-    applyColumnVisibility: () => {},
-    log: () => {},
+  // Utility functions
+  escapeHtml: str => str,
+  formatNumber: num => num.toLocaleString(),
+  getStatusIcon: _status => '⏳',
+  applyColumnVisibility: () => {},
+  log: () => {},
 
-    // Settings
-    settings: { set: () => {}, get: () => null },
+  // Settings
+  settings: { set: () => {}, get: () => null },
 
-    // Callbacks
-    onUpdateTabs: () => {}
+  // Callbacks
+  onUpdateTabs: () => {},
 };
 
 /**
@@ -91,29 +91,36 @@ let initialized = false;
  * @returns {boolean} Initialization success
  */
 export function initTableView(dependencies) {
-    if (initialized) {
-        deps.log?.('TableView already initialized', 'warn');
-        return true;
-    }
-
-    // Merge provided dependencies
-    deps = { ...deps, ...dependencies };
-
-    // Validate required dependencies
-    const required = [
-        'getFilteredData', 'getAllData', 'getCurrentPage', 'setCurrentPage',
-        'getPageSize', 'isShipped', 'isDelayed', 'isWarning', 'escapeHtml'
-    ];
-
-    const missing = required.filter(key => !deps[key]);
-    if (missing.length > 0) {
-        console.error('[TableView] Missing required dependencies:', missing);
-        return false;
-    }
-
-    initialized = true;
-    deps.log?.('[TableView] Initialized successfully', 'info');
+  if (initialized) {
+    deps.log?.('TableView already initialized', 'warn');
     return true;
+  }
+
+  // Merge provided dependencies
+  deps = { ...deps, ...dependencies };
+
+  // Validate required dependencies
+  const required = [
+    'getFilteredData',
+    'getAllData',
+    'getCurrentPage',
+    'setCurrentPage',
+    'getPageSize',
+    'isShipped',
+    'isDelayed',
+    'isWarning',
+    'escapeHtml',
+  ];
+
+  const missing = required.filter(key => !deps[key]);
+  if (missing.length > 0) {
+    console.error('[TableView] Missing required dependencies:', missing);
+    return false;
+  }
+
+  initialized = true;
+  deps.log?.('[TableView] Initialized successfully', 'info');
+  return true;
 }
 
 // ============================================================================
@@ -129,38 +136,42 @@ export function initTableView(dependencies) {
  * @returns {string} HTML string for table row
  */
 export function createTableRowHTML(d, index, options = {}) {
-    const {
-        isShipped = deps.isShipped,
-        isDelayed = deps.isDelayed,
-        isWarning = deps.isWarning,
-        escapeHtml = deps.escapeHtml,
-        formatNumber = deps.formatNumber,
-        getStatusIcon = deps.getStatusIcon
-    } = options;
+  const {
+    isShipped = deps.isShipped,
+    isDelayed = deps.isDelayed,
+    isWarning = deps.isWarning,
+    escapeHtml = deps.escapeHtml,
+    formatNumber = deps.formatNumber,
+    getStatusIcon = deps.getStatusIcon,
+  } = options;
 
-    const shipped = isShipped(d);
-    const delayed = isDelayed(d);
-    const warning = isWarning(d);
-    const rowClass = shipped ? 'shipped-highlight' :
-                     delayed ? 'delay-highlight' :
-                     warning ? 'warning-highlight' : '';
+  const shipped = isShipped(d);
+  const delayed = isDelayed(d);
+  const warning = isWarning(d);
+  const rowClass = shipped
+    ? 'shipped-highlight'
+    : delayed
+      ? 'delay-highlight'
+      : warning
+        ? 'warning-highlight'
+        : '';
 
-    // Get production data with safe access
-    const prod = d.production || {};
-    const whOut = prod.wh_out || {};
-    const sewBal = prod.sew_bal || {};
-    const sCut = prod.s_cut || {};
+  // Get production data with safe access
+  const prod = d.production || {};
+  const whOut = prod.wh_out || {};
+  const sewBal = prod.sew_bal || {};
+  const sCut = prod.s_cut || {};
 
-    // Calculate progress percentage
-    const totalQty = d.quantity || 1;
-    const completedQty = whOut.completed || 0;
-    const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
+  // Calculate progress percentage
+  const totalQty = d.quantity || 1;
+  const completedQty = whOut.completed || 0;
+  const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
 
-    // Status display
-    const status = whOut.status || 'pending';
-    const statusIcon = getStatusIcon(status);
+  // Status display
+  const status = whOut.status || 'pending';
+  const statusIcon = getStatusIcon(status);
 
-    return `<tr class="border-b border-theme ${rowClass} clickable-row"
+  return `<tr class="border-b border-theme ${rowClass} clickable-row"
                 data-action="showOrderProcessDetail"
                 data-index="${index}">
         <td class="px-2 py-2">${escapeHtml(d.factory || '-')}</td>
@@ -193,42 +204,46 @@ export function createTableRowHTML(d, index, options = {}) {
  * @returns {string} HTML string for modal table row
  */
 export function createModalTableRowHTML(d, options = {}) {
-    const {
-        getAllData = deps.getAllData,
-        isShipped = deps.isShipped,
-        isDelayed = deps.isDelayed,
-        isWarning = deps.isWarning,
-        escapeHtml = deps.escapeHtml,
-        formatNumber = deps.formatNumber,
-        getStatusIcon = deps.getStatusIcon
-    } = options;
+  const {
+    getAllData = deps.getAllData,
+    isShipped = deps.isShipped,
+    isDelayed = deps.isDelayed,
+    isWarning = deps.isWarning,
+    escapeHtml = deps.escapeHtml,
+    formatNumber = deps.formatNumber,
+    getStatusIcon = deps.getStatusIcon,
+  } = options;
 
-    const allData = getAllData();
-    const globalIndex = allData.indexOf(d);
+  const allData = getAllData();
+  const globalIndex = allData.indexOf(d);
 
-    const shipped = isShipped(d);
-    const delayed = isDelayed(d);
-    const warning = isWarning(d);
-    const rowClass = shipped ? 'shipped-highlight' :
-                     delayed ? 'delay-highlight' :
-                     warning ? 'warning-highlight' : '';
+  const shipped = isShipped(d);
+  const delayed = isDelayed(d);
+  const warning = isWarning(d);
+  const rowClass = shipped
+    ? 'shipped-highlight'
+    : delayed
+      ? 'delay-highlight'
+      : warning
+        ? 'warning-highlight'
+        : '';
 
-    // Get production data with safe access
-    const prod = d.production || {};
-    const whOut = prod.wh_out || {};
-    const sewBal = prod.sew_bal || {};
-    const sCut = prod.s_cut || {};
+  // Get production data with safe access
+  const prod = d.production || {};
+  const whOut = prod.wh_out || {};
+  const sewBal = prod.sew_bal || {};
+  const sCut = prod.s_cut || {};
 
-    // Calculate progress percentage
-    const totalQty = d.quantity || 1;
-    const completedQty = whOut.completed || 0;
-    const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
+  // Calculate progress percentage
+  const totalQty = d.quantity || 1;
+  const completedQty = whOut.completed || 0;
+  const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
 
-    // Status display
-    const status = whOut.status || 'pending';
-    const statusIcon = getStatusIcon(status);
+  // Status display
+  const status = whOut.status || 'pending';
+  const statusIcon = getStatusIcon(status);
 
-    return `<tr class="border-b border-theme ${rowClass} clickable-row"
+  return `<tr class="border-b border-theme ${rowClass} clickable-row"
                 data-action="closeAndShowOrderDetail"
                 data-index="${globalIndex}">
         <td class="px-2 py-2">${escapeHtml(d.factory || '-')}</td>
@@ -269,61 +284,64 @@ export function createModalTableRowHTML(d, options = {}) {
  * @returns {void}
  */
 export function renderTableProgressively(tbody, data, options = {}) {
-    const {
-        chunkSize = 50,
-        onComplete,
-        getFilteredData = deps.getFilteredData,
-        applyColumnVisibility = deps.applyColumnVisibility,
-        log = deps.log
-    } = options;
+  const {
+    chunkSize = 50,
+    onComplete,
+    getFilteredData = deps.getFilteredData,
+    applyColumnVisibility = deps.applyColumnVisibility,
+    log = deps.log,
+  } = options;
 
-    const startTime = performance.now();
-    tbody.innerHTML = '';
+  const startTime = performance.now();
+  tbody.innerHTML = '';
 
-    if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr>
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr>
             <td colspan="14" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                 데이터가 없습니다
             </td>
         </tr>`;
-        onComplete?.();
-        return;
+    onComplete?.();
+    return;
+  }
+
+  const filteredData = getFilteredData();
+  let currentIndex = 0;
+
+  function renderChunk() {
+    const fragment = document.createDocumentFragment();
+    const endIndex = Math.min(currentIndex + chunkSize, data.length);
+
+    for (let i = currentIndex; i < endIndex; i++) {
+      const d = data[i];
+      const globalIndex = filteredData.indexOf(d);
+      const rowHTML = createTableRowHTML(d, globalIndex, options);
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = rowHTML;
+      fragment.appendChild(tempDiv.firstChild);
     }
 
-    const filteredData = getFilteredData();
-    let currentIndex = 0;
+    tbody.appendChild(fragment);
+    currentIndex = endIndex;
 
-    function renderChunk() {
-        const fragment = document.createDocumentFragment();
-        const endIndex = Math.min(currentIndex + chunkSize, data.length);
+    if (currentIndex < data.length) {
+      requestAnimationFrame(renderChunk);
+    } else {
+      // Rendering complete
+      applyColumnVisibility?.();
 
-        for (let i = currentIndex; i < endIndex; i++) {
-            const d = data[i];
-            const globalIndex = filteredData.indexOf(d);
-            const rowHTML = createTableRowHTML(d, globalIndex, options);
+      const elapsed = performance.now() - startTime;
+      log?.(
+        `[TableView] Progressive render complete: ${data.length} rows in ${elapsed.toFixed(1)}ms`,
+        'debug'
+      );
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rowHTML;
-            fragment.appendChild(tempDiv.firstChild);
-        }
-
-        tbody.appendChild(fragment);
-        currentIndex = endIndex;
-
-        if (currentIndex < data.length) {
-            requestAnimationFrame(renderChunk);
-        } else {
-            // Rendering complete
-            applyColumnVisibility?.();
-
-            const elapsed = performance.now() - startTime;
-            log?.(`[TableView] Progressive render complete: ${data.length} rows in ${elapsed.toFixed(1)}ms`, 'debug');
-
-            onComplete?.();
-        }
+      onComplete?.();
     }
+  }
 
-    requestAnimationFrame(renderChunk);
+  requestAnimationFrame(renderChunk);
 }
 
 // ============================================================================
@@ -343,143 +361,149 @@ export function renderTableProgressively(tbody, data, options = {}) {
  * @returns {void}
  */
 export function renderTableVirtually(tbody, data, options = {}) {
-    const {
-        initialRows = 100,
-        loadMoreRows = 50,
-        onComplete,
-        getFilteredData = deps.getFilteredData,
-        applyColumnVisibility = deps.applyColumnVisibility,
-        log = deps.log
-    } = options;
+  const {
+    initialRows = 100,
+    loadMoreRows = 50,
+    onComplete,
+    getFilteredData = deps.getFilteredData,
+    applyColumnVisibility = deps.applyColumnVisibility,
+    log = deps.log,
+  } = options;
 
-    const startTime = performance.now();
-    tbody.innerHTML = '';
+  const startTime = performance.now();
+  tbody.innerHTML = '';
 
-    if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr>
+  if (!data || data.length === 0) {
+    tbody.innerHTML = `<tr>
             <td colspan="14" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
                 데이터가 없습니다
             </td>
         </tr>`;
-        onComplete?.();
-        return;
+    onComplete?.();
+    return;
+  }
+
+  const filteredData = getFilteredData();
+  let loadedCount = 0;
+  let observer = null;
+  let sentinel = null;
+
+  /**
+   * Load more data rows
+   */
+  function loadMoreData() {
+    if (loadedCount >= data.length) {
+      // All data loaded, cleanup observer
+      if (observer && sentinel) {
+        observer.unobserve(sentinel);
+        sentinel.remove();
+      }
+      onComplete?.();
+      return;
     }
 
-    const filteredData = getFilteredData();
-    let loadedCount = 0;
-    let observer = null;
-    let sentinel = null;
+    const fragment = document.createDocumentFragment();
+    const endIndex = Math.min(loadedCount + loadMoreRows, data.length);
 
-    /**
-     * Load more data rows
-     */
-    function loadMoreData() {
-        if (loadedCount >= data.length) {
-            // All data loaded, cleanup observer
-            if (observer && sentinel) {
-                observer.unobserve(sentinel);
-                sentinel.remove();
-            }
-            onComplete?.();
-            return;
-        }
+    for (let i = loadedCount; i < endIndex; i++) {
+      const d = data[i];
+      const globalIndex = filteredData.indexOf(d);
+      const rowHTML = createTableRowHTML(d, globalIndex, options);
 
-        const fragment = document.createDocumentFragment();
-        const endIndex = Math.min(loadedCount + loadMoreRows, data.length);
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = rowHTML;
+      fragment.appendChild(tempDiv.firstChild);
+    }
 
-        for (let i = loadedCount; i < endIndex; i++) {
-            const d = data[i];
-            const globalIndex = filteredData.indexOf(d);
-            const rowHTML = createTableRowHTML(d, globalIndex, options);
+    // Remove old sentinel before appending new rows
+    if (sentinel && sentinel.parentNode) {
+      sentinel.remove();
+    }
 
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rowHTML;
-            fragment.appendChild(tempDiv.firstChild);
-        }
+    tbody.appendChild(fragment);
+    loadedCount = endIndex;
 
-        // Remove old sentinel before appending new rows
-        if (sentinel && sentinel.parentNode) {
-            sentinel.remove();
-        }
-
-        tbody.appendChild(fragment);
-        loadedCount = endIndex;
-
-        // Add new sentinel if more data remains
-        if (loadedCount < data.length) {
-            sentinel = document.createElement('tr');
-            sentinel.id = 'virtual-scroll-sentinel';
-            sentinel.innerHTML = `<td colspan="14" class="px-4 py-4 text-center text-gray-400">
+    // Add new sentinel if more data remains
+    if (loadedCount < data.length) {
+      sentinel = document.createElement('tr');
+      sentinel.id = 'virtual-scroll-sentinel';
+      sentinel.innerHTML = `<td colspan="14" class="px-4 py-4 text-center text-gray-400">
                 <span class="loading-spinner inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
                 로딩 중...
             </td>`;
-            tbody.appendChild(sentinel);
+      tbody.appendChild(sentinel);
 
-            if (observer) {
-                observer.observe(sentinel);
-            }
-        }
-
-        applyColumnVisibility?.();
-    }
-
-    /**
-     * Setup IntersectionObserver for infinite scroll
-     */
-    function setupIntersectionObserver() {
-        observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    loadMoreData();
-                }
-            });
-        }, {
-            root: tbody.closest('.table-scroll-container') || null,
-            rootMargin: '100px',
-            threshold: 0.1
-        });
-    }
-
-    // Initialize
-    setupIntersectionObserver();
-
-    // Load initial rows
-    const initialFragment = document.createDocumentFragment();
-    const initialEndIndex = Math.min(initialRows, data.length);
-
-    for (let i = 0; i < initialEndIndex; i++) {
-        const d = data[i];
-        const globalIndex = filteredData.indexOf(d);
-        const rowHTML = createTableRowHTML(d, globalIndex, options);
-
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = rowHTML;
-        initialFragment.appendChild(tempDiv.firstChild);
-    }
-
-    tbody.appendChild(initialFragment);
-    loadedCount = initialEndIndex;
-
-    // Add sentinel if more data exists
-    if (loadedCount < data.length) {
-        sentinel = document.createElement('tr');
-        sentinel.id = 'virtual-scroll-sentinel';
-        sentinel.innerHTML = `<td colspan="14" class="px-4 py-4 text-center text-gray-400">
-            <span class="loading-spinner inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
-            로딩 중...
-        </td>`;
-        tbody.appendChild(sentinel);
+      if (observer) {
         observer.observe(sentinel);
+      }
     }
 
     applyColumnVisibility?.();
+  }
 
-    const elapsed = performance.now() - startTime;
-    log?.(`[TableView] Virtual render initialized: ${initialEndIndex}/${data.length} rows in ${elapsed.toFixed(1)}ms`, 'debug');
+  /**
+   * Setup IntersectionObserver for infinite scroll
+   */
+  function setupIntersectionObserver() {
+    observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            loadMoreData();
+          }
+        });
+      },
+      {
+        root: tbody.closest('.table-scroll-container') || null,
+        rootMargin: '100px',
+        threshold: 0.1,
+      }
+    );
+  }
 
-    if (loadedCount >= data.length) {
-        onComplete?.();
-    }
+  // Initialize
+  setupIntersectionObserver();
+
+  // Load initial rows
+  const initialFragment = document.createDocumentFragment();
+  const initialEndIndex = Math.min(initialRows, data.length);
+
+  for (let i = 0; i < initialEndIndex; i++) {
+    const d = data[i];
+    const globalIndex = filteredData.indexOf(d);
+    const rowHTML = createTableRowHTML(d, globalIndex, options);
+
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = rowHTML;
+    initialFragment.appendChild(tempDiv.firstChild);
+  }
+
+  tbody.appendChild(initialFragment);
+  loadedCount = initialEndIndex;
+
+  // Add sentinel if more data exists
+  if (loadedCount < data.length) {
+    sentinel = document.createElement('tr');
+    sentinel.id = 'virtual-scroll-sentinel';
+    sentinel.innerHTML = `<td colspan="14" class="px-4 py-4 text-center text-gray-400">
+            <span class="loading-spinner inline-block w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></span>
+            로딩 중...
+        </td>`;
+    tbody.appendChild(sentinel);
+    observer.observe(sentinel);
+  }
+
+  applyColumnVisibility?.();
+
+  const elapsed = performance.now() - startTime;
+  log?.(
+    `[TableView] Virtual render initialized: ${initialEndIndex}/${data.length} rows in ${elapsed.toFixed(1)}ms`,
+    'debug'
+  );
+
+  if (loadedCount >= data.length) {
+    onComplete?.();
+  }
 }
 
 // ============================================================================
@@ -495,25 +519,25 @@ export function renderTableVirtually(tbody, data, options = {}) {
  * @returns {void}
  */
 export function renderDataCards(pageData, options = {}) {
-    const {
-        containerId = 'dataCardsContainer',
-        isShipped = deps.isShipped,
-        isDelayed = deps.isDelayed,
-        isWarning = deps.isWarning,
-        escapeHtml = deps.escapeHtml,
-        formatNumber = deps.formatNumber,
-        getStatusIcon = deps.getStatusIcon,
-        getFilteredData = deps.getFilteredData
-    } = options;
+  const {
+    containerId = 'dataCardsContainer',
+    isShipped = deps.isShipped,
+    isDelayed = deps.isDelayed,
+    isWarning = deps.isWarning,
+    escapeHtml = deps.escapeHtml,
+    formatNumber = deps.formatNumber,
+    getStatusIcon = deps.getStatusIcon,
+    getFilteredData = deps.getFilteredData,
+  } = options;
 
-    const container = document.getElementById(containerId);
-    if (!container) {
-        console.warn('[TableView] Card container not found:', containerId);
-        return;
-    }
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.warn('[TableView] Card container not found:', containerId);
+    return;
+  }
 
-    if (!pageData || pageData.length === 0) {
-        container.innerHTML = `
+  if (!pageData || pageData.length === 0) {
+    container.innerHTML = `
             <div class="cards-empty-state p-8 text-center text-gray-500 dark:text-gray-400">
                 <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -522,35 +546,35 @@ export function renderDataCards(pageData, options = {}) {
                 <p>데이터가 없습니다</p>
             </div>
         `;
-        return;
-    }
+    return;
+  }
 
-    const filteredData = getFilteredData();
+  const filteredData = getFilteredData();
 
-    container.innerHTML = pageData.map((d, idx) => {
-        const shipped = isShipped(d);
-        const delayed = isDelayed(d);
-        const warning = isWarning(d);
-        const cardClass = shipped ? 'shipped' : delayed ? 'delayed' : warning ? 'warning' : '';
+  container.innerHTML = pageData
+    .map((d, _idx) => {
+      const shipped = isShipped(d);
+      const delayed = isDelayed(d);
+      const warning = isWarning(d);
+      const cardClass = shipped ? 'shipped' : delayed ? 'delayed' : warning ? 'warning' : '';
 
-        const globalIndex = filteredData.indexOf(d);
+      const globalIndex = filteredData.indexOf(d);
 
-        // Get production data with safe access
-        const prod = d.production || {};
-        const whOut = prod.wh_out || {};
+      // Get production data with safe access
+      const prod = d.production || {};
+      const whOut = prod.wh_out || {};
 
-        // Calculate progress
-        const totalQty = d.quantity || 1;
-        const completedQty = whOut.completed || 0;
-        const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
+      // Calculate progress
+      const totalQty = d.quantity || 1;
+      const completedQty = whOut.completed || 0;
+      const progress = Math.min(100, Math.round((completedQty / totalQty) * 100));
 
-        // Status
-        const status = whOut.status || 'pending';
-        const statusIcon = getStatusIcon(status);
-        const statusText = status === 'completed' ? '완료' :
-                          status === 'partial' ? '진행중' : '대기';
+      // Status
+      const status = whOut.status || 'pending';
+      const statusIcon = getStatusIcon(status);
+      const statusText = status === 'completed' ? '완료' : status === 'partial' ? '진행중' : '대기';
 
-        return `
+      return `
             <div class="order-card ${cardClass} bg-card rounded-lg shadow-sm p-4 mb-3 cursor-pointer hover:shadow-md transition-shadow"
                  data-action="showOrderProcessDetail"
                  data-index="${globalIndex}">
@@ -597,7 +621,8 @@ export function renderDataCards(pageData, options = {}) {
                 </div>
             </div>
         `;
-    }).join('');
+    })
+    .join('');
 }
 
 // ============================================================================
@@ -613,33 +638,33 @@ export function renderDataCards(pageData, options = {}) {
  * @returns {Array} Sorted data array (new array, original unchanged)
  */
 export function sortData(data, table, options = {}) {
-    const { getSortState = deps.getSortState } = options;
+  const { getSortState = deps.getSortState } = options;
 
-    const sortState = getSortState();
-    if (!sortState[table] || !sortState[table].key) {
-        return data;
+  const sortState = getSortState();
+  if (!sortState[table] || !sortState[table].key) {
+    return data;
+  }
+
+  const key = sortState[table].key;
+  const dir = sortState[table].dir === 'asc' ? 1 : -1;
+
+  return [...data].sort((a, b) => {
+    // Handle nested keys for aggregated data (e.g., [key, value] format)
+    let valA = a[key] ?? a[1]?.[key] ?? 0;
+    let valB = b[key] ?? b[1]?.[key] ?? 0;
+
+    // Handle null/undefined
+    if (valA === null || valA === undefined) valA = '';
+    if (valB === null || valB === undefined) valB = '';
+
+    // String comparison
+    if (typeof valA === 'string' && typeof valB === 'string') {
+      return dir * valA.localeCompare(valB, 'ko');
     }
 
-    const key = sortState[table].key;
-    const dir = sortState[table].dir === 'asc' ? 1 : -1;
-
-    return [...data].sort((a, b) => {
-        // Handle nested keys for aggregated data (e.g., [key, value] format)
-        let valA = a[key] ?? a[1]?.[key] ?? 0;
-        let valB = b[key] ?? b[1]?.[key] ?? 0;
-
-        // Handle null/undefined
-        if (valA === null || valA === undefined) valA = '';
-        if (valB === null || valB === undefined) valB = '';
-
-        // String comparison
-        if (typeof valA === 'string' && typeof valB === 'string') {
-            return dir * valA.localeCompare(valB, 'ko');
-        }
-
-        // Numeric comparison
-        return dir * (Number(valA) - Number(valB));
-    });
+    // Numeric comparison
+    return dir * (Number(valA) - Number(valB));
+  });
 }
 
 /**
@@ -651,43 +676,43 @@ export function sortData(data, table, options = {}) {
  * @returns {void}
  */
 export function handleSort(header, options = {}) {
-    const {
-        getSortState = deps.getSortState,
-        setSortState = deps.setSortState,
-        onUpdateTabs = deps.onUpdateTabs
-    } = options;
+  const {
+    getSortState = deps.getSortState,
+    setSortState = deps.setSortState,
+    onUpdateTabs = deps.onUpdateTabs,
+  } = options;
 
-    const sortKey = header.dataset.sort;
-    const table = header.dataset.table;
+  const sortKey = header.dataset.sort;
+  const table = header.dataset.table;
 
-    if (!sortKey || !table) {
-        console.warn('[TableView] Invalid sort header - missing data-sort or data-table');
-        return;
-    }
+  if (!sortKey || !table) {
+    console.warn('[TableView] Invalid sort header - missing data-sort or data-table');
+    return;
+  }
 
-    const sortState = getSortState();
+  const sortState = getSortState();
 
-    // Initialize sort state for this table if needed
-    if (!sortState[table]) {
-        sortState[table] = { key: null, dir: 'asc' };
-    }
+  // Initialize sort state for this table if needed
+  if (!sortState[table]) {
+    sortState[table] = { key: null, dir: 'asc' };
+  }
 
-    // Toggle direction if same key, otherwise set new key with asc
-    if (sortState[table].key === sortKey) {
-        sortState[table].dir = sortState[table].dir === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortState[table].key = sortKey;
-        sortState[table].dir = 'asc';
-    }
+  // Toggle direction if same key, otherwise set new key with asc
+  if (sortState[table].key === sortKey) {
+    sortState[table].dir = sortState[table].dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortState[table].key = sortKey;
+    sortState[table].dir = 'asc';
+  }
 
-    // Update sort state
-    setSortState?.(table, sortState[table]);
+  // Update sort state
+  setSortState?.(table, sortState[table]);
 
-    // Update header UI
-    updateSortHeaderUI(header, sortState[table]);
+  // Update header UI
+  updateSortHeaderUI(header, sortState[table]);
 
-    // Trigger table refresh
-    onUpdateTabs?.();
+  // Trigger table refresh
+  onUpdateTabs?.();
 }
 
 /**
@@ -698,20 +723,20 @@ export function handleSort(header, options = {}) {
  * @private
  */
 function updateSortHeaderUI(clickedHeader, sortState) {
-    const table = clickedHeader.dataset.table;
-    const parentTable = clickedHeader.closest('table');
+  const table = clickedHeader.dataset.table;
+  const parentTable = clickedHeader.closest('table');
 
-    if (!parentTable) return;
+  if (!parentTable) return;
 
-    // Reset all headers in this table
-    parentTable.querySelectorAll(`th[data-table="${table}"]`).forEach(th => {
-        th.removeAttribute('aria-sort');
-        th.classList.remove('sort-asc', 'sort-desc');
-    });
+  // Reset all headers in this table
+  parentTable.querySelectorAll(`th[data-table="${table}"]`).forEach(th => {
+    th.removeAttribute('aria-sort');
+    th.classList.remove('sort-asc', 'sort-desc');
+  });
 
-    // Set current header state
-    clickedHeader.setAttribute('aria-sort', sortState.dir === 'asc' ? 'ascending' : 'descending');
-    clickedHeader.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
+  // Set current header state
+  clickedHeader.setAttribute('aria-sort', sortState.dir === 'asc' ? 'ascending' : 'descending');
+  clickedHeader.classList.add(sortState.dir === 'asc' ? 'sort-asc' : 'sort-desc');
 }
 
 // ============================================================================
@@ -725,18 +750,15 @@ function updateSortHeaderUI(clickedHeader, sortState) {
  * @returns {boolean} Whether page changed
  */
 export function prevPage(options = {}) {
-    const {
-        getCurrentPage = deps.getCurrentPage,
-        setCurrentPage = deps.setCurrentPage
-    } = options;
+  const { getCurrentPage = deps.getCurrentPage, setCurrentPage = deps.setCurrentPage } = options;
 
-    const currentPage = getCurrentPage();
+  const currentPage = getCurrentPage();
 
-    if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-        return true;
-    }
-    return false;
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -746,23 +768,23 @@ export function prevPage(options = {}) {
  * @returns {boolean} Whether page changed
  */
 export function nextPage(options = {}) {
-    const {
-        getCurrentPage = deps.getCurrentPage,
-        setCurrentPage = deps.setCurrentPage,
-        getFilteredData = deps.getFilteredData,
-        getPageSize = deps.getPageSize
-    } = options;
+  const {
+    getCurrentPage = deps.getCurrentPage,
+    setCurrentPage = deps.setCurrentPage,
+    getFilteredData = deps.getFilteredData,
+    getPageSize = deps.getPageSize,
+  } = options;
 
-    const currentPage = getCurrentPage();
-    const filteredData = getFilteredData();
-    const pageSize = getPageSize();
-    const totalPages = Math.ceil(filteredData.length / pageSize);
+  const currentPage = getCurrentPage();
+  const filteredData = getFilteredData();
+  const pageSize = getPageSize();
+  const totalPages = Math.ceil(filteredData.length / pageSize);
 
-    if (currentPage < totalPages) {
-        setCurrentPage(currentPage + 1);
-        return true;
-    }
-    return false;
+  if (currentPage < totalPages) {
+    setCurrentPage(currentPage + 1);
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -773,31 +795,31 @@ export function nextPage(options = {}) {
  * @returns {void}
  */
 export function changePageSize(newSize, options = {}) {
-    const {
-        setPageSize = deps.setPageSize,
-        setCurrentPage = deps.setCurrentPage,
-        settings = deps.settings,
-        getFilteredData = deps.getFilteredData
-    } = options;
+  const {
+    setPageSize = deps.setPageSize,
+    setCurrentPage = deps.setCurrentPage,
+    settings = deps.settings,
+    getFilteredData = deps.getFilteredData,
+  } = options;
 
-    const filteredData = getFilteredData();
+  const filteredData = getFilteredData();
 
-    // Handle 'all' option
-    let size = newSize;
-    if (newSize === 'all' || newSize === 'ALL') {
-        size = filteredData.length || 1000;
-    } else {
-        size = parseInt(newSize, 10);
-    }
+  // Handle 'all' option
+  let size = newSize;
+  if (newSize === 'all' || newSize === 'ALL') {
+    size = filteredData.length || 1000;
+  } else {
+    size = parseInt(newSize, 10);
+  }
 
-    if (isNaN(size) || size <= 0) {
-        console.warn('[TableView] Invalid page size:', newSize);
-        return;
-    }
+  if (isNaN(size) || size <= 0) {
+    console.warn('[TableView] Invalid page size:', newSize);
+    return;
+  }
 
-    setPageSize(size);
-    setCurrentPage(1); // Reset to first page
-    settings?.set?.('pageSize', size);
+  setPageSize(size);
+  setCurrentPage(1); // Reset to first page
+  settings?.set?.('pageSize', size);
 }
 
 // ============================================================================
@@ -814,57 +836,60 @@ export function changePageSize(newSize, options = {}) {
  * @returns {void}
  */
 export function updateDataTab(options = {}) {
-    const {
-        getFilteredData = deps.getFilteredData,
-        getCurrentPage = deps.getCurrentPage,
-        getPageSize = deps.getPageSize,
-        formatNumber = deps.formatNumber,
-        log = deps.log,
-        useVirtualScroll,
-        dataCountId = 'dataCount',
-        paginationId = 'pagination',
-        cardsContainerId = 'dataCardsContainer',
-        tableBodyId = 'dataTable'
-    } = options;
+  const {
+    getFilteredData = deps.getFilteredData,
+    getCurrentPage = deps.getCurrentPage,
+    getPageSize = deps.getPageSize,
+    formatNumber = deps.formatNumber,
+    log = deps.log,
+    useVirtualScroll,
+    dataCountId = 'dataCount',
+    paginationId = 'pagination',
+    cardsContainerId = 'dataCardsContainer',
+    tableBodyId = 'dataTable',
+  } = options;
 
-    const filteredData = getFilteredData();
-    const currentPage = getCurrentPage();
-    const pageSize = getPageSize();
+  const filteredData = getFilteredData();
+  const currentPage = getCurrentPage();
+  const pageSize = getPageSize();
 
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    const pageData = filteredData.slice(start, end);
-    const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+  const pageData = filteredData.slice(start, end);
+  const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
 
-    // Update count display
-    const dataCountEl = document.getElementById(dataCountId);
-    if (dataCountEl) {
-        dataCountEl.textContent = `(${formatNumber(filteredData.length)}건)`;
+  // Update count display
+  const dataCountEl = document.getElementById(dataCountId);
+  if (dataCountEl) {
+    dataCountEl.textContent = `(${formatNumber(filteredData.length)}건)`;
+  }
+
+  // Update pagination display
+  const paginationEl = document.getElementById(paginationId);
+  if (paginationEl) {
+    paginationEl.textContent = `${currentPage} / ${totalPages} 페이지`;
+  }
+
+  // Render mobile cards
+  renderDataCards(pageData, { ...options, containerId: cardsContainerId });
+
+  // Render desktop table
+  const tbody = document.querySelector(`#${tableBodyId} tbody`);
+  if (tbody) {
+    // Use virtual scrolling for large page sizes
+    const shouldUseVirtual = useVirtualScroll ?? (pageSize >= 200 || pageData.length >= 200);
+
+    if (shouldUseVirtual) {
+      renderTableVirtually(tbody, pageData, options);
+    } else {
+      renderTableProgressively(tbody, pageData, options);
     }
+  }
 
-    // Update pagination display
-    const paginationEl = document.getElementById(paginationId);
-    if (paginationEl) {
-        paginationEl.textContent = `${currentPage} / ${totalPages} 페이지`;
-    }
-
-    // Render mobile cards
-    renderDataCards(pageData, { ...options, containerId: cardsContainerId });
-
-    // Render desktop table
-    const tbody = document.querySelector(`#${tableBodyId} tbody`);
-    if (tbody) {
-        // Use virtual scrolling for large page sizes
-        const shouldUseVirtual = useVirtualScroll ?? (pageSize >= 200 || pageData.length >= 200);
-
-        if (shouldUseVirtual) {
-            renderTableVirtually(tbody, pageData, options);
-        } else {
-            renderTableProgressively(tbody, pageData, options);
-        }
-    }
-
-    log?.(`[TableView] Data tab updated: page ${currentPage}/${totalPages}, showing ${pageData.length} of ${filteredData.length}`, 'debug');
+  log?.(
+    `[TableView] Data tab updated: page ${currentPage}/${totalPages}, showing ${pageData.length} of ${filteredData.length}`,
+    'debug'
+  );
 }
 
 // ============================================================================

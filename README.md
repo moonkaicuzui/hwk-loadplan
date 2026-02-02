@@ -78,6 +78,13 @@
 - **VSCode**: 개발 환경
 - **Chrome DevTools**: 디버깅, 성능 분석
 
+### Testing & Quality
+- **Vitest**: Unit 테스트
+- **Playwright**: E2E 테스트 (Chromium, Firefox, WebKit)
+- **ESLint**: JavaScript 린팅
+- **Prettier**: 코드 포맷팅
+- **Lighthouse CI**: 성능/접근성 자동 검사
+
 ---
 
 ## 📁 프로젝트 구조

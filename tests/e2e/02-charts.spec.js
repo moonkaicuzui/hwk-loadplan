@@ -3,7 +3,7 @@
 // Agent W02: E2E Test Automation Engineer
 // =============================================================================
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('차트 기능 테스트', () => {
   test.beforeEach(async ({ page }) => {

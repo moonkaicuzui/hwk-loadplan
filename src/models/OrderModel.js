@@ -40,26 +40,26 @@ const dateParseCache = new Map();
  * parseDate(null)         // => null
  */
 export function parseDate(dateStr) {
-    if (!dateStr || dateStr === '00:00:00') return null;
+  if (!dateStr || dateStr === '00:00:00') return null;
 
-    // Check cache first
-    if (dateParseCache.has(dateStr)) {
-        return dateParseCache.get(dateStr);
+  // Check cache first
+  if (dateParseCache.has(dateStr)) {
+    return dateParseCache.get(dateStr);
+  }
+
+  try {
+    const parsed = new Date(dateStr.replace(/\./g, '-'));
+
+    // Prevent memory leak: clear cache if too large
+    if (dateParseCache.size > 1000) {
+      dateParseCache.clear();
     }
 
-    try {
-        const parsed = new Date(dateStr.replace(/\./g, '-'));
-
-        // Prevent memory leak: clear cache if too large
-        if (dateParseCache.size > 1000) {
-            dateParseCache.clear();
-        }
-
-        dateParseCache.set(dateStr, parsed);
-        return parsed;
-    } catch (e) {
-        return null;
-    }
+    dateParseCache.set(dateStr, parsed);
+    return parsed;
+  } catch (_e) {
+    return null;
+  }
 }
 
 // ============================================================================
@@ -93,34 +93,34 @@ export function parseDate(dateStr) {
  * // => false (Code04 approved)
  */
 export function isDelayed(d) {
-    const sdd = d.sddValue;
-    const crd = d.crd;
+  const sdd = d.sddValue;
+  const crd = d.crd;
 
-    // Invalid dates
-    if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') {
-        return false;
-    }
+  // Invalid dates
+  if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') {
+    return false;
+  }
 
-    // Already shipped - not delayed
-    const whOutCompleted = d.production?.wh_out?.completed || 0;
-    const qty = d.quantity || 0;
-    if (whOutCompleted >= qty) {
-        return false;
-    }
+  // Already shipped - not delayed
+  const whOutCompleted = d.production?.wh_out?.completed || 0;
+  const qty = d.quantity || 0;
+  if (whOutCompleted >= qty) {
+    return false;
+  }
 
-    // Code04 approval - officially approved SDD change
-    if (d.code04) {
-        return false;
-    }
+  // Code04 approval - officially approved SDD change
+  if (d.code04) {
+    return false;
+  }
 
-    // Compare dates
-    const sddDate = parseDate(sdd);
-    const crdDate = parseDate(crd);
-    if (!sddDate || !crdDate) {
-        return false;
-    }
+  // Compare dates
+  const sddDate = parseDate(sdd);
+  const crdDate = parseDate(crd);
+  if (!sddDate || !crdDate) {
+    return false;
+  }
 
-    return sddDate > crdDate;
+  return sddDate > crdDate;
 }
 
 /**
@@ -140,34 +140,34 @@ export function isDelayed(d) {
  * // => true (2 days difference)
  */
 export function isWarning(d) {
-    const sdd = d.sddValue;
-    const crd = d.crd;
+  const sdd = d.sddValue;
+  const crd = d.crd;
 
-    if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') {
-        return false;
-    }
+  if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') {
+    return false;
+  }
 
-    // Already shipped - not warning
-    const whOutCompleted = d.production?.wh_out?.completed || 0;
-    const qty = d.quantity || 0;
-    if (whOutCompleted >= qty) {
-        return false;
-    }
+  // Already shipped - not warning
+  const whOutCompleted = d.production?.wh_out?.completed || 0;
+  const qty = d.quantity || 0;
+  if (whOutCompleted >= qty) {
+    return false;
+  }
 
-    // Already delayed - delayed takes priority
-    if (isDelayed(d)) {
-        return false;
-    }
+  // Already delayed - delayed takes priority
+  if (isDelayed(d)) {
+    return false;
+  }
 
-    const sddDate = parseDate(sdd);
-    const crdDate = parseDate(crd);
-    if (!sddDate || !crdDate) {
-        return false;
-    }
+  const sddDate = parseDate(sdd);
+  const crdDate = parseDate(crd);
+  if (!sddDate || !crdDate) {
+    return false;
+  }
 
-    // CRD - SDD between 0-3 days
-    const diffDays = (crdDate - sddDate) / (1000 * 60 * 60 * 24);
-    return diffDays >= 0 && diffDays <= 3;
+  // CRD - SDD between 0-3 days
+  const diffDays = (crdDate - sddDate) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 3;
 }
 
 /**
@@ -188,32 +188,32 @@ export function isWarning(d) {
  * // => true (2 days until CRD)
  */
 export function isCritical(d) {
-    const crd = d.crd;
-    if (!crd || crd === '00:00:00') {
-        return false;
-    }
+  const crd = d.crd;
+  if (!crd || crd === '00:00:00') {
+    return false;
+  }
 
-    // Already shipped - not critical
-    const whOutCompleted = d.production?.wh_out?.completed || 0;
-    const qty = d.quantity || 0;
-    if (whOutCompleted >= qty) {
-        return false;
-    }
+  // Already shipped - not critical
+  const whOutCompleted = d.production?.wh_out?.completed || 0;
+  const qty = d.quantity || 0;
+  if (whOutCompleted >= qty) {
+    return false;
+  }
 
-    // Already delayed - delayed is more severe
-    if (isDelayed(d)) {
-        return false;
-    }
+  // Already delayed - delayed is more severe
+  if (isDelayed(d)) {
+    return false;
+  }
 
-    const today = new Date();
-    const crdDate = parseDate(crd);
-    if (!crdDate) {
-        return false;
-    }
+  const today = new Date();
+  const crdDate = parseDate(crd);
+  if (!crdDate) {
+    return false;
+  }
 
-    // Days until CRD
-    const diffDays = (crdDate - today) / (1000 * 60 * 60 * 24);
-    return diffDays >= 0 && diffDays <= 3;
+  // Days until CRD
+  const diffDays = (crdDate - today) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 3;
 }
 
 /**
@@ -228,9 +228,9 @@ export function isCritical(d) {
  * // => true
  */
 export function isShipped(d) {
-    const whOutCompleted = d.production?.wh_out?.completed || 0;
-    const qty = d.quantity || 0;
-    return qty > 0 && whOutCompleted >= qty;
+  const whOutCompleted = d.production?.wh_out?.completed || 0;
+  const qty = d.quantity || 0;
+  return qty > 0 && whOutCompleted >= qty;
 }
 
 // ============================================================================
@@ -252,17 +252,17 @@ export function isShipped(d) {
  * // => { completed: 800, pending: 200, status: 'partial' }
  */
 export function parseProcessCell(value, qty) {
-    const completed = parseFloat(value) || 0;
-    const pending = Math.max(0, qty - completed);
+  const completed = parseFloat(value) || 0;
+  const pending = Math.max(0, qty - completed);
 
-    let status = 'pending';
-    if (completed >= qty) {
-        status = 'completed';
-    } else if (completed > 0) {
-        status = 'partial';
-    }
+  let status = 'pending';
+  if (completed >= qty) {
+    status = 'completed';
+  } else if (completed > 0) {
+    status = 'partial';
+  }
 
-    return { completed, pending, status };
+  return { completed, pending, status };
 }
 
 /**
@@ -273,12 +273,12 @@ export function parseProcessCell(value, qty) {
  * @returns {boolean} True if delayed
  */
 export function calculateIsDelayed(record) {
-    if (record.code04) return false;
-    if (!record.sddValue || !record.crd) return false;
+  if (record.code04) return false;
+  if (!record.sddValue || !record.crd) return false;
 
-    const sdd = new Date(record.sddValue);
-    const crd = new Date(record.crd);
-    return sdd > crd;
+  const sdd = new Date(record.sddValue);
+  const crd = new Date(record.crd);
+  return sdd > crd;
 }
 
 /**
@@ -289,15 +289,15 @@ export function calculateIsDelayed(record) {
  * @returns {boolean} True if in warning state
  */
 export function calculateIsWarning(record) {
-    if (record.isDelayed) return false;
-    if (!record.sddValue) return false;
+  if (record.isDelayed) return false;
+  if (!record.sddValue) return false;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const sdd = new Date(record.sddValue);
-    const diffDays = (sdd - today) / (1000 * 60 * 60 * 24);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const sdd = new Date(record.sddValue);
+  const diffDays = (sdd - today) / (1000 * 60 * 60 * 24);
 
-    return diffDays >= 0 && diffDays <= 3;
+  return diffDays >= 0 && diffDays <= 3;
 }
 
 // ============================================================================
@@ -323,149 +323,149 @@ export function calculateIsWarning(record) {
  * console.log(anomalies.vendorIssues);     // Vendors with >30% delay rate
  */
 export function detectAnomalies(data) {
-    const anomalies = {
-        quantityOutliers: [],
-        processDelays: [],
-        dateAnomalies: [],
-        duplicatePO: [],
-        missingDestination: [],
-        vendorIssues: []
-    };
+  const anomalies = {
+    quantityOutliers: [],
+    processDelays: [],
+    dateAnomalies: [],
+    duplicatePO: [],
+    missingDestination: [],
+    vendorIssues: [],
+  };
 
-    // 1. 수량 이상치 탐지 (Z-score > 3)
-    const quantities = data.map(d => parseInt(d.quantity) || 0).filter(q => q > 0);
-    if (quantities.length > 0) {
-        const mean = quantities.reduce((a, b) => a + b, 0) / quantities.length;
-        const stdDev = Math.sqrt(
-            quantities.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / quantities.length
-        );
+  // 1. 수량 이상치 탐지 (Z-score > 3)
+  const quantities = data.map(d => parseInt(d.quantity) || 0).filter(q => q > 0);
+  if (quantities.length > 0) {
+    const mean = quantities.reduce((a, b) => a + b, 0) / quantities.length;
+    const stdDev = Math.sqrt(
+      quantities.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / quantities.length
+    );
 
-        data.forEach(d => {
-            const qty = parseInt(d.quantity) || 0;
-            const zScore = Math.abs((qty - mean) / stdDev);
-            if (zScore > 3) {
-                anomalies.quantityOutliers.push({
-                    po: d.poNumber,
-                    model: d.model,
-                    quantity: qty,
-                    zScore: zScore.toFixed(2),
-                    severity: zScore > 5 ? 'critical' : 'warning'
-                });
-            }
+    data.forEach(d => {
+      const qty = parseInt(d.quantity) || 0;
+      const zScore = Math.abs((qty - mean) / stdDev);
+      if (zScore > 3) {
+        anomalies.quantityOutliers.push({
+          po: d.poNumber,
+          model: d.model,
+          quantity: qty,
+          zScore: zScore.toFixed(2),
+          severity: zScore > 5 ? 'critical' : 'warning',
         });
+      }
+    });
+  }
+
+  // 2. 공정 지연 이상치 탐지
+  data.forEach(d => {
+    const crd = parseDate(d.crd);
+    if (!crd) return;
+
+    const today = new Date();
+    const daysUntilCRD = (crd - today) / (1000 * 60 * 60 * 24);
+
+    // CRD 7일 이내인데 완료율 50% 미만
+    if (daysUntilCRD >= 0 && daysUntilCRD <= 7) {
+      const whOutCompleted = d.production?.wh_out?.completed || 0;
+      const qty = d.quantity || 0;
+      const completionRate = qty > 0 ? (whOutCompleted / qty) * 100 : 0;
+
+      if (completionRate < 50) {
+        anomalies.processDelays.push({
+          po: d.poNumber,
+          model: d.model,
+          crd: d.crd,
+          daysUntilCRD: daysUntilCRD.toFixed(1),
+          completionRate: completionRate.toFixed(1),
+          severity: daysUntilCRD <= 3 ? 'critical' : 'warning',
+        });
+      }
     }
+  });
 
-    // 2. 공정 지연 이상치 탐지
-    data.forEach(d => {
-        const crd = parseDate(d.crd);
-        if (!crd) return;
+  // 3. CRD/SDD 간격 이상치 탐지
+  data.forEach(d => {
+    const sdd = parseDate(d.sddValue);
+    const crd = parseDate(d.crd);
+    if (!sdd || !crd) return;
 
-        const today = new Date();
-        const daysUntilCRD = (crd - today) / (1000 * 60 * 60 * 24);
+    const gapDays = (sdd - crd) / (1000 * 60 * 60 * 24);
 
-        // CRD 7일 이내인데 완료율 50% 미만
-        if (daysUntilCRD >= 0 && daysUntilCRD <= 7) {
-            const whOutCompleted = d.production?.wh_out?.completed || 0;
-            const qty = d.quantity || 0;
-            const completionRate = qty > 0 ? (whOutCompleted / qty) * 100 : 0;
+    // 비정상적으로 긴 간격 (>180일) 또는 음수 간격 (<-30일)
+    if (gapDays > 180 || gapDays < -30) {
+      anomalies.dateAnomalies.push({
+        po: d.poNumber,
+        model: d.model,
+        crd: d.crd,
+        sdd: d.sddValue,
+        gapDays: gapDays.toFixed(0),
+        severity: Math.abs(gapDays) > 365 ? 'critical' : 'warning',
+      });
+    }
+  });
 
-            if (completionRate < 50) {
-                anomalies.processDelays.push({
-                    po: d.poNumber,
-                    model: d.model,
-                    crd: d.crd,
-                    daysUntilCRD: daysUntilCRD.toFixed(1),
-                    completionRate: completionRate.toFixed(1),
-                    severity: daysUntilCRD <= 3 ? 'critical' : 'warning'
-                });
-            }
-        }
-    });
+  // 4. 중복 PO 번호 탐지
+  const poMap = {};
+  data.forEach(d => {
+    const po = d.poNumber;
+    if (!po) return;
 
-    // 3. CRD/SDD 간격 이상치 탐지
-    data.forEach(d => {
-        const sdd = parseDate(d.sddValue);
-        const crd = parseDate(d.crd);
-        if (!sdd || !crd) return;
+    if (!poMap[po]) {
+      poMap[po] = [];
+    }
+    poMap[po].push(d);
+  });
 
-        const gapDays = (sdd - crd) / (1000 * 60 * 60 * 24);
+  Object.entries(poMap).forEach(([po, records]) => {
+    if (records.length > 1) {
+      anomalies.duplicatePO.push({
+        po,
+        count: records.length,
+        models: records.map(r => r.model).join(', '),
+        severity: 'warning',
+      });
+    }
+  });
 
-        // 비정상적으로 긴 간격 (>180일) 또는 음수 간격 (<-30일)
-        if (gapDays > 180 || gapDays < -30) {
-            anomalies.dateAnomalies.push({
-                po: d.poNumber,
-                model: d.model,
-                crd: d.crd,
-                sdd: d.sddValue,
-                gapDays: gapDays.toFixed(0),
-                severity: Math.abs(gapDays) > 365 ? 'critical' : 'warning'
-            });
-        }
-    });
+  // 5. 행선지 이상 탐지
+  data.forEach(d => {
+    const dest = d.destination?.trim();
+    if (!dest || dest === 'Unknown' || dest === 'N/A' || dest === '') {
+      anomalies.missingDestination.push({
+        po: d.poNumber,
+        model: d.model,
+        destination: dest || '(empty)',
+        severity: 'warning',
+      });
+    }
+  });
 
-    // 4. 중복 PO 번호 탐지
-    const poMap = {};
-    data.forEach(d => {
-        const po = d.poNumber;
-        if (!po) return;
+  // 6. 벤더 품질 이상 탐지 (지연율 >30%)
+  const vendorStats = {};
+  data.forEach(d => {
+    const vendor = d.outsoleVendor || 'Unknown';
+    if (!vendorStats[vendor]) {
+      vendorStats[vendor] = { total: 0, delayed: 0 };
+    }
+    vendorStats[vendor].total++;
+    if (isDelayed(d)) {
+      vendorStats[vendor].delayed++;
+    }
+  });
 
-        if (!poMap[po]) {
-            poMap[po] = [];
-        }
-        poMap[po].push(d);
-    });
+  Object.entries(vendorStats).forEach(([vendor, stats]) => {
+    const delayRate = (stats.delayed / stats.total) * 100;
+    if (delayRate > 30 && stats.total >= 5) {
+      anomalies.vendorIssues.push({
+        vendor,
+        total: stats.total,
+        delayed: stats.delayed,
+        delayRate: delayRate.toFixed(1),
+        severity: delayRate > 50 ? 'critical' : 'warning',
+      });
+    }
+  });
 
-    Object.entries(poMap).forEach(([po, records]) => {
-        if (records.length > 1) {
-            anomalies.duplicatePO.push({
-                po,
-                count: records.length,
-                models: records.map(r => r.model).join(', '),
-                severity: 'warning'
-            });
-        }
-    });
-
-    // 5. 행선지 이상 탐지
-    data.forEach(d => {
-        const dest = d.destination?.trim();
-        if (!dest || dest === 'Unknown' || dest === 'N/A' || dest === '') {
-            anomalies.missingDestination.push({
-                po: d.poNumber,
-                model: d.model,
-                destination: dest || '(empty)',
-                severity: 'warning'
-            });
-        }
-    });
-
-    // 6. 벤더 품질 이상 탐지 (지연율 >30%)
-    const vendorStats = {};
-    data.forEach(d => {
-        const vendor = d.outsoleVendor || 'Unknown';
-        if (!vendorStats[vendor]) {
-            vendorStats[vendor] = { total: 0, delayed: 0 };
-        }
-        vendorStats[vendor].total++;
-        if (isDelayed(d)) {
-            vendorStats[vendor].delayed++;
-        }
-    });
-
-    Object.entries(vendorStats).forEach(([vendor, stats]) => {
-        const delayRate = (stats.delayed / stats.total) * 100;
-        if (delayRate > 30 && stats.total >= 5) {
-            anomalies.vendorIssues.push({
-                vendor,
-                total: stats.total,
-                delayed: stats.delayed,
-                delayRate: delayRate.toFixed(1),
-                severity: delayRate > 50 ? 'critical' : 'warning'
-            });
-        }
-    });
-
-    return anomalies;
+  return anomalies;
 }
 
 // ============================================================================

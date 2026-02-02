@@ -21,47 +21,47 @@ import { isDelayed, isWarning } from './OrderModel.js';
  * Process execution order (8 stages)
  * @type {Array<string>}
  */
-export const PROCESS_ORDER = [
-    's_cut',      // 재단
-    'pre_sew',    // 선봉
-    'sew_input',  // 재봉투입
-    'sew_bal',    // 재봉
-    's_fit',      // 핏팅 (데이터 키: s_fit)
-    'ass_bal',    // 조립 (데이터 키: ass_bal)
-    'wh_in',      // 입고
-    'wh_out'      // 출고
-];
+export const PROCESS_ORDER = Object.freeze([
+  's_cut', // 재단
+  'pre_sew', // 선봉
+  'sew_input', // 재봉투입
+  'sew_bal', // 재봉
+  's_fit', // 핏팅 (데이터 키: s_fit)
+  'ass_bal', // 조립 (데이터 키: ass_bal)
+  'wh_in', // 입고
+  'wh_out', // 출고
+]);
 
 /**
  * Process key to label mappings
  * @type {Object<string, string>}
  */
-export const PROCESS_LABELS = {
-    's_cut': '재단(S_CUT)',
-    'pre_sew': '선봉(PRE_SEW)',
-    'sew_input': '재봉투입(SEW_INPUT)',
-    'sew_bal': '재봉(SEW_BAL)',
-    's_fit': '핏팅(S_FIT)',
-    'ass_bal': '조립(ASS_BAL)',
-    'wh_in': '입고(WH_IN)',
-    'wh_out': '출고(WH_OUT)'
-};
+export const PROCESS_LABELS = Object.freeze({
+  s_cut: '재단(S_CUT)',
+  pre_sew: '선봉(PRE_SEW)',
+  sew_input: '재봉투입(SEW_INPUT)',
+  sew_bal: '재봉(SEW_BAL)',
+  s_fit: '핏팅(S_FIT)',
+  ass_bal: '조립(ASS_BAL)',
+  wh_in: '입고(WH_IN)',
+  wh_out: '출고(WH_OUT)',
+});
 
 /**
  * Process name transformations for data access
  * Upper snake_case → lowercase no-underscore
  * @type {Object<string, string>}
  */
-export const PROCESS_KEY_MAP = {
-    'S_CUT': 's_cut',
-    'PRE_SEW': 'pre_sew',
-    'SEW_INPUT': 'sew_input',
-    'SEW_BAL': 'sew_bal',
-    'S_FIT': 's_fit',
-    'ASS_BAL': 'ass_bal',
-    'WH_IN': 'wh_in',
-    'WH_OUT': 'wh_out'
-};
+export const PROCESS_KEY_MAP = Object.freeze({
+  S_CUT: 's_cut',
+  PRE_SEW: 'pre_sew',
+  SEW_INPUT: 'sew_input',
+  SEW_BAL: 'sew_bal',
+  S_FIT: 's_fit',
+  ASS_BAL: 'ass_bal',
+  WH_IN: 'wh_in',
+  WH_OUT: 'wh_out',
+});
 
 // ============================================================================
 // Vendor Performance Analysis
@@ -96,44 +96,42 @@ export const PROCESS_KEY_MAP = {
  * @refactoring-note Remove global filteredData dependency - accept data as parameter
  */
 export function calculateVendorPerformance(data) {
-    const vendorStats = {};
+  const vendorStats = {};
 
-    if (!data || !Array.isArray(data)) {
-        return [];
+  if (!data || !Array.isArray(data)) {
+    return [];
+  }
+
+  data.forEach(d => {
+    const vendor = d.outsoleVendor || 'Unknown';
+    if (!vendorStats[vendor]) {
+      vendorStats[vendor] = { total: 0, completed: 0, delayed: 0 };
     }
 
-    data.forEach(d => {
-        const vendor = d.outsoleVendor || 'Unknown';
-        if (!vendorStats[vendor]) {
-            vendorStats[vendor] = { total: 0, completed: 0, delayed: 0 };
-        }
+    vendorStats[vendor].total++;
+    if (d.production?.wh_out?.status === 'completed') {
+      vendorStats[vendor].completed++;
+    }
+    if (isDelayed(d)) {
+      vendorStats[vendor].delayed++;
+    }
+  });
 
-        vendorStats[vendor].total++;
-        if (d.production?.wh_out?.status === 'completed') {
-            vendorStats[vendor].completed++;
-        }
-        if (isDelayed(d)) {
-            vendorStats[vendor].delayed++;
-        }
-    });
+  const vendorScores = Object.entries(vendorStats).map(([vendor, stats]) => {
+    const completionRate = stats.total > 0 ? stats.completed / stats.total : 0;
+    const onTimeRate = stats.total > 0 ? 1 - stats.delayed / stats.total : 1;
+    const score = completionRate * 70 + onTimeRate * 30;
 
-    const vendorScores = Object.entries(vendorStats).map(([vendor, stats]) => {
-        const completionRate = stats.total > 0 ? stats.completed / stats.total : 0;
-        const onTimeRate = stats.total > 0 ? 1 - (stats.delayed / stats.total) : 1;
-        const score = (completionRate * 70) + (onTimeRate * 30);
+    return {
+      vendor,
+      score: score.toFixed(1),
+      total: stats.total,
+      completed: stats.completed,
+      delayed: stats.delayed,
+    };
+  });
 
-        return {
-            vendor,
-            score: score.toFixed(1),
-            total: stats.total,
-            completed: stats.completed,
-            delayed: stats.delayed
-        };
-    });
-
-    return vendorScores
-        .sort((a, b) => parseFloat(b.score) - parseFloat(a.score))
-        .slice(0, 5);
+  return vendorScores.sort((a, b) => parseFloat(b.score) - parseFloat(a.score)).slice(0, 5);
 }
 
 // ============================================================================
@@ -168,60 +166,60 @@ export function calculateVendorPerformance(data) {
  * @refactoring-note Remove global dependencies (filteredData, PROCESS_ORDER, PROCESS_NAMES)
  */
 export function predictBottleneck(data) {
-    const processStats = {};
+  const processStats = {};
 
-    // Initialize stats for all processes
+  // Initialize stats for all processes
+  PROCESS_ORDER.forEach(key => {
+    processStats[key] = { completed: 0, pending: 0, total: 0 };
+  });
+
+  if (!data || !Array.isArray(data)) {
+    return null;
+  }
+
+  // Aggregate process statistics
+  data.forEach(d => {
     PROCESS_ORDER.forEach(key => {
-        processStats[key] = { completed: 0, pending: 0, total: 0 };
-    });
+      const processData = d.production?.[key];
+      if (processData) {
+        const completed = processData.completed || 0;
+        const pending = processData.pending || 0;
 
-    if (!data || !Array.isArray(data)) {
-        return null;
+        processStats[key].completed += completed;
+        processStats[key].pending += pending;
+        processStats[key].total += completed + pending;
+      }
+    });
+  });
+
+  // Find bottleneck (lowest completion rate, excluding WH_OUT)
+  let bottleneck = null;
+  let lowestRate = 100;
+
+  PROCESS_ORDER.forEach(key => {
+    if (key === 'wh_out') return; // Skip final process
+
+    const stats = processStats[key];
+    if (stats.total > 0) {
+      const rate = (stats.completed / stats.total) * 100;
+      if (rate < lowestRate) {
+        lowestRate = rate;
+        bottleneck = key;
+      }
     }
+  });
 
-    // Aggregate process statistics
-    data.forEach(d => {
-        PROCESS_ORDER.forEach(key => {
-            const processData = d.production?.[key];
-            if (processData) {
-                const completed = processData.completed || 0;
-                const pending = processData.pending || 0;
+  if (!bottleneck) return null;
 
-                processStats[key].completed += completed;
-                processStats[key].pending += pending;
-                processStats[key].total += (completed + pending);
-            }
-        });
-    });
-
-    // Find bottleneck (lowest completion rate, excluding WH_OUT)
-    let bottleneck = null;
-    let lowestRate = 100;
-
-    PROCESS_ORDER.forEach(key => {
-        if (key === 'wh_out') return; // Skip final process
-
-        const stats = processStats[key];
-        if (stats.total > 0) {
-            const rate = (stats.completed / stats.total) * 100;
-            if (rate < lowestRate) {
-                lowestRate = rate;
-                bottleneck = key;
-            }
-        }
-    });
-
-    if (!bottleneck) return null;
-
-    return {
-        process: PROCESS_LABELS[bottleneck],
-        rate: lowestRate.toFixed(1),
-        affectedQty: processStats[bottleneck].pending,
-        affectedOrders: data.filter(d => {
-            const pending = d.production?.[bottleneck]?.pending || 0;
-            return pending > 0;
-        }).length
-    };
+  return {
+    process: PROCESS_LABELS[bottleneck],
+    rate: lowestRate.toFixed(1),
+    affectedQty: processStats[bottleneck].pending,
+    affectedOrders: data.filter(d => {
+      const pending = d.production?.[bottleneck]?.pending || 0;
+      return pending > 0;
+    }).length,
+  };
 }
 
 // ============================================================================
@@ -288,93 +286,113 @@ export function predictBottleneck(data) {
  * @note Uses local process definitions (not global constants)
  */
 export function analyzeDailyReport(data) {
-    if (!data || !Array.isArray(data)) {
-        return { summary: {}, processRates: [], topDelayedVendors: [], urgentOrders: [], topDelayedDest: [], factoryDelayed: {} };
-    }
-
-    // Overall statistics
-    const totalOrders = data.length;
-    const delayedOrders = data.filter(d => isDelayed(d));
-    const warningOrders = data.filter(d => isWarning(d));
-    const completedOrders = data.filter(d => d.production?.wh_out?.status === 'completed');
-
-    // Process definitions (local to this function)
-    const processes = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 's_fit', 'ass_bal', 'wh_in', 'wh_out'];
-    const processLabels = {
-        's_cut': '재단(S_CUT)',
-        'pre_sew': '선봉(PRE_SEW)',
-        'sew_input': '재봉투입(SEW_INPUT)',
-        'sew_bal': '재봉(SEW_BAL)',
-        's_fit': '핏팅(S_FIT)',
-        'ass_bal': '조립(ASS_BAL)',
-        'wh_in': '입고(WH_IN)',
-        'wh_out': '출고(WH_OUT)'
+  if (!data || !Array.isArray(data)) {
+    return {
+      summary: {},
+      processRates: [],
+      topDelayedVendors: [],
+      urgentOrders: [],
+      topDelayedDest: [],
+      factoryDelayed: {},
     };
+  }
 
-    // Process completion statistics
-    const processStats = processes.map(proc => {
-        const completed = data.filter(d => d.production?.[proc]?.status === 'completed').length;
-        const total = data.length;
-        const rate = total > 0 ? (completed / total * 100) : 0;
+  // Overall statistics
+  const totalOrders = data.length;
+  const delayedOrders = data.filter(d => isDelayed(d));
+  const warningOrders = data.filter(d => isWarning(d));
+  const completedOrders = data.filter(d => d.production?.wh_out?.status === 'completed');
 
-        return {
-            name: processLabels[proc],
-            key: proc,
-            completed,
-            total,
-            rate
-        };
-    });
+  // Process definitions (local to this function)
+  const processes = [
+    's_cut',
+    'pre_sew',
+    'sew_input',
+    'sew_bal',
+    's_fit',
+    'ass_bal',
+    'wh_in',
+    'wh_out',
+  ];
+  const processLabels = {
+    s_cut: '재단(S_CUT)',
+    pre_sew: '선봉(PRE_SEW)',
+    sew_input: '재봉투입(SEW_INPUT)',
+    sew_bal: '재봉(SEW_BAL)',
+    s_fit: '핏팅(S_FIT)',
+    ass_bal: '조립(ASS_BAL)',
+    wh_in: '입고(WH_IN)',
+    wh_out: '출고(WH_OUT)',
+  };
 
-    // Bottleneck processes (rate < 70%, exclude WH_OUT)
-    const bottlenecks = processStats
-        .slice(0, -1) // Exclude last process (WH_OUT)
-        .filter(p => p.rate < 70)
-        .sort((a, b) => a.rate - b.rate)
-        .slice(0, 3);
-
-    // Urgent orders (delayed + CRD within 7 days)
-    const today = new Date();
-    const urgentOrders = delayedOrders.filter(d => {
-        const crd = new Date(d.crd);
-        const daysUntil = (crd - today) / (1000 * 60 * 60 * 24);
-        return daysUntil <= 7;
-    }).slice(0, 10);
-
-    // Top delayed destinations
-    const delayedByDest = {};
-    delayedOrders.forEach(d => {
-        const dest = d.destination || 'Unknown';
-        delayedByDest[dest] = (delayedByDest[dest] || 0) + 1;
-    });
-
-    const topDelayedDest = Object.entries(delayedByDest)
-        .map(([dest, count]) => ({ dest, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 5);
-
-    // Factory-wise delayed counts
-    const factoryDelayed = {};
-    delayedOrders.forEach(d => {
-        const factory = d.factory || 'Unknown';
-        factoryDelayed[factory] = (factoryDelayed[factory] || 0) + 1;
-    });
+  // Process completion statistics
+  const processStats = processes.map(proc => {
+    const completed = data.filter(d => d.production?.[proc]?.status === 'completed').length;
+    const total = data.length;
+    const rate = total > 0 ? (completed / total) * 100 : 0;
 
     return {
-        summary: {
-            totalOrders,
-            delayedOrders: delayedOrders.length,
-            warningOrders: warningOrders.length,
-            completedOrders: completedOrders.length,
-            delayedRate: totalOrders > 0 ? ((delayedOrders.length / totalOrders) * 100).toFixed(1) : '0.0',
-            completionRate: totalOrders > 0 ? ((completedOrders.length / totalOrders) * 100).toFixed(1) : '0.0'
-        },
-        processStats,
-        bottlenecks,
-        urgentOrders,
-        topDelayedDest,
-        factoryDelayed
+      name: processLabels[proc],
+      key: proc,
+      completed,
+      total,
+      rate,
     };
+  });
+
+  // Bottleneck processes (rate < 70%, exclude WH_OUT)
+  const bottlenecks = processStats
+    .slice(0, -1) // Exclude last process (WH_OUT)
+    .filter(p => p.rate < 70)
+    .sort((a, b) => a.rate - b.rate)
+    .slice(0, 3);
+
+  // Urgent orders (delayed + CRD within 7 days)
+  const today = new Date();
+  const urgentOrders = delayedOrders
+    .filter(d => {
+      const crd = new Date(d.crd);
+      const daysUntil = (crd - today) / (1000 * 60 * 60 * 24);
+      return daysUntil <= 7;
+    })
+    .slice(0, 10);
+
+  // Top delayed destinations
+  const delayedByDest = {};
+  delayedOrders.forEach(d => {
+    const dest = d.destination || 'Unknown';
+    delayedByDest[dest] = (delayedByDest[dest] || 0) + 1;
+  });
+
+  const topDelayedDest = Object.entries(delayedByDest)
+    .map(([dest, count]) => ({ dest, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Factory-wise delayed counts
+  const factoryDelayed = {};
+  delayedOrders.forEach(d => {
+    const factory = d.factory || 'Unknown';
+    factoryDelayed[factory] = (factoryDelayed[factory] || 0) + 1;
+  });
+
+  return {
+    summary: {
+      totalOrders,
+      delayedOrders: delayedOrders.length,
+      warningOrders: warningOrders.length,
+      completedOrders: completedOrders.length,
+      delayedRate:
+        totalOrders > 0 ? ((delayedOrders.length / totalOrders) * 100).toFixed(1) : '0.0',
+      completionRate:
+        totalOrders > 0 ? ((completedOrders.length / totalOrders) * 100).toFixed(1) : '0.0',
+    },
+    processStats,
+    bottlenecks,
+    urgentOrders,
+    topDelayedDest,
+    factoryDelayed,
+  };
 }
 
 // ============================================================================
@@ -444,139 +462,140 @@ export function analyzeDailyReport(data) {
  * @note dailyProduction uses CRD for filtering, completionTrend uses WH_OUT date
  */
 export function analyzeWeeklyReport(data, weekStart, weekEnd) {
-    if (!data || !Array.isArray(data)) {
-        return { summary: {}, dailyProduction: {}, topDest: [], vendorIssues: [], completionTrend: [] };
-    }
+  if (!data || !Array.isArray(data)) {
+    return { summary: {}, dailyProduction: {}, topDest: [], vendorIssues: [], completionTrend: [] };
+  }
 
-    // Filter data by CRD within week range
-    const weekData = data.filter(d => {
-        const crd = new Date(d.crd);
-        return crd >= weekStart && crd <= weekEnd;
+  // Filter data by CRD within week range
+  const weekData = data.filter(d => {
+    const crd = new Date(d.crd);
+    return crd >= weekStart && crd <= weekEnd;
+  });
+
+  // Overall statistics
+  const totalOrders = data.length;
+  const weekOrders = weekData.length;
+  const delayedOrders = data.filter(d => isDelayed(d));
+  const completedOrders = data.filter(d => d.production?.wh_out?.status === 'completed');
+
+  // Daily production trend (7 days, CRD-based)
+  const dailyProduction = {};
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    const dateStr = day.toISOString().slice(0, 10);
+
+    const dayData = data.filter(d => {
+      const crd = new Date(d.crd);
+      return crd.toISOString().slice(0, 10) === dateStr;
     });
 
-    // Overall statistics
-    const totalOrders = data.length;
-    const weekOrders = weekData.length;
-    const delayedOrders = data.filter(d => isDelayed(d));
-    const completedOrders = data.filter(d => d.production?.wh_out?.status === 'completed');
+    const dayCompleted = dayData.filter(d => d.production?.wh_out?.status === 'completed');
 
-    // Daily production trend (7 days, CRD-based)
-    const dailyProduction = {};
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(weekStart.getDate() + i);
-        const dateStr = day.toISOString().slice(0, 10);
-
-        const dayData = data.filter(d => {
-            const crd = new Date(d.crd);
-            return crd.toISOString().slice(0, 10) === dateStr;
-        });
-
-        const dayCompleted = dayData.filter(d => d.production?.wh_out?.status === 'completed');
-
-        dailyProduction[dateStr] = {
-            total: dayData.length,
-            completed: dayCompleted.length,
-            rate: dayData.length > 0 ? (dayCompleted.length / dayData.length * 100).toFixed(1) : '0.0',
-            dayName: ['일', '월', '화', '수', '목', '금', '토'][day.getDay()]
-        };
-    }
-
-    // Destination shipment status
-    const destShipment = {};
-    data.forEach(d => {
-        const dest = d.destination || 'Unknown';
-        if (!destShipment[dest]) {
-            destShipment[dest] = {
-                total: 0,
-                completed: 0,
-                delayed: 0,
-                quantity: 0
-            };
-        }
-        destShipment[dest].total++;
-        destShipment[dest].quantity += d.quantity || 0;
-        if (d.production?.wh_out?.status === 'completed') {
-            destShipment[dest].completed++;
-        }
-        if (isDelayed(d)) {
-            destShipment[dest].delayed++;
-        }
-    });
-
-    const topDest = Object.entries(destShipment)
-        .sort((a, b) => b[1].total - a[1].total)
-        .slice(0, 10)
-        .map(([dest, stats]) => ({
-            dest,
-            ...stats,
-            completionRate: stats.total > 0 ? (stats.completed / stats.total * 100).toFixed(1) : '0.0'
-        }));
-
-    // Vendor quality issues (delay rate > 10%)
-    const vendorQuality = {};
-    data.forEach(d => {
-        const vendor = d.outsoleVendor || 'Unknown';
-        if (!vendorQuality[vendor]) {
-            vendorQuality[vendor] = {
-                total: 0,
-                delayed: 0,
-                completed: 0
-            };
-        }
-        vendorQuality[vendor].total++;
-        if (isDelayed(d)) {
-            vendorQuality[vendor].delayed++;
-        }
-        if (d.production?.wh_out?.status === 'completed') {
-            vendorQuality[vendor].completed++;
-        }
-    });
-
-    const vendorIssues = Object.entries(vendorQuality)
-        .map(([vendor, stats]) => ({
-            vendor,
-            ...stats,
-            delayRate: stats.total > 0 ? (stats.delayed / stats.total * 100).toFixed(1) : '0.0',
-            completionRate: stats.total > 0 ? (stats.completed / stats.total * 100).toFixed(1) : '0.0'
-        }))
-        .filter(v => parseFloat(v.delayRate) > 10)
-        .sort((a, b) => parseFloat(b.delayRate) - parseFloat(a.delayRate))
-        .slice(0, 10);
-
-    // Completion trend (7 days, WH_OUT date-based)
-    const completionTrend = [];
-    for (let i = 0; i < 7; i++) {
-        const day = new Date(weekStart);
-        day.setDate(weekStart.getDate() + i);
-        const dateStr = day.toISOString().slice(0, 10);
-
-        const dayCompleted = data.filter(d => {
-            const whOutDate = d.production?.wh_out?.date;
-            if (!whOutDate) return false;
-            return whOutDate.slice(0, 10) === dateStr;
-        }).length;
-
-        completionTrend.push({
-            date: dateStr,
-            count: dayCompleted,
-            dayName: ['일', '월', '화', '수', '목', '금', '토'][day.getDay()]
-        });
-    }
-
-    return {
-        summary: {
-            totalOrders,
-            weekOrders,
-            delayedOrders: delayedOrders.length,
-            completedOrders: completedOrders.length,
-            weekCompletionRate: weekOrders > 0 ? ((completedOrders.length / totalOrders) * 100).toFixed(1) : '0.0'
-        },
-        dailyProduction,
-        topDest,
-        vendorIssues,
-        completionTrend
+    dailyProduction[dateStr] = {
+      total: dayData.length,
+      completed: dayCompleted.length,
+      rate: dayData.length > 0 ? ((dayCompleted.length / dayData.length) * 100).toFixed(1) : '0.0',
+      dayName: ['일', '월', '화', '수', '목', '금', '토'][day.getDay()],
     };
+  }
+
+  // Destination shipment status
+  const destShipment = {};
+  data.forEach(d => {
+    const dest = d.destination || 'Unknown';
+    if (!destShipment[dest]) {
+      destShipment[dest] = {
+        total: 0,
+        completed: 0,
+        delayed: 0,
+        quantity: 0,
+      };
+    }
+    destShipment[dest].total++;
+    destShipment[dest].quantity += d.quantity || 0;
+    if (d.production?.wh_out?.status === 'completed') {
+      destShipment[dest].completed++;
+    }
+    if (isDelayed(d)) {
+      destShipment[dest].delayed++;
+    }
+  });
+
+  const topDest = Object.entries(destShipment)
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 10)
+    .map(([dest, stats]) => ({
+      dest,
+      ...stats,
+      completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0',
+    }));
+
+  // Vendor quality issues (delay rate > 10%)
+  const vendorQuality = {};
+  data.forEach(d => {
+    const vendor = d.outsoleVendor || 'Unknown';
+    if (!vendorQuality[vendor]) {
+      vendorQuality[vendor] = {
+        total: 0,
+        delayed: 0,
+        completed: 0,
+      };
+    }
+    vendorQuality[vendor].total++;
+    if (isDelayed(d)) {
+      vendorQuality[vendor].delayed++;
+    }
+    if (d.production?.wh_out?.status === 'completed') {
+      vendorQuality[vendor].completed++;
+    }
+  });
+
+  const vendorIssues = Object.entries(vendorQuality)
+    .map(([vendor, stats]) => ({
+      vendor,
+      ...stats,
+      delayRate: stats.total > 0 ? ((stats.delayed / stats.total) * 100).toFixed(1) : '0.0',
+      completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0',
+    }))
+    .filter(v => parseFloat(v.delayRate) > 10)
+    .sort((a, b) => parseFloat(b.delayRate) - parseFloat(a.delayRate))
+    .slice(0, 10);
+
+  // Completion trend (7 days, WH_OUT date-based)
+  const completionTrend = [];
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + i);
+    const dateStr = day.toISOString().slice(0, 10);
+
+    const dayCompleted = data.filter(d => {
+      const whOutDate = d.production?.wh_out?.date;
+      if (!whOutDate) return false;
+      return whOutDate.slice(0, 10) === dateStr;
+    }).length;
+
+    completionTrend.push({
+      date: dateStr,
+      count: dayCompleted,
+      dayName: ['일', '월', '화', '수', '목', '금', '토'][day.getDay()],
+    });
+  }
+
+  return {
+    summary: {
+      totalOrders,
+      weekOrders,
+      delayedOrders: delayedOrders.length,
+      completedOrders: completedOrders.length,
+      weekCompletionRate:
+        weekOrders > 0 ? ((completedOrders.length / totalOrders) * 100).toFixed(1) : '0.0',
+    },
+    dailyProduction,
+    topDest,
+    vendorIssues,
+    completionTrend,
+  };
 }
 
 // ============================================================================
@@ -662,177 +681,191 @@ export function analyzeWeeklyReport(data, weekStart, weekEnd) {
  * @refactoring-note Make factory list dynamic instead of hardcoded ['A', 'B', 'C', 'D']
  */
 export function analyzeMonthlyReport(data, currentMonth) {
-    if (!data || !Array.isArray(data)) {
-        return { summary: {}, monthlyTrends: [], factoryPerformance: [], processProgress: [], vendorRanking: [] };
+  if (!data || !Array.isArray(data)) {
+    return {
+      summary: {},
+      monthlyTrends: [],
+      factoryPerformance: [],
+      processProgress: [],
+      vendorRanking: [],
+    };
+  }
+
+  // Filter data by CRD within current month
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+  const monthData = data.filter(d => {
+    const crd = new Date(d.crd);
+    return crd >= monthStart && crd <= monthEnd;
+  });
+
+  // 1. Monthly summary statistics
+  const totalOrders = monthData.length;
+  const delayedOrders = monthData.filter(d => isDelayed(d)).length;
+  const warningOrders = monthData.filter(d => isWarning(d) && !isDelayed(d)).length;
+  const completedOrders = monthData.filter(
+    d => d.production?.wh_out?.status === 'completed'
+  ).length;
+  const completionRate =
+    totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : '0.0';
+
+  // 2. 6-month historical trends
+  const monthlyTrends = [];
+  for (let i = 5; i >= 0; i--) {
+    const trendMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - i, 1);
+    const trendMonthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - i + 1, 0);
+
+    const trendData = data.filter(d => {
+      const crd = new Date(d.crd);
+      return crd >= trendMonth && crd <= trendMonthEnd;
+    });
+
+    const trendCompleted = trendData.filter(
+      d => d.production?.wh_out?.status === 'completed'
+    ).length;
+    const trendDelayed = trendData.filter(d => isDelayed(d)).length;
+
+    monthlyTrends.push({
+      month: trendMonth.toISOString().slice(0, 7),
+      totalOrders: trendData.length,
+      completed: trendCompleted,
+      delayed: trendDelayed,
+      completionRate:
+        trendData.length > 0 ? ((trendCompleted / trendData.length) * 100).toFixed(1) : '0.0',
+    });
+  }
+
+  // 3. Factory performance comparison (dynamic factory detection)
+  const factories = [...new Set(monthData.map(d => d.factory).filter(Boolean))].sort();
+  const factoryStats = {};
+
+  factories.forEach(factory => {
+    const factoryData = monthData.filter(d => d.factory === factory);
+    const completed = factoryData.filter(d => d.production?.wh_out?.status === 'completed').length;
+    const delayed = factoryData.filter(d => isDelayed(d)).length;
+
+    factoryStats[factory] = {
+      total: factoryData.length,
+      completed: completed,
+      delayed: delayed,
+      completionRate:
+        factoryData.length > 0 ? ((completed / factoryData.length) * 100).toFixed(1) : '0.0',
+      delayRate: factoryData.length > 0 ? ((delayed / factoryData.length) * 100).toFixed(1) : '0.0',
+    };
+  });
+
+  // 4. Top models by quantity (max 10)
+  const modelStats = {};
+  monthData.forEach(d => {
+    if (!modelStats[d.model]) {
+      modelStats[d.model] = { total: 0, completed: 0, quantity: 0 };
     }
-
-    // Filter data by CRD within current month
-    const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
-
-    const monthData = data.filter(d => {
-        const crd = new Date(d.crd);
-        return crd >= monthStart && crd <= monthEnd;
-    });
-
-    // 1. Monthly summary statistics
-    const totalOrders = monthData.length;
-    const delayedOrders = monthData.filter(d => isDelayed(d)).length;
-    const warningOrders = monthData.filter(d => isWarning(d) && !isDelayed(d)).length;
-    const completedOrders = monthData.filter(d => d.production?.wh_out?.status === 'completed').length;
-    const completionRate = totalOrders > 0 ? ((completedOrders / totalOrders) * 100).toFixed(1) : '0.0';
-
-    // 2. 6-month historical trends
-    const monthlyTrends = [];
-    for (let i = 5; i >= 0; i--) {
-        const trendMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - i, 1);
-        const trendMonthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - i + 1, 0);
-
-        const trendData = data.filter(d => {
-            const crd = new Date(d.crd);
-            return crd >= trendMonth && crd <= trendMonthEnd;
-        });
-
-        const trendCompleted = trendData.filter(d => d.production?.wh_out?.status === 'completed').length;
-        const trendDelayed = trendData.filter(d => isDelayed(d)).length;
-
-        monthlyTrends.push({
-            month: trendMonth.toISOString().slice(0, 7),
-            totalOrders: trendData.length,
-            completed: trendCompleted,
-            delayed: trendDelayed,
-            completionRate: trendData.length > 0 ? ((trendCompleted / trendData.length) * 100).toFixed(1) : '0.0'
-        });
+    modelStats[d.model].total++;
+    modelStats[d.model].quantity += parseInt(d.quantity) || 0;
+    if (d.production?.wh_out?.status === 'completed') {
+      modelStats[d.model].completed++;
     }
+  });
 
-    // 3. Factory performance comparison (dynamic factory detection)
-    const factories = [...new Set(monthData.map(d => d.factory).filter(Boolean))].sort();
-    const factoryStats = {};
+  const topModels = Object.entries(modelStats)
+    .map(([model, stats]) => ({
+      model,
+      ...stats,
+      completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0',
+    }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 10);
 
-    factories.forEach(factory => {
-        const factoryData = monthData.filter(d => d.factory === factory);
-        const completed = factoryData.filter(d => d.production?.wh_out?.status === 'completed').length;
-        const delayed = factoryData.filter(d => isDelayed(d)).length;
+  // 5. Top destinations by quantity (max 10)
+  const destStats = {};
+  monthData.forEach(d => {
+    const dest = d.destination || 'Unknown';
+    if (!destStats[dest]) {
+      destStats[dest] = { total: 0, completed: 0, quantity: 0, delayed: 0 };
+    }
+    destStats[dest].total++;
+    destStats[dest].quantity += parseInt(d.quantity) || 0;
+    if (d.production?.wh_out?.status === 'completed') {
+      destStats[dest].completed++;
+    }
+    if (isDelayed(d)) {
+      destStats[dest].delayed++;
+    }
+  });
 
-        factoryStats[factory] = {
-            total: factoryData.length,
-            completed: completed,
-            delayed: delayed,
-            completionRate: factoryData.length > 0 ? ((completed / factoryData.length) * 100).toFixed(1) : '0.0',
-            delayRate: factoryData.length > 0 ? ((delayed / factoryData.length) * 100).toFixed(1) : '0.0'
-        };
-    });
+  const topDest = Object.entries(destStats)
+    .map(([dest, stats]) => ({
+      destination: dest,
+      ...stats,
+      completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0',
+      delayRate: stats.total > 0 ? ((stats.delayed / stats.total) * 100).toFixed(1) : '0.0',
+    }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 10);
 
-    // 4. Top models by quantity (max 10)
-    const modelStats = {};
-    monthData.forEach(d => {
-        if (!modelStats[d.model]) {
-            modelStats[d.model] = { total: 0, completed: 0, quantity: 0 };
-        }
-        modelStats[d.model].total++;
-        modelStats[d.model].quantity += parseInt(d.quantity) || 0;
-        if (d.production?.wh_out?.status === 'completed') {
-            modelStats[d.model].completed++;
-        }
-    });
+  // 6. Vendor quality analysis (delay rate > 10%)
+  const vendorStats = {};
+  monthData.forEach(d => {
+    const vendor = d.outsoleVendor || 'Unknown';
+    if (!vendorStats[vendor]) {
+      vendorStats[vendor] = { total: 0, delayed: 0 };
+    }
+    vendorStats[vendor].total++;
+    if (isDelayed(d)) {
+      vendorStats[vendor].delayed++;
+    }
+  });
 
-    const topModels = Object.entries(modelStats)
-        .map(([model, stats]) => ({
-            model,
-            ...stats,
-            completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0'
-        }))
-        .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 10);
+  const vendorIssues = Object.entries(vendorStats)
+    .map(([vendor, stats]) => ({
+      vendor,
+      ...stats,
+      delayRate: ((stats.delayed / stats.total) * 100).toFixed(1),
+    }))
+    .filter(v => parseFloat(v.delayRate) > 10)
+    .sort((a, b) => parseFloat(b.delayRate) - parseFloat(a.delayRate));
 
-    // 5. Top destinations by quantity (max 10)
-    const destStats = {};
-    monthData.forEach(d => {
-        const dest = d.destination || 'Unknown';
-        if (!destStats[dest]) {
-            destStats[dest] = { total: 0, completed: 0, quantity: 0, delayed: 0 };
-        }
-        destStats[dest].total++;
-        destStats[dest].quantity += parseInt(d.quantity) || 0;
-        if (d.production?.wh_out?.status === 'completed') {
-            destStats[dest].completed++;
-        }
-        if (isDelayed(d)) {
-            destStats[dest].delayed++;
-        }
-    });
+  // 7. Process completion rates (8 stages)
+  const processDefinitions = [
+    { name: 'S_CUT', label: '재단' },
+    { name: 'PRE_SEW', label: '선봉' },
+    { name: 'SEW_INPUT', label: '재봉투입' },
+    { name: 'SEW_BAL', label: '재봉' },
+    { name: 'S_FIT', label: '핏팅' },
+    { name: 'ASS_BAL', label: '조립' },
+    { name: 'WH_IN', label: '입고' },
+    { name: 'WH_OUT', label: '출고' },
+  ];
 
-    const topDest = Object.entries(destStats)
-        .map(([dest, stats]) => ({
-            destination: dest,
-            ...stats,
-            completionRate: stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0.0',
-            delayRate: stats.total > 0 ? ((stats.delayed / stats.total) * 100).toFixed(1) : '0.0'
-        }))
-        .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 10);
-
-    // 6. Vendor quality analysis (delay rate > 10%)
-    const vendorStats = {};
-    monthData.forEach(d => {
-        const vendor = d.outsoleVendor || 'Unknown';
-        if (!vendorStats[vendor]) {
-            vendorStats[vendor] = { total: 0, delayed: 0 };
-        }
-        vendorStats[vendor].total++;
-        if (isDelayed(d)) {
-            vendorStats[vendor].delayed++;
-        }
-    });
-
-    const vendorIssues = Object.entries(vendorStats)
-        .map(([vendor, stats]) => ({
-            vendor,
-            ...stats,
-            delayRate: ((stats.delayed / stats.total) * 100).toFixed(1)
-        }))
-        .filter(v => parseFloat(v.delayRate) > 10)
-        .sort((a, b) => parseFloat(b.delayRate) - parseFloat(a.delayRate));
-
-    // 7. Process completion rates (8 stages)
-    const processDefinitions = [
-        { name: 'S_CUT', label: '재단' },
-        { name: 'PRE_SEW', label: '선봉' },
-        { name: 'SEW_INPUT', label: '재봉투입' },
-        { name: 'SEW_BAL', label: '재봉' },
-        { name: 'S_FIT', label: '핏팅' },
-        { name: 'ASS_BAL', label: '조립' },
-        { name: 'WH_IN', label: '입고' },
-        { name: 'WH_OUT', label: '출고' }
-    ];
-
-    const processStats = processDefinitions.map(process => {
-        const processKey = PROCESS_KEY_MAP[process.name];
-        const completedCount = monthData.filter(d =>
-            d.production?.[processKey]?.status === 'completed'
-        ).length;
-
-        return {
-            process: process.label,
-            completionRate: monthData.length > 0 ? ((completedCount / monthData.length) * 100).toFixed(1) : '0.0'
-        };
-    });
+  const processStats = processDefinitions.map(process => {
+    const processKey = PROCESS_KEY_MAP[process.name];
+    const completedCount = monthData.filter(
+      d => d.production?.[processKey]?.status === 'completed'
+    ).length;
 
     return {
-        summary: {
-            totalOrders,
-            completedOrders,
-            delayedOrders,
-            warningOrders,
-            completionRate
-        },
-        monthlyTrends,
-        factoryStats,
-        topModels,
-        topDest,
-        vendorIssues,
-        processStats
+      process: process.label,
+      completionRate:
+        monthData.length > 0 ? ((completedCount / monthData.length) * 100).toFixed(1) : '0.0',
     };
+  });
+
+  return {
+    summary: {
+      totalOrders,
+      completedOrders,
+      delayedOrders,
+      warningOrders,
+      completionRate,
+    },
+    monthlyTrends,
+    factoryStats,
+    topModels,
+    topDest,
+    vendorIssues,
+    processStats,
+  };
 }
 
 // ============================================================================

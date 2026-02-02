@@ -3,7 +3,7 @@
 // Agent W02: E2E Test Automation Engineer
 // =============================================================================
 
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('모달 기능 테스트', () => {
   test.beforeEach(async ({ page }) => {
@@ -11,10 +11,15 @@ test.describe('모달 기능 테스트', () => {
     await page.waitForLoadState('networkidle');
 
     // v19: Wait for app initialization to complete
-    await page.waitForFunction(() => {
-      const overlay = document.getElementById('loadingOverlay');
-      return overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none');
-    }, { timeout: 30000 });
+    await page.waitForFunction(
+      () => {
+        const overlay = document.getElementById('loadingOverlay');
+        return (
+          overlay && (overlay.classList.contains('hidden') || overlay.style.display === 'none')
+        );
+      },
+      { timeout: 30000 }
+    );
 
     // Additional wait for event handlers to be attached
     await page.waitForTimeout(500);
@@ -135,7 +140,10 @@ test.describe('모달 기능 테스트', () => {
   // 8. 도움말 모달 열기
   test('도움말 모달: 열기', async ({ page }) => {
     const helpBtn = page.locator('button:has-text("도움말"), button:has-text("?")');
-    const btnVisible = await helpBtn.first().isVisible().catch(() => false);
+    const btnVisible = await helpBtn
+      .first()
+      .isVisible()
+      .catch(() => false);
 
     if (btnVisible) {
       await helpBtn.first().click();
@@ -176,7 +184,7 @@ test.describe('모달 기능 테스트', () => {
     await page.waitForTimeout(300);
 
     const printBtn = page.locator('#orderDetailModal button:has-text("인쇄")');
-    const btnExists = await printBtn.count() > 0;
+    const btnExists = (await printBtn.count()) > 0;
 
     if (btnExists) {
       // 인쇄 버튼 클릭 시 오류 없이 동작하는지 확인
@@ -199,7 +207,10 @@ test.describe('모달 기능 테스트', () => {
 
     // 두 번째 모달 열기 (도움말)
     const helpBtn = page.locator('button:has-text("도움말"), button:has-text("?")');
-    const btnVisible = await helpBtn.first().isVisible().catch(() => false);
+    const btnVisible = await helpBtn
+      .first()
+      .isVisible()
+      .catch(() => false);
 
     if (btnVisible) {
       await helpBtn.first().click();
@@ -221,7 +232,7 @@ test.describe('모달 기능 테스트', () => {
     await page.waitForTimeout(300);
 
     const modalContent = page.locator('#orderDetailModal .overflow-y-auto');
-    const contentExists = await modalContent.count() > 0;
+    const contentExists = (await modalContent.count()) > 0;
 
     if (contentExists) {
       await modalContent.first().evaluate(el => {

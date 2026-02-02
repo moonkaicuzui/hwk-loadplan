@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rachgia Factory 통합 생산관리 대시보드 - 베트남 라지아 공장(A, B, C, D)의 실시간 생산 현황 모니터링, 주문 관리, 품질 관리 시스템">
+    <meta name="keywords" content="Rachgia, 생산관리, 대시보드, 베트남, 공장, 품질관리, QMS">
+    <meta name="robots" content="noindex, nofollow">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com https://apis.google.com https://www.gstatic.com https://*.firebasedatabase.app; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://accounts.google.com; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https://www.googleapis.com https://accounts.google.com https://drive.google.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebasedatabase.app https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; frame-src https://accounts.google.com https://*.firebaseapp.com;">
     <title>Rachgia Factory 통합 생산관리 대시보드 v19</title>
+
+    <!-- Preconnect: Resource Hints for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://accounts.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.googleapis.com">
 
     <!-- PWA: Progressive Web App (Phase 2) -->
     <link rel="manifest" href="/manifest.json">
@@ -30,16 +41,16 @@
 
     <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Agent Q01: PDF Export Libraries (Phase 4 - Step 5: Q01-2) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <!-- Phase 2 QMS: Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js" integrity="sha384-vuyrTV5nkscLp1knFvt+FIHfKKzmROBq5reruhMRslauj54mW+l2B8b6szMN6lCL" crossorigin="anonymous"></script>
+    <!-- Phase 2 QMS: Firebase SDK (with SRI) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" integrity="sha384-yuGdyIzzYtOBlBG6JOWn+Ey9kpq7HocusNuxEGyyohr1eEyXpeEyehIIXC/hznw4" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" integrity="sha384-lI+CxEx/bCvWP1b0OK13j5HTrTZP7yf1xle8TVOFq2smz6KC1RChTarRV/RHP5PP" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js" integrity="sha384-M6AmjBRXEjkdGzRN1Y94xtkmblFbYBSLkqzyZ8rPvpRM2c48nhjIRFXVvUM/VATL" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js" integrity="sha384-oze9siCpFoiDBZ37lLp99ZmOMO+je1s/xtvwtbNv3NXQXLpbpfPSzZSpbT3xV9da" crossorigin="anonymous"></script>
     <!-- Phase 1 OAuth: Google Identity Services (GIS) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
@@ -123,7 +134,7 @@
         .clickable-row { cursor: pointer; }
         .clickable-row:hover { background-color: rgba(59, 130, 246, 0.1) !important; }
         .dark .clickable-row:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
-        .modal-overlay { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-overlay { background: rgba(0,0,0,0.6); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 
         /* v19.12.3: 모달 테이블 레이아웃 강제 - 모든 상속 스타일 리셋 */
         #modalContent .overflow-x-auto {
@@ -656,6 +667,40 @@
         .kbd { display: inline-block; padding: 2px 6px; font-size: 11px; background: #e5e7eb; border-radius: 4px; font-family: monospace; }
         .dark .kbd { background: #4b5563; }
 
+        /* Focus visibility (WCAG 2.4.7) */
+        :focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+        .dark :focus-visible {
+            outline-color: #60a5fa;
+        }
+        button:focus-visible,
+        a:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        [role="button"]:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        .dark button:focus-visible,
+        .dark a:focus-visible,
+        .dark input:focus-visible,
+        .dark select:focus-visible,
+        .dark [role="button"]:focus-visible {
+            outline-color: #60a5fa;
+        }
+
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         /* Agent Q09: 스크린 리더 전용 (접근성) */
         .sr-only {
             position: absolute;
@@ -1095,12 +1140,18 @@
 
     담당 에이전트: Q08 (Performance), Q10 (Table Master)
     -->
+
+    <!-- Skip Link for Accessibility (Iteration 3) -->
+    <a href="#mainContent" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg">
+        메인 콘텐츠로 건너뛰기
+    </a>
+
     <!-- Login Overlay - Firebase Authentication -->
     <div id="loginOverlay" class="fixed inset-0 bg-gradient-to-br from-slate-900 via-gray-900 to-zinc-900 z-[60] flex items-center justify-center">
         <div class="max-w-md w-full mx-4">
             <div class="text-center mb-8">
                 <div class="text-6xl mb-4">📊</div>
-                <h1 class="text-3xl font-bold text-white mb-2">QIP Loadplan Dashboard</h1>
+                <h2 class="text-3xl font-bold text-white mb-2">QIP Loadplan Dashboard</h2>
                 <p class="text-gray-400">Rachgia Factory Production Management</p>
             </div>
 
@@ -1147,7 +1198,7 @@
     <div id="uploadOverlay" class="fixed inset-0 bg-gradient-to-br from-neutral-900 via-neutral-800 to-black z-50 flex items-center justify-center hidden">
         <div class="max-w-2xl w-full mx-4">
             <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-white mb-2">📊 Rachgia Dashboard</h1>
+                <h2 class="text-4xl font-bold text-white mb-2">📊 Rachgia Dashboard</h2>
                 <p class="text-blue-200">Factory Production Management System v19</p>
             </div>
 
@@ -1375,6 +1426,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Main Content Area (Skip Link Target) -->
+    <main id="mainContent" role="main">
 
     <!-- 월요 오더 현황 요약 -->
     <div id="weeklyOrderSummary" class="sticky top-[52px] z-40 bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg no-print">
@@ -4413,6 +4467,12 @@ function calculateVendorScore(vendor) {
 
             // OAuth 초기화
             initialize(clientId) {
+                // localhost에서는 OAuth 초기화 스킵 (redirect_uri_mismatch 방지)
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    log.info('ℹ️ localhost 환경 - OAuth 초기화 스킵 (redirect_uri_mismatch 방지)');
+                    return false;
+                }
+
                 if (!clientId) {
                     log.warn('OAuth Client ID가 제공되지 않았습니다.');
                     return false;
@@ -4621,6 +4681,12 @@ function calculateVendorScore(vendor) {
 
         // GIS 로드 대기 및 OAuth 자동 초기화
         function initGoogleDriveOAuthWhenReady() {
+            // localhost에서는 OAuth 자동 초기화 스킵 (redirect_uri_mismatch 방지)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                log.info('ℹ️ localhost 환경 - OAuth 자동 초기화 스킵');
+                return;
+            }
+
             // GIS가 로드되었는지 확인
             if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
                 // OAuth 초기화
@@ -4652,6 +4718,12 @@ function calculateVendorScore(vendor) {
 
         // Firebase 로그인 후 Google Drive 자동 연결 시도
         async function autoConnectGoogleDrive() {
+            // localhost에서는 OAuth 자동 연결 스킵 (redirect_uri_mismatch 방지)
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                log.info('ℹ️ localhost 환경 - OAuth 자동 연결 스킵');
+                return false;
+            }
+
             // GIS 로드 확인
             if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
                 log.warn('GIS 미로드 - 자동 연결 대기');
@@ -15572,14 +15644,31 @@ function calculateVendorScore(vendor) {
             });
         }
 
-        // Date parsing cache for performance
-        const dateParseCache = new Map();
+        // Date parsing cache for performance (Safari 호환 - V05)
+        var dateParseCache = new Map();
         function parseDate(dateStr) {
             if (!dateStr || dateStr === '00:00:00') return null;
             if (dateParseCache.has(dateStr)) return dateParseCache.get(dateStr);
 
             try {
-                const parsed = new Date(dateStr.replace(/\./g, '-'));
+                // Safari 호환: YYYY-MM-DD 또는 YYYY.MM.DD 형식 명시적 파싱
+                var normalizedStr = dateStr.replace(/\./g, '-');
+                var parsed;
+
+                // YYYY-MM-DD 형식 체크
+                var match = normalizedStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                if (match) {
+                    parsed = new Date(parseInt(match[1], 10), parseInt(match[2], 10) - 1, parseInt(match[3], 10));
+                } else {
+                    // 기타 형식은 기본 파싱 시도
+                    parsed = new Date(normalizedStr);
+                }
+
+                // 유효성 검사
+                if (isNaN(parsed.getTime())) {
+                    return null;
+                }
+
                 if (dateParseCache.size > 1000) dateParseCache.clear(); // Prevent memory leak
                 dateParseCache.set(dateStr, parsed);
                 return parsed;
@@ -15588,23 +15677,23 @@ function calculateVendorScore(vendor) {
             }
         }
 
-        // Filter functions
+        // Filter functions (Safari 호환 - V05)
         function isDelayed(d) {
             // Ground Truth: 지연 = SDD > CRD (출고예정일이 고객요구일보다 늦음)
-            const sdd = d.sddValue;
-            const crd = d.crd;
+            var sdd = d.sddValue;
+            var crd = d.crd;
             if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') return false;
 
             // 이미 출고 완료된 경우 지연 아님
-            const whOutCompleted = d.production?.wh_out?.completed || 0;
-            const qty = d.quantity || 0;
+            var whOutCompleted = getProductionData(d, 'wh_out', 'completed', 0);
+            var qty = d.quantity || 0;
             if (whOutCompleted >= qty) return false;
 
             // Code04 승인 있는 경우 지연 아님 (공식 승인된 SDD 변경)
             if (d.code04) return false;
 
-            const sddDate = parseDate(sdd);
-            const crdDate = parseDate(crd);
+            var sddDate = parseDate(sdd);
+            var crdDate = parseDate(crd);
             if (!sddDate || !crdDate) return false;
 
             return sddDate > crdDate;  // SDD가 CRD보다 늦으면 지연
@@ -15612,52 +15701,52 @@ function calculateVendorScore(vendor) {
 
         function isWarning(d) {
             // Warning: 아직 지연은 아니지만 SDD가 CRD에 근접 (3일 이내 차이)
-            const sdd = d.sddValue;
-            const crd = d.crd;
+            var sdd = d.sddValue;
+            var crd = d.crd;
             if (!sdd || !crd || sdd === '00:00:00' || crd === '00:00:00') return false;
 
             // 이미 출고 완료된 경우 경고 아님
-            const whOutCompleted = d.production?.wh_out?.completed || 0;
-            const qty = d.quantity || 0;
+            var whOutCompleted = getProductionData(d, 'wh_out', 'completed', 0);
+            var qty = d.quantity || 0;
             if (whOutCompleted >= qty) return false;
 
             // 이미 지연인 경우 경고 아님
             if (isDelayed(d)) return false;
 
-            const sddDate = parseDate(sdd);
-            const crdDate = parseDate(crd);
+            var sddDate = parseDate(sdd);
+            var crdDate = parseDate(crd);
             if (!sddDate || !crdDate) return false;
 
-            const diffDays = (crdDate - sddDate) / (1000 * 60 * 60 * 24);
+            var diffDays = (crdDate - sddDate) / (1000 * 60 * 60 * 24);
             return diffDays >= 0 && diffDays <= 3;  // CRD와 SDD 차이가 3일 이내
         }
 
         // Agent Q04: 긴급 오더 (CRD가 3일 이내) - Phase 4 - Q04-5
         function isCritical(d) {
             // Critical: CRD가 오늘로부터 3일 이내
-            const crd = d.crd;
+            var crd = d.crd;
             if (!crd || crd === '00:00:00') return false;
 
             // 이미 출고 완료된 경우 긴급 아님
-            const whOutCompleted = d.production?.wh_out?.completed || 0;
-            const qty = d.quantity || 0;
+            var whOutCompleted = getProductionData(d, 'wh_out', 'completed', 0);
+            var qty = d.quantity || 0;
             if (whOutCompleted >= qty) return false;
 
             // 이미 지연인 경우 긴급 아님 (지연이 더 심각)
             if (isDelayed(d)) return false;
 
-            const today = new Date();
-            const crdDate = parseDate(crd);
+            var today = new Date();
+            var crdDate = parseDate(crd);
             if (!crdDate) return false;
 
-            const diffDays = (crdDate - today) / (1000 * 60 * 60 * 24);
+            var diffDays = (crdDate - today) / (1000 * 60 * 60 * 24);
             return diffDays >= 0 && diffDays <= 3;  // 오늘로부터 3일 이내
         }
 
         // 선적 완료 여부 (창고출고 완료)
         function isShipped(d) {
-            const whOutCompleted = d.production?.wh_out?.completed || 0;
-            const qty = d.quantity || 0;
+            var whOutCompleted = getProductionData(d, 'wh_out', 'completed', 0);
+            var qty = d.quantity || 0;
             return qty > 0 && whOutCompleted >= qty;
         }
 
@@ -15731,7 +15820,7 @@ function calculateVendorScore(vendor) {
         function matchesStatusFilter(d, status) {
             if (!status) return true;
             if (status === 'shipped' && !isShipped(d)) return false;
-            const s = d.production?.wh_in?.status;
+            var s = getProductionData(d, 'wh_in', 'status', 'pending');
             if (status === 'completed' && s !== 'completed') return false;
             if (status === 'partial' && s !== 'partial') return false;
             if (status === 'pending' && s !== 'pending') return false;
@@ -15815,13 +15904,14 @@ function calculateVendorScore(vendor) {
         }
 
         function applyFilters() {
-            const month = document.getElementById('monthFilter').value;
-            const quick = document.getElementById('quickDateFilter').value;
-            const dest = document.getElementById('destFilter').value;
-            const vendor = document.getElementById('vendorFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            const factory = document.querySelector('#factoryFilter .filter-chip.active')?.dataset.factory || '';
-            const search = document.getElementById('searchInput').value.toLowerCase().trim();
+            var month = document.getElementById('monthFilter').value;
+            var quick = document.getElementById('quickDateFilter').value;
+            var dest = document.getElementById('destFilter').value;
+            var vendor = document.getElementById('vendorFilter').value;
+            var status = document.getElementById('statusFilter').value;
+            var factoryChip = document.querySelector('#factoryFilter .filter-chip.active');
+            var factory = (factoryChip && factoryChip.dataset && factoryChip.dataset.factory) ? factoryChip.dataset.factory : '';
+            var search = document.getElementById('searchInput').value.toLowerCase().trim();
             const startDate = document.getElementById('startDateFilter').value;
             const endDate = document.getElementById('endDateFilter').value;
             const minQuantity = parseInt(document.getElementById('minQuantityFilter').value) || 0;
@@ -19120,7 +19210,7 @@ function calculateVendorScore(vendor) {
             score += delayScore;
 
             // 병목 위험 (30점 만점) - bottleneck이 null일 수 있음
-            const bottleneckRate = bottleneck?.completionRate ?? 100;
+            const bottleneckRate = (bottleneck && bottleneck.completionRate !== undefined) ? bottleneck.completionRate : 100;
             const bottleneckScore = bottleneckRate < 50 ? 30 :
                                     bottleneckRate < 70 ? 20 :
                                     bottleneckRate < 80 ? 10 : 0;
@@ -19632,5 +19722,6 @@ function calculateVendorScore(vendor) {
             }
         });
     </script>
+    </main>
 </body>
 </html>
