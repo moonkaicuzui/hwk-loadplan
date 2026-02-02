@@ -2,78 +2,32 @@
   "name": "Rachgia Factory Dashboard",
   "short_name": "Rachgia",
   "description": "베트남 Rachgia 공장 통합 생산관리 대시보드",
-  "start_url": "/rachgia_dashboard_v18.html",
+  "start_url": "/rachgia_dashboard_v19.html",
   "display": "standalone",
-  "background_color": "#1f2937",
-  "theme_color": "#3b82f6",
+  "background_color": "#0a0a0a",
+  "theme_color": "#1e40af",
   "orientation": "any",
   "scope": "/",
   "lang": "ko-KR",
   "dir": "ltr",
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "/icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-192x192.png",
+      "src": "/icons/icon.svg",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon.svg",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/desktop-1.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "platform": "wide",
-      "label": "Dashboard Overview"
-    },
-    {
-      "src": "/screenshots/mobile-1.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "platform": "narrow",
-      "label": "Mobile View"
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
   "categories": [
@@ -86,48 +40,21 @@
       "name": "지연 오더 보기",
       "short_name": "지연",
       "description": "지연된 오더 목록 보기",
-      "url": "/rachgia_dashboard_v18.html?filter=delayed",
-      "icons": [
-        {
-          "src": "/icons/shortcut-delayed.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/rachgia_dashboard_v19.html?filter=delayed"
     },
     {
       "name": "월별 차트",
       "short_name": "월별",
       "description": "월별 생산 현황 차트",
-      "url": "/rachgia_dashboard_v18.html?tab=monthly",
-      "icons": [
-        {
-          "src": "/icons/shortcut-chart.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/rachgia_dashboard_v19.html?tab=monthly"
     },
     {
       "name": "데이터 테이블",
       "short_name": "데이터",
       "description": "전체 오더 데이터 테이블",
-      "url": "/rachgia_dashboard_v18.html?tab=data",
-      "icons": [
-        {
-          "src": "/icons/shortcut-data.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/rachgia_dashboard_v19.html?tab=data"
     }
   ],
   "related_applications": [],
-  "prefer_related_applications": false,
-  "share_target": {
-    "action": "/share",
-    "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "url"
-    }
-  }
+  "prefer_related_applications": false
 }

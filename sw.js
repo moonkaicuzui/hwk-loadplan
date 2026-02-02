@@ -4,17 +4,16 @@
 // Version: 19.0.0
 // =============================================================================
 
-const CACHE_VERSION = 'rachgia-v19.0.0';
+const CACHE_VERSION = 'rachgia-v19.13.0';
 const CACHE_NAME = `${CACHE_VERSION}-static`;
 const DATA_CACHE_NAME = `${CACHE_VERSION}-data`;
 
-// 캐시할 정적 자원
+// 로컬 JS 파일은 캐시하지 않음 (항상 최신 버전 사용)
+// CDN 자원만 캐시 (안정적)
 const STATIC_ASSETS = [
-  '/rachgia_dashboard_v18.html',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  // CDN 자원
+  '/icons/icon.svg',
+  // CDN 자원만 캐시
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js'
@@ -66,36 +65,51 @@ self.addEventListener('activate', (event) => {
 });
 
 // =============================================================================
-// Fetch Event - 네트워크 요청 가로채기
+// Fetch Event - 네트워크 요청 가로채기 (안전한 전략)
 // =============================================================================
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // HTML 파일: Network First (항상 최신 버전 유지)
-  if (request.destination === 'document' || url.pathname.endsWith('.html')) {
-    event.respondWith(networkFirst(request));
+  // 데이터 파일은 절대 캐시하지 않음 (항상 최신 데이터 보장)
+  if (url.pathname.includes('/data/') || url.pathname.endsWith('.json')) {
+    event.respondWith(networkOnly(request));
     return;
   }
 
-  // 정적 자산: Cache First (오프라인 지원)
-  if (
-    request.destination === 'style' ||
-    request.destination === 'script' ||
-    request.destination === 'image' ||
-    url.hostname.includes('cdn.')
-  ) {
+  // CDN 자원만 캐시 (안정적이고 변경되지 않는 리소스)
+  if (url.hostname.includes('cdn.') || url.hostname.includes('jsdelivr') || url.hostname.includes('gstatic')) {
     event.respondWith(cacheFirst(request));
     return;
   }
 
-  // 기타: Network First
-  event.respondWith(networkFirst(request));
+  // 로컬 파일 (HTML, JS, CSS 등): 항상 네트워크에서 가져옴
+  // 캐시 문제 방지 - 항상 최신 버전 보장
+  event.respondWith(networkOnly(request));
 });
 
 // =============================================================================
 // Caching Strategies
 // =============================================================================
+
+/**
+ * Network Only: 항상 네트워크에서 가져옴
+ * - 로컬 JS/HTML/CSS 파일에 사용
+ * - 캐시 문제 완전 방지
+ */
+async function networkOnly(request) {
+  try {
+    return await fetch(request);
+  } catch (error) {
+    console.log('[SW] Network only failed:', error);
+    return new Response(
+      '<h1>오프라인 상태입니다</h1><p>인터넷 연결을 확인해주세요.</p>',
+      {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      }
+    );
+  }
+}
 
 /**
  * Network First: 네트워크 우선, 실패 시 캐시
@@ -246,7 +260,7 @@ self.addEventListener('notificationclick', (event) => {
 
   if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/rachgia_dashboard_v18.html')
+      clients.openWindow('/rachgia_dashboard_v19.html')
     );
   }
 });

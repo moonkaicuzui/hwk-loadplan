@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // data 폴더: 인증된 사용자만 읽기 가능
+    match /data/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false; // 콘솔에서만 업로드
+    }
+  }
+}

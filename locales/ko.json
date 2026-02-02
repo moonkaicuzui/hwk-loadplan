@@ -22,7 +22,8 @@
     "refresh": "새로고침",
     "settings": "설정",
     "help": "도움말",
-    "all": "전체"
+    "all": "전체",
+    "apply": "적용"
   },
 
   "header": {
@@ -36,6 +37,7 @@
 
   "filters": {
     "title": "필터",
+    "all": "전체",
     "month": "월",
     "destination": "행선지",
     "vendor": "벤더 (아웃솔)",
@@ -61,7 +63,13 @@
     "factory": "공장",
     "vendor": "벤더",
     "heatmap": "히트맵",
-    "data": "데이터"
+    "data": "데이터",
+    "settings": "설정",
+    "orderSearch": "오더검색",
+    "monitoring": "모니터링",
+    "taskAssignment": "작업지시",
+    "taskResult": "작업결과",
+    "navigationLabel": "대시보드 탭 네비게이션"
   },
 
   "summary": {
@@ -85,10 +93,12 @@
     "pre_sew": "선봉",
     "sew_input": "재봉 투입",
     "sew_bal": "재봉",
-    "osc": "외주 (아웃솔)",
-    "ass": "조립",
+    "s_fit": "핏팅",
+    "ass_bal": "조립",
     "wh_in": "입고",
-    "wh_out": "출고"
+    "wh_out": "출고",
+    "osc": "핏팅",
+    "ass": "조립"
   },
 
   "status": {
@@ -159,6 +169,7 @@
   "notifications": {
     "title": "브라우저 알림",
     "enable": "알림 활성화",
+    "enableNotifications": "알림 활성화",
     "disable": "알림 비활성화",
     "permissionGranted": "✅ 알림이 활성화되었습니다",
     "permissionDenied": "❌ 알림 권한이 거부되었습니다",
@@ -178,6 +189,8 @@
     "title": "⌨️ 키보드 단축키",
     "shortcuts": "단축키",
     "action": "동작",
+    "categoryFilter": "필터",
+    "toggleFilterPanel": "필터 패널 토글",
     "tab1": "Alt+1: 요약 탭",
     "tab2": "Alt+2: 월별 탭",
     "tab3": "Alt+3: 행선지 탭",
@@ -214,6 +227,8 @@
     "csv": "CSV 내보내기 (.csv)",
     "pdf": "PDF 리포트 (.pdf)",
     "json": "JSON 내보내기 (.json)",
+    "productionProcess": "생산 공정",
+    "presetManagement": "프리셋 관리",
     "currentFilter": "현재 필터링된 {count}건의 데이터를 내보냅니다.",
     "success": "✅ {count}건의 데이터를 {format}로 내보냈습니다.",
     "error": "❌ 내보내기 중 오류가 발생했습니다."
@@ -233,7 +248,69 @@
     "enableNotifications": "브라우저 알림",
     "reset": "🔄 설정 초기화",
     "resetConfirm": "모든 설정을 초기화하시겠습니까?",
-    "saved": "✅ 설정이 저장되었습니다."
+    "saved": "✅ 설정이 저장되었습니다.",
+    "oauth": {
+      "title": "Google Drive 설정 (OAuth 2.0)",
+      "description": "OAuth 2.0을 통해 Google Drive 폴더의 4개 공장 파일(A, B, C, D)을 자동으로 로드합니다.",
+      "needLogin": "로그인 필요",
+      "connected": "연결됨",
+      "signIn": "Google 로그인",
+      "signOut": "로그아웃",
+      "clientId": "OAuth Client ID",
+      "clientIdHelp": "Google Cloud Console에서 생성한 OAuth 2.0 클라이언트 ID",
+      "folderId": "Google Drive 폴더 ID",
+      "folderIdHelp": "URL에서 folders/ 뒤의 값",
+      "autoSyncInterval": "자동 동기화 주기",
+      "manual": "수동",
+      "lastSync": "마지막 동기화",
+      "loadedRecords": "로드된 레코드",
+      "save": "설정 저장",
+      "testFolder": "폴더 확인",
+      "syncNow": "지금 동기화",
+      "filesInFolder": "폴더 내 파일"
+    },
+    "googleDrive": {
+      "title": "Google Drive 설정 (공개 링크)",
+      "description": "공개 링크를 통해 단일 Excel 파일을 로드합니다. (인증 불필요)",
+      "fileId": "파일 ID",
+      "fileIdHelp": "예: https://drive.google.com/file/d/FILE_ID_HERE/view",
+      "syncInterval": "동기화 주기",
+      "manual": "수동",
+      "status": "상태",
+      "notConfigured": "미설정",
+      "lastSync": "마지막 동기화",
+      "testConnection": "테스트 연결",
+      "save": "저장",
+      "syncNow": "지금 동기화"
+    },
+    "firebase": {
+      "title": "Firebase 설정",
+      "description": "품질 관리 작업 데이터(모니터링 대상, 작업 지시, 작업 결과)를 Firebase에 저장합니다.",
+      "apiKey": "API Key",
+      "databaseUrl": "Database URL",
+      "databaseUrlHelp": "Firebase Console → Realtime Database에서 URL을 복사하세요",
+      "projectId": "Project ID",
+      "status": "상태",
+      "notConfigured": "미설정",
+      "testConnection": "테스트 연결",
+      "save": "저장"
+    },
+    "user": {
+      "title": "사용자 설정",
+      "name": "사용자 이름",
+      "role": "역할",
+      "save": "저장",
+      "roles": {
+        "viewer": "뷰어",
+        "inspector": "검사자",
+        "manager": "관리자"
+      }
+    },
+    "cache": {
+      "title": "캐시 관리",
+      "localStorageSize": "로컬 스토리지 사용량",
+      "clear": "캐시 삭제"
+    }
   },
 
   "errors": {
@@ -287,14 +364,25 @@
 
   "mobile": {
     "filterToggle": "필터",
-    "menuToggle": "메뉴"
+    "menuToggle": "메뉴",
+    "menuTitle": "대시보드 메뉴",
+    "openFilters": "필터 열기"
   },
 
   "shortcuts": {
-    "inlineHelp": "⌨️ 단축키: Alt+1~8(탭), Alt+F(검색), Alt+E(내보내기), Alt+H(도움말), ?(단축키 도움말)"
+    "inlineHelp": "⌨️ 단축키: Alt+1~8(탭), Alt+F(검색), Alt+E(내보내기), Alt+H(도움말), ?(단축키 도움말)",
+    "search": "검색",
+    "filter": "필터",
+    "reset": "초기화",
+    "detailTab": "상세탭",
+    "closeModal": "모달닫기",
+    "page": "페이지"
   },
 
   "modals": {
+    "orderDetail": "오더 상세",
+    "processDetail": "공정 상세",
+    "helpTitle": "도움말",
     "columnSelection": {
       "title": "표시할 컬럼 선택",
       "selectAll": "전체 선택",
@@ -342,31 +430,64 @@
   "monthly": {
     "title": "월별 생산 현황",
     "chartTitle": "월별 오더 및 완료 추이",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "tableTitle": "월별 완료 현황",
+    "tableCaption": "월별 오더 완료 현황 및 완료율 테이블",
+    "month": "월",
+    "orders": "오더",
+    "quantity": "주문량",
+    "completed": "완료량",
+    "completionRate": "완료율",
+    "trendTitle": "월별 트렌드 분석",
+    "trendDescription": "주문량, 완료량, 지연율의 월별 추이를 보여줍니다. 트렌드를 통해 생산 효율성과 문제점을 파악할 수 있습니다."
   },
 
   "destination": {
     "title": "행선지별 생산 현황",
     "chartTitle": "행선지별 오더 분포",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "tableTitle": "행선지별 완료 현황",
+    "tableCaption": "행선지별 오더 완료 현황 및 완료율 테이블",
+    "country": "국가",
+    "count": "건수",
+    "quantity": "수량",
+    "completed": "완료",
+    "completionRate": "완료율"
   },
 
   "model": {
     "title": "모델별 생산 현황",
     "chartTitle": "모델별 오더 분포",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "tableTitle": "모델별 완료 현황",
+    "tableCaption": "모델별 오더 완료 현황 및 완료율 테이블",
+    "model": "모델",
+    "count": "건수",
+    "quantity": "수량",
+    "completed": "완료",
+    "completionRate": "완료율"
   },
 
   "factory": {
     "title": "공장별 생산 현황",
     "chartTitle": "공장별 완료율",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "progressTitle": "공장별 공정 진행률",
+    "processTitle": "공장별 공정 진행률"
   },
 
   "vendor": {
     "title": "벤더별 생산 현황",
     "chartTitle": "벤더별 성과",
-    "noData": "데이터 없음"
+    "noData": "데이터 없음",
+    "tableTitle": "벤더별 완료 현황",
+    "tableCaption": "벤더별 오더 완료 현황 및 완료율 테이블",
+    "vendor": "벤더",
+    "orders": "오더",
+    "quantity": "수량",
+    "completed": "완료",
+    "completionRate": "완료율",
+    "heatmapTitle": "벤더별 히트맵"
   },
 
   "heatmap": {
@@ -374,7 +495,10 @@
     "modelVendorTitle": "모델 × 벤더 히트맵",
     "countryMonthTitle": "국가 × 월 히트맵",
     "modelDestinationTitle": "모델 × 행선지 히트맵",
-    "noData": "데이터 없음"
+    "modelDestTitle": "모델 × 행선지 히트맵",
+    "noData": "데이터 없음",
+    "low": "낮음",
+    "high": "높음"
   },
 
   "data": {
@@ -386,6 +510,31 @@
     "analytics": "AI 분석",
     "analyticsTitle": "AI 기반 예측 분석 및 인사이트",
     "analyticsAria": "AI 분석 인사이트 보기",
+    "rowsPerPage": "페이지당 행",
+    "previous": "이전",
+    "next": "다음",
+    "export": "내보내기",
+    "report": "리포트",
+    "anomaly": "이상치",
+    "tableCaption": "상세 데이터 테이블",
+    "factory": "공장",
+    "model": "모델",
+    "destination": "행선지",
+    "outsoleVendor": "아웃솔 벤더",
+    "quantity": "수량",
+    "cutting": "재단",
+    "sewing": "재봉",
+    "assembly": "조립",
+    "warehouse": "창고",
+    "status": "상태",
+    "columnsTitle": "컬럼 선택",
+    "columnSettingsTitle": "컬럼 설정",
+    "reportTitle": "리포트 생성",
+    "anomalyTitle": "이상치 탐지",
+    "columnsgsAria": "컬럼 설정 열기",
+    "columnSettingsAria": "컬럼 설정 열기",
+    "reportAria": "리포트 생성 열기",
+    "anomalyAria": "이상치 탐지 열기",
     "columns": {
       "factory": "공장",
       "poNumber": "PO 번호",
@@ -428,10 +577,12 @@
       "preSew": "PRE_SEW (선봉)",
       "sewInput": "SEW_INPUT (재봉투입)",
       "sewBal": "SEW_BAL (재봉)",
-      "osc": "OSC (외주)",
-      "ass": "ASS (조립)",
+      "sFit": "S_FIT (핏팅)",
+      "assBal": "ASS_BAL (조립)",
       "whIn": "WH_IN (창고입고)",
-      "whOut": "WH_OUT (창고출고)"
+      "whOut": "WH_OUT (창고출고)",
+      "osc": "OSC (핏팅)",
+      "ass": "ASS (조립)"
     },
     "vendorScoreCode": "// 벤더 성과 점수 = (완료율 × 0.7) - (지연율 × 0.3)\nfunction calculateVendorScore(vendor) {\n    const completionRate = (completed / total) * 100;\n    const delayRate = (delayed / total) * 100;\n    return (completionRate * 0.7) - (delayRate * 0.3);\n}\n\n// 해석:\n// 80점 이상: 우수 (Green)\n// 50-80점: 보통 (Yellow)\n// 50점 미만: 개선 필요 (Red)",
     "severity": {
@@ -461,6 +612,172 @@
       "warningCondition": "<strong>경고 오더:</strong> CRD까지 7일 이내 남은 경우 (선택 사항)",
       "checkInterval": "<strong>체크 주기:</strong> 5분마다 자동 확인 (백그라운드 실행)",
       "tip": "💡 팁: 브라우저를 닫아도 알림은 시스템 트레이에 표시됩니다."
+    },
+    "kpi": {
+      "otdTitle": "정시 납기율 (OTD)",
+      "formula": "계산식",
+      "meaning": "의미",
+      "goal": "목표",
+      "reTitle": "위험 매출액",
+      "aqTitle": "품질 검사 합격률",
+      "bkTitle": "예측 병목 공정",
+      "action": "조치",
+      "revenueTitle": "위험 매출액",
+      "aqlTitle": "품질 검사 합격률",
+      "bottleneckTitle": "예측 병목 공정"
+    },
+    "delayCalcTitle": "지연 계산",
+    "warningCalcTitle": "경고 계산",
+    "shippedCalcTitle": "출고 계산",
+    "productSTitle": "생산 현황",
+    "vendorETitle": "벤더 평가",
+    "delaySTitle": "지연 심각도",
+    "delayLogicTitle": "지연 판정 로직",
+    "warningLogicTitle": "경고 판정 로직",
+    "shippedLogicTitle": "출고 판정 로직",
+    "productionProcessTitle": "생산 공정 흐름",
+    "vendorScoreTitle": "벤더 성과 점수",
+    "delaySeverityTitle": "지연 심각도 기준"
+  },
+
+  "orderSearch": {
+    "title": "🔍 오더 검색",
+    "description": "특정 오더를 검색하고 상세 정보를 확인합니다.",
+    "searchBtn": "검색",
+    "month": "월 필터",
+    "factory": "공장 필터",
+    "destination": "행선지 필터",
+    "status": "상태 필터",
+    "trackDate": "추적 날짜",
+    "resetBtn": "초기화",
+    "tableCaption": "오더 검색 결과 테이블",
+    "filter": {
+      "month": "월",
+      "factory": "공장",
+      "destination": "행선지",
+      "status": "상태",
+      "quickDate": "빠른 날짜 필터"
     }
+  },
+
+  "monitoring": {
+    "title": "🎯 모니터링 대상",
+    "description": "중요한 오더를 모니터링 대상으로 등록하여 추적합니다.",
+    "addTarget": "대상 추가",
+    "activeTargets": "활성 대상",
+    "noTargets": "등록된 모니터링 대상이 없습니다.",
+    "register": {
+      "title": "모니터링 등록"
+    },
+    "list": {
+      "title": "모니터링 목록"
+    }
+  },
+
+  "taskAssignment": {
+    "title": "📋 작업 지시",
+    "description": "특정 오더에 대한 작업 지시를 생성하고 관리합니다.",
+    "createTask": "작업 생성",
+    "taskType": "작업 유형",
+    "qc": "품질 검사",
+    "rework": "재작업",
+    "freeform": "자유 형식",
+    "targetOrder": "대상 오더",
+    "taskTitle": "작업 제목",
+    "taskDescription": "작업 설명",
+    "priority": "우선순위",
+    "high": "높음",
+    "medium": "보통",
+    "low": "낮음",
+    "assignee": "담당자",
+    "dueDate": "마감일",
+    "status": "상태",
+    "pending": "대기",
+    "inProgress": "진행중",
+    "completed": "완료",
+    "cancelled": "취소",
+    "noTasks": "등록된 작업이 없습니다."
+  },
+
+  "taskResult": {
+    "title": "✅ 작업 결과",
+    "description": "완료된 작업의 결과를 기록하고 관리합니다.",
+    "recordResult": "결과 기록",
+    "taskId": "작업 ID",
+    "resultStatus": "결과 상태",
+    "pass": "통과",
+    "fail": "불합격",
+    "partial": "부분 통과",
+    "findings": "검사 결과",
+    "actionTaken": "조치 사항",
+    "noResults": "기록된 작업 결과가 없습니다."
+  },
+
+  "export": {
+    "selectColumns": "컬럼 선택",
+    "selectAll": "전체 선택",
+    "deselectAll": "전체 해제",
+    "essentialOnly": "필수 항목만",
+    "basicInfo": "기본 정보",
+    "dateInfo": "날짜 정보",
+    "process": "공정 정보",
+    "statusInfo": "상태 정보",
+    "preManagement": "사전 관리",
+    "selectedCount": "선택됨: {count}개",
+    "processing": "처리 중...",
+    "progress": "진행률",
+    "processed": "처리됨",
+    "chunkOptimization": "청크 최적화",
+    "productionProcess": "생산 공정",
+    "presetManagement": "프리셋 관리"
+  },
+
+  "report": {
+    "title": "리포트",
+    "daily": "일일",
+    "weekly": "주간",
+    "monthly": "월간",
+    "printTip": "💡 브라우저 인쇄 기능(Ctrl+P)을 사용하세요.",
+    "printPDF": "PDF로 인쇄",
+    "downloadHTML": "HTML 다운로드",
+    "historyTitle": "리포트 히스토리",
+    "clearAll": "전체 삭제"
+  },
+
+  "keyboard": {
+    "introTip": "키보드 단축키를 사용하여 빠르게 작업하세요.",
+    "ctrlFilter": "필터 포커스",
+    "togglerPanel": "패널 전환",
+    "resetFilters": "필터 초기화",
+    "focusSearch": "검색 포커스",
+    "categoryTabs": "탭 네비게이션",
+    "tabMonthly": "월별 탭",
+    "tabDestination": "행선지 탭",
+    "tabModel": "모델 탭",
+    "tabFactory": "공장 탭",
+    "tabVendor": "벤더 탭",
+    "tabHeatmap": "히트맵 탭",
+    "tabData": "데이터 탭",
+    "categoryData": "데이터 조작",
+    "exportExcel": "엑셀 내보내기",
+    "generateReport": "리포트 생성",
+    "reportHistory": "리포트 히스토리",
+    "detectOutliers": "이상치 탐지",
+    "categoryUI": "UI 조작",
+    "toggleDarkMode": "다크모드 전환",
+    "refreshPage": "페이지 새로고침",
+    "categoryHelp": "도움말",
+    "openShortcuts": "단축키 열기",
+    "or": "또는",
+    "closeModal": "모달 닫기",
+    "categoryFilter": "필터",
+    "toggleFilterPanel": "필터 패널 토글"
+  },
+
+  "notifications": {
+    "notifications": "알림",
+    "historyTitle": "알림 히스토리",
+    "clearAll": "전체 삭제",
+    "enableNotifications": "알림 활성화"
   }
 }

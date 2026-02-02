@@ -28,3 +28,26 @@ Thumbs.db
 # Large data files (optional - uncomment if needed)
 # *.json
 # *.xlsx
+
+# Downloaded data (from Google Drive automation)
+data/
+*.xlsx
+
+# Credentials (NEVER commit!)
+credentials/
+service-account.json
+*.pem
+*.key
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Build outputs
+dist/
+*.tar.gz
+
+# Test results
+test-results/
+.playwright-mcp/
+node_modules/

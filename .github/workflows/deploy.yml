@@ -1,232 +1,124 @@
 # =============================================================================
-# GitHub Actions Workflow: 프로덕션 배포
-# Agent W03: DevOps & CI/CD Engineer
-# Trigger: Manual, Tag
+# GitHub Actions Workflow: Google Drive → 자동 빌드 → Firebase 배포
+# Rachgia Dashboard v19 - 완전 자동화 파이프라인
 # =============================================================================
 
-name: Deploy to Production
+name: Auto Build & Deploy
 
 on:
-  push:
-    tags:
-      - 'v*'
+  # 매시간 자동 실행
+  schedule:
+    - cron: '0 * * * *'
+
+  # 수동 실행
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Deployment environment'
-        required: true
-        default: 'production'
-        type: choice
-        options:
-          - production
-          - staging
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
 
 jobs:
-  pre-deploy-checks:
-    name: Pre-deployment Checks
+  # ==========================================================================
+  # 1단계: Google Drive에서 데이터 다운로드
+  # ==========================================================================
+  download-and-build:
+    name: 📥 Download & Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install google-auth google-auth-oauthlib google-api-python-client openpyxl
+
+      - name: Download Excel files from Google Drive
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: |
+          python scripts/download_from_drive.py
+
+      - name: Check data files
+        id: check
+        run: |
+          if [ -d "data" ] && [ "$(ls -A data/*.xlsx 2>/dev/null)" ]; then
+            echo "has_data=true" >> $GITHUB_OUTPUT
+            ls -la data/
+          else
+            echo "has_data=false" >> $GITHUB_OUTPUT
+            echo "❌ 데이터 파일 없음"
+            exit 1
+          fi
+
+      - name: Embed data into HTML
+        run: |
+          python scripts/embed_data.py
+
+          echo "## 📊 빌드 결과" >> $GITHUB_STEP_SUMMARY
+          DATA_COUNT=$(grep -o '"order_no"' rachgia_dashboard_v19.html | wc -l)
+          echo "- 레코드: **${DATA_COUNT}개**" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: npm ci
-
-      - name: Run E2E Tests
-        run: npm run test
-        env:
-          CI: true
-
-      - name: Security Check
-        run: |
-          echo "## 🔒 Security Check" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          # XSS 취약점 검사
-          UNSAFE_INNERHTML=$(grep -n "innerHTML" rachgia_dashboard_v18.html | wc -l)
-          echo "- innerHTML usage: $UNSAFE_INNERHTML instances" >> $GITHUB_STEP_SUMMARY
-
-          if [ $UNSAFE_INNERHTML -gt 50 ]; then
-            echo "⚠️ Warning: High innerHTML usage detected" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ innerHTML usage within acceptable range" >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Validate HTML
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ HTML Validation" >> $GITHUB_STEP_SUMMARY
-          echo "- File exists: rachgia_dashboard_v18.html" >> $GITHUB_STEP_SUMMARY
-          echo "- Size: $(stat -f%z rachgia_dashboard_v18.html) bytes" >> $GITHUB_STEP_SUMMARY
-
-  build:
-    name: Build Assets
-    runs-on: ubuntu-latest
-    needs: pre-deploy-checks
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Create deployment package
         run: |
           mkdir -p dist
-          cp rachgia_dashboard_v18.html dist/index.html
-          cp .htaccess dist/.htaccess
-
-          # 번들 크기 확인
-          DIST_SIZE=$(du -sh dist | cut -f1)
-          echo "## 📦 Deployment Package" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Package size: $DIST_SIZE" >> $GITHUB_STEP_SUMMARY
-          echo "- Files: index.html, .htaccess" >> $GITHUB_STEP_SUMMARY
-
-      - name: Compress with Gzip
-        run: |
-          cd dist
-          gzip -k -9 index.html
-          GZIP_SIZE=$(stat -f%z index.html.gz)
-          ORIGINAL_SIZE=$(stat -f%z index.html)
-          RATIO=$(echo "scale=1; (1 - $GZIP_SIZE / $ORIGINAL_SIZE) * 100" | bc)
-
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📉 Compression Results" >> $GITHUB_STEP_SUMMARY
-          echo "- Original: $ORIGINAL_SIZE bytes" >> $GITHUB_STEP_SUMMARY
-          echo "- Gzipped: $GZIP_SIZE bytes" >> $GITHUB_STEP_SUMMARY
-          echo "- Reduction: ${RATIO}%" >> $GITHUB_STEP_SUMMARY
+          cp rachgia_dashboard_v19.html dist/index.html
+          cp manifest.json dist/
+          cp sw.js dist/
+          cp -r locales dist/
+          cp -r icons dist/ 2>/dev/null || true
+          cp -r src dist/ 2>/dev/null || true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: deployment-package
           path: dist/
-          retention-days: 30
+          retention-days: 7
 
-  deploy-staging:
-    name: Deploy to Staging
+  # ==========================================================================
+  # 2단계: Firebase 배포
+  # ==========================================================================
+  deploy:
+    name: 🚀 Deploy to Firebase
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event.inputs.environment == 'staging' || github.ref == 'refs/heads/develop'
-    environment:
-      name: staging
-      url: https://staging.rachgia-dashboard.example.com
+    needs: download-and-build
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: deployment-package
-          path: dist
+          path: dist/
 
-      - name: Deploy to staging server
-        run: |
-          echo "🚀 Deploying to staging environment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Environment: **Staging**" >> $GITHUB_STEP_SUMMARY
-          echo "- URL: https://staging.rachgia-dashboard.example.com" >> $GITHUB_STEP_SUMMARY
-          echo "- Status: ✅ Deployed" >> $GITHUB_STEP_SUMMARY
-
-          # 실제 배포 명령 (예: FTP, rsync, AWS S3 등)
-          # rsync -avz dist/ user@staging-server:/var/www/html/
-
-      - name: Smoke test
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🧪 Smoke Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Homepage accessible" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Assets loading" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ No console errors" >> $GITHUB_STEP_SUMMARY
-
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v') || github.event.inputs.environment == 'production'
-    environment:
-      name: production
-      url: https://rachgia-dashboard.example.com
-
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Deploy to Firebase Hosting
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          name: deployment-package
-          path: dist
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          channelId: live
+          projectId: qip-loadplan
 
-      - name: Create backup
+      - name: Summary
         run: |
-          BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)"
-          echo "## 💾 Backup Created" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Backup name: $BACKUP_NAME" >> $GITHUB_STEP_SUMMARY
-          echo "- Location: s3://rachgia-backups/$BACKUP_NAME" >> $GITHUB_STEP_SUMMARY
-
-          # 실제 백업 명령
-          # aws s3 cp s3://rachgia-production s3://rachgia-backups/$BACKUP_NAME --recursive
-
-      - name: Deploy to production server
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 🚀 Production Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Environment: **Production**" >> $GITHUB_STEP_SUMMARY
-          echo "- URL: https://rachgia-dashboard.example.com" >> $GITHUB_STEP_SUMMARY
-          echo "- Version: ${GITHUB_REF#refs/tags/}" >> $GITHUB_STEP_SUMMARY
-          echo "- Deployed at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
-          echo "- Status: ✅ Deployed" >> $GITHUB_STEP_SUMMARY
-
-          # 실제 배포 명령
-          # rsync -avz dist/ user@prod-server:/var/www/html/
-          # 또는
-          # aws s3 sync dist/ s3://rachgia-production --delete
-
-      - name: Health check
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 💚 Health Check" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Server responding" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Database connected" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ All systems operational" >> $GITHUB_STEP_SUMMARY
-
-      - name: Notify deployment
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🎉 **Deployment Complete!**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Next steps:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Monitor application logs" >> $GITHUB_STEP_SUMMARY
-          echo "2. Run post-deployment tests" >> $GITHUB_STEP_SUMMARY
-          echo "3. Notify stakeholders" >> $GITHUB_STEP_SUMMARY
-
-  rollback:
-    name: Rollback (if needed)
-    runs-on: ubuntu-latest
-    needs: deploy-production
-    if: failure()
-
-    steps:
-      - name: Rollback to previous version
-        run: |
-          echo "## ⚠️ Rollback Initiated" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Deployment failed. Rolling back to previous version..." >> $GITHUB_STEP_SUMMARY
-
-          # 실제 롤백 명령
-          # LATEST_BACKUP=$(aws s3 ls s3://rachgia-backups/ | tail -1 | awk '{print $4}')
-          # aws s3 sync s3://rachgia-backups/$LATEST_BACKUP s3://rachgia-production --delete
-
-      - name: Verify rollback
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Rollback completed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Please investigate the deployment failure before retrying." >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 배포 완료!" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://qip-loadplan.web.app" >> $GITHUB_STEP_SUMMARY
+          echo "- **시간**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY

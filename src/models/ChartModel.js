@@ -26,8 +26,8 @@ export const PROCESS_ORDER = [
     'pre_sew',    // 선봉
     'sew_input',  // 재봉투입
     'sew_bal',    // 재봉
-    'osc',        // 외주
-    'ass',        // 조립
+    's_fit',      // 핏팅 (데이터 키: s_fit)
+    'ass_bal',    // 조립 (데이터 키: ass_bal)
     'wh_in',      // 입고
     'wh_out'      // 출고
 ];
@@ -41,8 +41,8 @@ export const PROCESS_LABELS = {
     'pre_sew': '선봉(PRE_SEW)',
     'sew_input': '재봉투입(SEW_INPUT)',
     'sew_bal': '재봉(SEW_BAL)',
-    'osc': '외주(OSC)',
-    'ass': '조립(ASS)',
+    's_fit': '핏팅(S_FIT)',
+    'ass_bal': '조립(ASS_BAL)',
     'wh_in': '입고(WH_IN)',
     'wh_out': '출고(WH_OUT)'
 };
@@ -53,14 +53,14 @@ export const PROCESS_LABELS = {
  * @type {Object<string, string>}
  */
 export const PROCESS_KEY_MAP = {
-    'S_CUT': 'scut',
-    'PRE_SEW': 'presew',
-    'SEW_INPUT': 'sewinput',
-    'SEW_BAL': 'sewbal',
-    'OSC': 'osc',
-    'ASS': 'ass',
-    'WH_IN': 'whin',
-    'WH_OUT': 'whout'
+    'S_CUT': 's_cut',
+    'PRE_SEW': 'pre_sew',
+    'SEW_INPUT': 'sew_input',
+    'SEW_BAL': 'sew_bal',
+    'S_FIT': 's_fit',
+    'ASS_BAL': 'ass_bal',
+    'WH_IN': 'wh_in',
+    'WH_OUT': 'wh_out'
 };
 
 // ============================================================================
@@ -97,6 +97,10 @@ export const PROCESS_KEY_MAP = {
  */
 export function calculateVendorPerformance(data) {
     const vendorStats = {};
+
+    if (!data || !Array.isArray(data)) {
+        return [];
+    }
 
     data.forEach(d => {
         const vendor = d.outsoleVendor || 'Unknown';
@@ -170,6 +174,10 @@ export function predictBottleneck(data) {
     PROCESS_ORDER.forEach(key => {
         processStats[key] = { completed: 0, pending: 0, total: 0 };
     });
+
+    if (!data || !Array.isArray(data)) {
+        return null;
+    }
 
     // Aggregate process statistics
     data.forEach(d => {
@@ -280,6 +288,10 @@ export function predictBottleneck(data) {
  * @note Uses local process definitions (not global constants)
  */
 export function analyzeDailyReport(data) {
+    if (!data || !Array.isArray(data)) {
+        return { summary: {}, processRates: [], topDelayedVendors: [], urgentOrders: [], topDelayedDest: [], factoryDelayed: {} };
+    }
+
     // Overall statistics
     const totalOrders = data.length;
     const delayedOrders = data.filter(d => isDelayed(d));
@@ -287,14 +299,14 @@ export function analyzeDailyReport(data) {
     const completedOrders = data.filter(d => d.production?.wh_out?.status === 'completed');
 
     // Process definitions (local to this function)
-    const processes = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 'osc', 'ass', 'wh_in', 'wh_out'];
+    const processes = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 's_fit', 'ass_bal', 'wh_in', 'wh_out'];
     const processLabels = {
         's_cut': '재단(S_CUT)',
         'pre_sew': '선봉(PRE_SEW)',
         'sew_input': '재봉투입(SEW_INPUT)',
         'sew_bal': '재봉(SEW_BAL)',
-        'osc': '외주(OSC)',
-        'ass': '조립(ASS)',
+        's_fit': '핏팅(S_FIT)',
+        'ass_bal': '조립(ASS_BAL)',
         'wh_in': '입고(WH_IN)',
         'wh_out': '출고(WH_OUT)'
     };
@@ -432,6 +444,10 @@ export function analyzeDailyReport(data) {
  * @note dailyProduction uses CRD for filtering, completionTrend uses WH_OUT date
  */
 export function analyzeWeeklyReport(data, weekStart, weekEnd) {
+    if (!data || !Array.isArray(data)) {
+        return { summary: {}, dailyProduction: {}, topDest: [], vendorIssues: [], completionTrend: [] };
+    }
+
     // Filter data by CRD within week range
     const weekData = data.filter(d => {
         const crd = new Date(d.crd);
@@ -646,6 +662,10 @@ export function analyzeWeeklyReport(data, weekStart, weekEnd) {
  * @refactoring-note Make factory list dynamic instead of hardcoded ['A', 'B', 'C', 'D']
  */
 export function analyzeMonthlyReport(data, currentMonth) {
+    if (!data || !Array.isArray(data)) {
+        return { summary: {}, monthlyTrends: [], factoryPerformance: [], processProgress: [], vendorRanking: [] };
+    }
+
     // Filter data by CRD within current month
     const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
@@ -780,8 +800,8 @@ export function analyzeMonthlyReport(data, currentMonth) {
         { name: 'PRE_SEW', label: '선봉' },
         { name: 'SEW_INPUT', label: '재봉투입' },
         { name: 'SEW_BAL', label: '재봉' },
-        { name: 'OSC', label: '외주' },
-        { name: 'ASS', label: '조립' },
+        { name: 'S_FIT', label: '핏팅' },
+        { name: 'ASS_BAL', label: '조립' },
         { name: 'WH_IN', label: '입고' },
         { name: 'WH_OUT', label: '출고' }
     ];

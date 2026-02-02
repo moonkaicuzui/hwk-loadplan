@@ -70,7 +70,9 @@ class I18n {
    */
   async loadTranslations(lang) {
     try {
-      const response = await fetch(`/locales/${lang}.json`);
+      // 캐시 버스팅: 버전 파라미터 추가로 항상 최신 번역 로드
+      const cacheBuster = `v=${Date.now()}`;
+      const response = await fetch(`/locales/${lang}.json?${cacheBuster}`);
       if (!response.ok) {
         throw new Error(`Failed to load ${lang}.json`);
       }
@@ -80,7 +82,7 @@ class I18n {
 
       // Fallback 언어도 로드 (에러 방지)
       if (lang !== this.fallbackLang && !this.translations[this.fallbackLang]) {
-        const fallbackResponse = await fetch(`/locales/${this.fallbackLang}.json`);
+        const fallbackResponse = await fetch(`/locales/${this.fallbackLang}.json?${cacheBuster}`);
         this.translations[this.fallbackLang] = await fallbackResponse.json();
       }
     } catch (error) {
@@ -224,8 +226,22 @@ class I18n {
    * 언어 전환기 UI 추가
    */
   addLanguageSwitcher() {
-    // 다크모드 토글 옆에 언어 선택기 추가
-    const darkModeContainer = document.querySelector('.flex.items-center.gap-2');
+    // 이미 추가된 경우 중복 방지
+    if (document.getElementById('languageSwitcher')) return;
+
+    // 로그인 오버레이가 표시 중인지 확인 - 로그인 전에는 추가하지 않음
+    const loginOverlay = document.getElementById('loginOverlay');
+    if (loginOverlay && !loginOverlay.classList.contains('hidden')) {
+      // 로그인 후 다시 시도
+      return;
+    }
+
+    // 헤더 영역 내에서만 찾기 (로그인 오버레이 제외)
+    const header = document.querySelector('header') || document.querySelector('[role="banner"]');
+    if (!header) return;
+
+    // 헤더 내 다크모드 토글 옆에 언어 선택기 추가
+    const darkModeContainer = header.querySelector('.flex.items-center.gap-2');
     if (!darkModeContainer) return;
 
     const langSwitcher = document.createElement('div');
