@@ -94,7 +94,7 @@ jobs:
           path: ./current
 
       - name: Download baseline results
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v14
         with:
           workflow: lighthouse.yml
           branch: main
