@@ -40,7 +40,7 @@ let isShipped = () => false;
 let isToday = () => false;
 
 /** @type {Array} Process order keys */
-let PROCESS_ORDER = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 'osc', 'ass', 'wh_in', 'wh_out'];
+let PROCESS_ORDER = ['s_cut', 'pre_sew', 'sew_input', 'sew_bal', 's_fit', 'ass_bal', 'wh_in', 'wh_out'];
 
 /** @type {Object} Process display names */
 let PROCESS_NAMES = {
@@ -48,8 +48,8 @@ let PROCESS_NAMES = {
   pre_sew: '선봉',
   sew_input: '재봉투입',
   sew_bal: '재봉',
-  osc: '외주',
-  ass: '조립',
+  s_fit: '핏팅',
+  ass_bal: '조립',
   wh_in: '입고',
   wh_out: '출고',
 };

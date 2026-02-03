@@ -589,7 +589,13 @@ export function analyzeWeeklyReport(data, weekStart, weekEnd) {
       delayedOrders: delayedOrders.length,
       completedOrders: completedOrders.length,
       weekCompletionRate:
-        weekOrders > 0 ? ((completedOrders.length / totalOrders) * 100).toFixed(1) : '0.0',
+        weekOrders > 0
+          ? (
+              (weekData.filter(d => d.production?.wh_out?.status === 'completed').length /
+                weekOrders) *
+              100
+            ).toFixed(1)
+          : '0.0',
     },
     dailyProduction,
     topDest,

@@ -282,13 +282,17 @@ export function calculateIsDelayed(record) {
 }
 
 /**
- * Calculate if record is in warning state (simplified version)
- * Used during data import/processing
+ * Calculate if delivery is imminent (SDD within 0-3 days from today)
+ * Used during data import/processing for urgent delivery alerts.
+ *
+ * NOTE: This differs from isWarning() which checks schedule slack (CRD - SDD).
+ *   - isWarning(): CRD와 SDD의 여유가 0~3일 (일정 촉박도)
+ *   - calculateIsDeliveryImminent(): SDD가 오늘부터 0~3일 이내 (배송 임박도)
  *
  * @param {Object} record - Order record
- * @returns {boolean} True if in warning state
+ * @returns {boolean} True if delivery is imminent (SDD within 3 days)
  */
-export function calculateIsWarning(record) {
+export function calculateIsDeliveryImminent(record) {
   if (record.isDelayed) return false;
   if (!record.sddValue) return false;
 
@@ -299,6 +303,9 @@ export function calculateIsWarning(record) {
 
   return diffDays >= 0 && diffDays <= 3;
 }
+
+// Backward compatibility alias
+export const calculateIsWarning = calculateIsDeliveryImminent;
 
 // ============================================================================
 // Analytics Functions

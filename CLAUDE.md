@@ -34,8 +34,8 @@
 
 ### 생산 공정 순서
 ```
-S_CUT → PRE_SEW → SEW_INPUT → SEW_BAL → OSC → ASS → WH_IN → WH_OUT
-(재단)   (선봉)   (재봉투입)  (재봉)   (외주) (조립) (입고)  (출고)
+S_CUT → PRE_SEW → SEW_INPUT → SEW_BAL → S_FIT → ASS_BAL → WH_IN → WH_OUT
+(재단)   (선봉)   (재봉투입)  (재봉)   (핏팅) (조립)    (입고)  (출고)
 ```
 
 ### 핵심 날짜 필드
