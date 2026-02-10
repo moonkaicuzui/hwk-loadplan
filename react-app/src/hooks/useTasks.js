@@ -29,10 +29,62 @@ export const TASK_PRIORITY = {
 };
 
 /**
- * Generate unique task ID
+ * Generate unique ID
+ * @param {string} prefix ID prefix
  * @returns {string} Unique ID
  */
-const generateId = () => `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const generateId = (prefix = 'task') => `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+/**
+ * Image constraints
+ */
+export const IMAGE_CONSTRAINTS = {
+  MAX_IMAGES_PER_TASK: 5,
+  MAX_WIDTH: 800,
+  QUALITY: 0.7,
+  MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB before compression
+  ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+};
+
+/**
+ * Compress image to specified max width and quality
+ * @param {File} file Image file
+ * @param {number} maxWidth Maximum width in pixels
+ * @param {number} quality JPEG quality (0-1)
+ * @returns {Promise<string>} Base64 data URL
+ */
+export const compressImage = (file, maxWidth = IMAGE_CONSTRAINTS.MAX_WIDTH, quality = IMAGE_CONSTRAINTS.QUALITY) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+
+        // Calculate new dimensions
+        if (width > maxWidth) {
+          height = (height * maxWidth) / width;
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+};
 
 /**
  * Task management hook
@@ -86,6 +138,7 @@ export function useTasks() {
       dueDate: taskData.dueDate || null,
       assignee: taskData.assignee || '',
       poNumber: taskData.poNumber || '',
+      images: taskData.images || [], // Array of { id, dataUrl, name, size, uploadedAt }
       createdAt: now,
       updatedAt: now
     };
@@ -216,6 +269,57 @@ export function useTasks() {
   }, [tasks]);
 
   /**
+   * Add image to a task
+   * @param {string} taskId Task ID
+   * @param {Object} imageData Image data { dataUrl, name, size }
+   * @returns {Object|null} Added image or null if failed
+   */
+  const addImage = useCallback((taskId, imageData) => {
+    let addedImage = null;
+    setTasks(prev => prev.map(task => {
+      if (task.id !== taskId) return task;
+
+      const currentImages = task.images || [];
+      if (currentImages.length >= IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK) {
+        console.warn(`Task ${taskId} already has maximum number of images (${IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK})`);
+        return task;
+      }
+
+      addedImage = {
+        id: generateId('img'),
+        dataUrl: imageData.dataUrl,
+        name: imageData.name,
+        size: imageData.size,
+        uploadedAt: new Date().toISOString()
+      };
+
+      return {
+        ...task,
+        images: [...currentImages, addedImage],
+        updatedAt: new Date().toISOString()
+      };
+    }));
+    return addedImage;
+  }, []);
+
+  /**
+   * Remove image from a task
+   * @param {string} taskId Task ID
+   * @param {string} imageId Image ID to remove
+   */
+  const removeImage = useCallback((taskId, imageId) => {
+    setTasks(prev => prev.map(task => {
+      if (task.id !== taskId) return task;
+
+      return {
+        ...task,
+        images: (task.images || []).filter(img => img.id !== imageId),
+        updatedAt: new Date().toISOString()
+      };
+    }));
+  }, []);
+
+  /**
    * Clear all tasks
    */
   const clearAllTasks = useCallback(() => {
@@ -270,7 +374,9 @@ export function useTasks() {
     getTasksByPO,
     getOverdueTasks,
     sortTasks,
-    clearAllTasks
+    clearAllTasks,
+    addImage,
+    removeImage
   };
 }
 

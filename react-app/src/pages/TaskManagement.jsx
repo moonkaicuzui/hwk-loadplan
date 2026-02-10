@@ -22,9 +22,12 @@ import {
   Flag,
   AlertTriangle,
   CheckCircle,
-  PlayCircle
+  PlayCircle,
+  Image as ImageIcon,
+  Upload,
+  ZoomIn
 } from 'lucide-react';
-import { useTasks, TASK_STATUS, TASK_PRIORITY } from '../hooks/useTasks';
+import { useTasks, TASK_STATUS, TASK_PRIORITY, IMAGE_CONSTRAINTS, compressImage } from '../hooks/useTasks';
 
 /**
  * Priority configuration for display
@@ -46,6 +49,88 @@ const STATUS_CONFIG = {
 };
 
 /**
+ * Image Lightbox Component for viewing full-size images
+ */
+function ImageLightbox({ images, currentIndex, onClose, onNavigate }) {
+  const { t } = useTranslation();
+  const image = images[currentIndex];
+
+  if (!image) return null;
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') onClose();
+    if (e.key === 'ArrowLeft' && currentIndex > 0) onNavigate(currentIndex - 1);
+    if (e.key === 'ArrowRight' && currentIndex < images.length - 1) onNavigate(currentIndex + 1);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90"
+      onClick={onClose}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="dialog"
+      aria-label={t('tasks.images.lightbox', '이미지 뷰어')}
+    >
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+        aria-label={t('tasks.images.close', '닫기')}
+      >
+        <X className="w-6 h-6 text-white" />
+      </button>
+
+      {/* Navigation arrows */}
+      {images.length > 1 && (
+        <>
+          {currentIndex > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex - 1); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label={t('tasks.images.prev', '이전 이미지')}
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          )}
+          {currentIndex < images.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onNavigate(currentIndex + 1); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+              aria-label={t('tasks.images.next', '다음 이미지')}
+            >
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Image */}
+      <img
+        src={image.dataUrl}
+        alt={image.name}
+        className="max-w-[90vw] max-h-[90vh] object-contain"
+        onClick={(e) => e.stopPropagation()}
+      />
+
+      {/* Image info */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 px-4 py-2 rounded-lg text-white text-sm">
+        <span>{image.name}</span>
+        {images.length > 1 && (
+          <span className="ml-2 text-white/70">
+            ({currentIndex + 1} / {images.length})
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
  * Task Form Modal Component
  */
 function TaskFormModal({ task, onSubmit, onClose }) {
@@ -59,10 +144,13 @@ function TaskFormModal({ task, onSubmit, onClose }) {
     priority: task?.priority || TASK_PRIORITY.MEDIUM,
     dueDate: task?.dueDate || '',
     assignee: task?.assignee || '',
-    poNumber: task?.poNumber || ''
+    poNumber: task?.poNumber || '',
+    images: task?.images || []
   });
 
   const [errors, setErrors] = useState({});
+  const [imageError, setImageError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const validateForm = () => {
     const newErrors = {};
@@ -85,6 +173,88 @@ function TaskFormModal({ task, onSubmit, onClose }) {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: null }));
     }
+  };
+
+  /**
+   * Handle image file selection
+   */
+  const handleImageUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setImageError('');
+    setIsUploading(true);
+
+    try {
+      const currentImages = formData.images || [];
+      const remainingSlots = IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK - currentImages.length;
+
+      if (remainingSlots <= 0) {
+        setImageError(t('tasks.images.maxReached', `최대 ${IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK}개의 이미지만 첨부할 수 있습니다.`));
+        setIsUploading(false);
+        return;
+      }
+
+      const filesToProcess = files.slice(0, remainingSlots);
+      const newImages = [];
+
+      for (const file of filesToProcess) {
+        // Validate file type
+        if (!IMAGE_CONSTRAINTS.ALLOWED_TYPES.includes(file.type)) {
+          setImageError(t('tasks.images.invalidType', '지원하지 않는 이미지 형식입니다. (JPEG, PNG, GIF, WebP)'));
+          continue;
+        }
+
+        // Validate file size
+        if (file.size > IMAGE_CONSTRAINTS.MAX_FILE_SIZE) {
+          setImageError(t('tasks.images.tooLarge', '파일 크기가 너무 큽니다. (최대 5MB)'));
+          continue;
+        }
+
+        try {
+          const dataUrl = await compressImage(file);
+          newImages.push({
+            id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            dataUrl,
+            name: file.name,
+            size: file.size,
+            uploadedAt: new Date().toISOString()
+          });
+        } catch (err) {
+          console.error('Failed to compress image:', err);
+          setImageError(t('tasks.images.compressFailed', '이미지 압축에 실패했습니다.'));
+        }
+      }
+
+      if (newImages.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), ...newImages]
+        }));
+      }
+
+      if (files.length > remainingSlots) {
+        setImageError(t('tasks.images.someskipped', `${files.length - remainingSlots}개의 이미지가 건너뛰어졌습니다. (최대 ${IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK}개)`));
+      }
+    } catch (err) {
+      console.error('Image upload error:', err);
+      setImageError(t('tasks.images.uploadFailed', '이미지 업로드에 실패했습니다.'));
+    } finally {
+      setIsUploading(false);
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  /**
+   * Remove image from form data
+   */
+  const handleRemoveImage = (imageId) => {
+    setFormData(prev => ({
+      ...prev,
+      images: (prev.images || []).filter(img => img.id !== imageId)
+    }));
+    setImageError('');
   };
 
   return (
@@ -225,6 +395,94 @@ function TaskFormModal({ task, onSubmit, onClose }) {
             </div>
           </div>
 
+          {/* Image Upload Section */}
+          <div>
+            <label className="block text-sm font-medium text-primary mb-1">
+              {t('tasks.images.label', '사진 첨부')}
+              <span className="text-secondary font-normal ml-2">
+                ({(formData.images || []).length}/{IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK})
+              </span>
+            </label>
+
+            {/* Upload Button */}
+            <div className="mt-2">
+              <label
+                className={`
+                  flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed rounded-lg
+                  cursor-pointer transition-colors
+                  ${(formData.images || []).length >= IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK
+                    ? 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-50'
+                    : 'border-blue-300 dark:border-blue-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                  }
+                `}
+              >
+                {isUploading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+                    <span className="text-sm text-secondary">{t('tasks.images.uploading', '업로드 중...')}</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5 text-blue-500" />
+                    <span className="text-sm text-blue-600 dark:text-blue-400">
+                      {t('tasks.images.addPhotos', '사진 추가')}
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  disabled={(formData.images || []).length >= IMAGE_CONSTRAINTS.MAX_IMAGES_PER_TASK || isUploading}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Error Message */}
+            {imageError && (
+              <p className="text-sm text-red-500 mt-2">{imageError}</p>
+            )}
+
+            {/* Image Previews */}
+            {(formData.images || []).length > 0 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {formData.images.map((image) => (
+                  <div key={image.id} className="relative group aspect-square">
+                    <img
+                      src={image.dataUrl}
+                      alt={image.name}
+                      className="w-full h-full object-cover rounded-lg border border-theme"
+                    />
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(image.id)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full
+                                 flex items-center justify-center opacity-0 group-hover:opacity-100
+                                 transition-opacity shadow-md hover:bg-red-600"
+                      aria-label={t('tasks.images.remove', '이미지 삭제')}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                    {/* Image name tooltip */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs
+                                    px-1 py-0.5 rounded-b-lg truncate opacity-0 group-hover:opacity-100
+                                    transition-opacity">
+                      {image.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Help text */}
+            <p className="text-xs text-secondary mt-2">
+              {t('tasks.images.help', 'JPEG, PNG, GIF, WebP 형식 지원. 최대 5MB, 800px 너비로 자동 압축됩니다.')}
+            </p>
+          </div>
+
           {/* Submit Buttons */}
           <div className="flex gap-3 pt-2">
             <button
@@ -293,13 +551,14 @@ function DeleteConfirmModal({ task, onConfirm, onCancel }) {
 /**
  * Task Card Component
  */
-function TaskCard({ task, onEdit, onDelete, onStatusChange }) {
+function TaskCard({ task, onEdit, onDelete, onStatusChange, onImageClick }) {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
 
   const priorityConfig = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const statusConfig = STATUS_CONFIG[task.status] || STATUS_CONFIG.pending;
   const StatusIcon = statusConfig.icon;
+  const taskImages = task.images || [];
 
   const isOverdue = useMemo(() => {
     if (!task.dueDate || task.status === TASK_STATUS.COMPLETED) return false;
@@ -372,7 +631,50 @@ function TaskCard({ task, onEdit, onDelete, onStatusChange }) {
                 <span>{task.poNumber}</span>
               </div>
             )}
+
+            {/* Image Count */}
+            {taskImages.length > 0 && (
+              <div className="flex items-center gap-1 text-blue-500">
+                <ImageIcon className="w-3 h-3" />
+                <span>{taskImages.length}</span>
+              </div>
+            )}
           </div>
+
+          {/* Image Thumbnails */}
+          {taskImages.length > 0 && (
+            <div className="flex gap-1 mt-3">
+              {taskImages.slice(0, 4).map((image, index) => (
+                <button
+                  key={image.id}
+                  onClick={() => onImageClick(task, index)}
+                  className="relative w-12 h-12 rounded-md overflow-hidden border border-theme
+                             hover:opacity-80 transition-opacity group"
+                  aria-label={t('tasks.images.view', '이미지 보기')}
+                >
+                  <img
+                    src={image.dataUrl}
+                    alt={image.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors
+                                  flex items-center justify-center">
+                    <ZoomIn className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                </button>
+              ))}
+              {taskImages.length > 4 && (
+                <button
+                  onClick={() => onImageClick(task, 0)}
+                  className="w-12 h-12 rounded-md border border-theme bg-gray-100 dark:bg-gray-800
+                             flex items-center justify-center text-sm font-medium text-secondary
+                             hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  +{taskImages.length - 4}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Action Menu */}
@@ -467,6 +769,7 @@ export default function TaskManagement() {
   const [showFormModal, setShowFormModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deletingTask, setDeletingTask] = useState(null);
+  const [lightboxState, setLightboxState] = useState({ isOpen: false, images: [], currentIndex: 0 });
 
   // Get filtered tasks based on active tab
   const filteredTasks = useMemo(() => {
@@ -511,6 +814,25 @@ export default function TaskManagement() {
   const handleNewTask = () => {
     setEditingTask(null);
     setShowFormModal(true);
+  };
+
+  // Handle image click to open lightbox
+  const handleImageClick = (task, imageIndex) => {
+    setLightboxState({
+      isOpen: true,
+      images: task.images || [],
+      currentIndex: imageIndex
+    });
+  };
+
+  // Close lightbox
+  const closeLightbox = () => {
+    setLightboxState({ isOpen: false, images: [], currentIndex: 0 });
+  };
+
+  // Navigate in lightbox
+  const navigateLightbox = (newIndex) => {
+    setLightboxState(prev => ({ ...prev, currentIndex: newIndex }));
   };
 
   if (loading) {
@@ -639,6 +961,7 @@ export default function TaskManagement() {
                   onEdit={handleEdit}
                   onDelete={setDeletingTask}
                   onStatusChange={updateStatus}
+                  onImageClick={handleImageClick}
                 />
               ))}
             </div>
@@ -677,6 +1000,16 @@ export default function TaskManagement() {
           task={deletingTask}
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeletingTask(null)}
+        />
+      )}
+
+      {/* Image Lightbox */}
+      {lightboxState.isOpen && (
+        <ImageLightbox
+          images={lightboxState.images}
+          currentIndex={lightboxState.currentIndex}
+          onClose={closeLightbox}
+          onNavigate={navigateLightbox}
         />
       )}
     </div>
