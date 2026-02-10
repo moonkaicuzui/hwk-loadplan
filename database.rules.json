@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "productionData": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "monitoringTargets": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "tasks": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "results": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

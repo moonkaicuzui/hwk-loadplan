@@ -1,0 +1,60 @@
+{
+  "name": "Rachgia Factory Dashboard",
+  "short_name": "Rachgia",
+  "description": "베트남 Rachgia 공장 통합 생산관리 대시보드",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#1e40af",
+  "orientation": "any",
+  "scope": "/",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": [
+    "productivity",
+    "business",
+    "utilities"
+  ],
+  "shortcuts": [
+    {
+      "name": "대시보드",
+      "short_name": "대시보드",
+      "description": "메인 대시보드",
+      "url": "/"
+    },
+    {
+      "name": "월별 현황",
+      "short_name": "월별",
+      "description": "월별 생산 현황",
+      "url": "/monthly"
+    },
+    {
+      "name": "데이터 탐색",
+      "short_name": "데이터",
+      "description": "전체 오더 데이터 테이블",
+      "url": "/data"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

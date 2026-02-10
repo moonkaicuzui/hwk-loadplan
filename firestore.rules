@@ -1,0 +1,136 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ========================================
+    // Helper Functions
+    // ========================================
+
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user has admin role
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Check if user has manager role or above
+    function isManager() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager'];
+    }
+
+    // Check if request is from Cloud Functions (service account)
+    function isServiceAccount() {
+      return request.auth.token.firebase.sign_in_provider == 'custom' ||
+             request.auth.token.email_verified == true;
+    }
+
+    // ========================================
+    // Production Cache (Read-only for users, Write for Cloud Functions)
+    // ========================================
+
+    match /productionCache/{factoryId} {
+      // Anyone authenticated can read cached data
+      allow read: if isAuthenticated();
+
+      // Only Cloud Functions (admin SDK) can write
+      // Client-side writes are not allowed
+      allow write: if false;
+    }
+
+    // ========================================
+    // Production History (Historical snapshots)
+    // ========================================
+
+    match /productionHistory/{factoryId} {
+      allow read: if isAuthenticated();
+      allow write: if false;
+
+      // Monthly snapshots subcollection
+      match /monthly/{monthKey} {
+        allow read: if isAuthenticated();
+        allow write: if false;
+      }
+    }
+
+    // ========================================
+    // User Settings (Per-user preferences)
+    // ========================================
+
+    match /userSettings/{userId} {
+      // Users can only read/write their own settings
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ========================================
+    // Users Collection (User profiles)
+    // ========================================
+
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+
+      // Only admins can write user profiles
+      allow write: if isAdmin();
+
+      // Managers can read all user profiles (for team management)
+      allow read: if isManager();
+    }
+
+    // ========================================
+    // Monitoring Targets
+    // ========================================
+
+    match /monitoringTargets/{targetId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAuthenticated() &&
+        (resource.data.createdBy == request.auth.uid || isManager());
+    }
+
+    // ========================================
+    // Tasks (Team task management)
+    // ========================================
+
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() &&
+        (resource.data.assignee == request.auth.uid ||
+         resource.data.createdBy == request.auth.uid ||
+         isManager());
+      allow delete: if isManager();
+    }
+
+    // ========================================
+    // Audit Logs (Read-only for managers, Write for system)
+    // ========================================
+
+    match /auditLogs/{logId} {
+      allow read: if isManager();
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // ========================================
+    // Alert History
+    // ========================================
+
+    match /alertHistory/{alertId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // ========================================
+    // Default: Deny all other access
+    // ========================================
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "monthly",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "factoryId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "monthKey",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "dueDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "monitoringTargets",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "factory",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "alertHistory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "factoryId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

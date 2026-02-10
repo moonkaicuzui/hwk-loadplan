@@ -1,0 +1,1624 @@
+{
+  "Factory A": {
+    "Unit": {
+      "excel": "A",
+      "index": 0,
+      "header": "Unit",
+      "subHeader": ""
+    },
+    "Season SPEC": {
+      "excel": "B",
+      "index": 1,
+      "header": "Season SPEC",
+      "subHeader": ""
+    },
+    "Fac code": {
+      "excel": "C",
+      "index": 2,
+      "header": "Fac code",
+      "subHeader": ""
+    },
+    "Prod.LT": {
+      "excel": "D",
+      "index": 3,
+      "header": "Prod.LT",
+      "subHeader": ""
+    },
+    "Co-op": {
+      "excel": "E",
+      "index": 4,
+      "header": "Co-op",
+      "subHeader": ""
+    },
+    "CRD": {
+      "excel": "F",
+      "index": 5,
+      "header": "CRD",
+      "subHeader": ""
+    },
+    "SDD": {
+      "excel": "G",
+      "index": 6,
+      "header": "SDD",
+      "subHeader": "Original"
+    },
+    "__EMPTY_7": {
+      "excel": "H",
+      "index": 7,
+      "header": "",
+      "subHeader": "Current"
+    },
+    "Code 04": {
+      "excel": "I",
+      "index": 8,
+      "header": "Code 04",
+      "subHeader": ""
+    },
+    "Model": {
+      "excel": "J",
+      "index": 9,
+      "header": "Model",
+      "subHeader": ""
+    },
+    "Art": {
+      "excel": "K",
+      "index": 10,
+      "header": "Art",
+      "subHeader": ""
+    },
+    "Color": {
+      "excel": "L",
+      "index": 11,
+      "header": "Color",
+      "subHeader": ""
+    },
+    "GD": {
+      "excel": "M",
+      "index": 12,
+      "header": "GD",
+      "subHeader": ""
+    },
+    "Sales Order and Item": {
+      "excel": "N",
+      "index": 13,
+      "header": "Sales Order and Item",
+      "subHeader": ""
+    },
+    "Dest": {
+      "excel": "O",
+      "index": 14,
+      "header": "Dest",
+      "subHeader": ""
+    },
+    "Event": {
+      "excel": "P",
+      "index": 15,
+      "header": "Event",
+      "subHeader": ""
+    },
+    "Dummy": {
+      "excel": "Q",
+      "index": 16,
+      "header": "Dummy",
+      "subHeader": ""
+    },
+    "Q.ty": {
+      "excel": "R",
+      "index": 17,
+      "header": "Q.ty",
+      "subHeader": ""
+    },
+    "MRP.Qty": {
+      "excel": "S",
+      "index": 18,
+      "header": "MRP.Qty",
+      "subHeader": ""
+    },
+    "MRP Date": {
+      "excel": "T",
+      "index": 19,
+      "header": "MRP\r\nDate",
+      "subHeader": ""
+    },
+    "SetP": {
+      "excel": "U",
+      "index": 20,
+      "header": "SetP",
+      "subHeader": ""
+    },
+    "LABEL": {
+      "excel": "V",
+      "index": 21,
+      "header": "LABEL",
+      "subHeader": ""
+    },
+    "MCS": {
+      "excel": "W",
+      "index": 22,
+      "header": "MCS",
+      "subHeader": ""
+    },
+    "C/ton": {
+      "excel": "X",
+      "index": 23,
+      "header": "C/ton",
+      "subHeader": ""
+    },
+    "Innerbox": {
+      "excel": "Y",
+      "index": 24,
+      "header": "Innerbox",
+      "subHeader": ""
+    },
+    "Intertek": {
+      "excel": "Z",
+      "index": 25,
+      "header": "Intertek",
+      "subHeader": ""
+    },
+    "OSC MATERIAL": {
+      "excel": "AA",
+      "index": 26,
+      "header": "OSC MATERIAL",
+      "subHeader": ""
+    },
+    "MAIN MATERIAL": {
+      "excel": "AB",
+      "index": 27,
+      "header": "MAIN MATERIAL",
+      "subHeader": ""
+    },
+    "LAMTION(OSC)": {
+      "excel": "AC",
+      "index": 28,
+      "header": "LAMTION(OSC)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_29": {
+      "excel": "AD",
+      "index": 29,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "LAMTION(MAIN)": {
+      "excel": "AE",
+      "index": 30,
+      "header": "LAMTION(MAIN)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_31": {
+      "excel": "AF",
+      "index": 31,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "RELEASE FAC": {
+      "excel": "AG",
+      "index": 32,
+      "header": "RELEASE FAC",
+      "subHeader": "O/S"
+    },
+    "__EMPTY_33": {
+      "excel": "AH",
+      "index": 33,
+      "header": "",
+      "subHeader": "MAIN"
+    },
+    "Leather": {
+      "excel": "AI",
+      "index": 34,
+      "header": "Leather",
+      "subHeader": ""
+    },
+    "__EMPTY_36": {
+      "excel": "AK",
+      "index": 36,
+      "header": "",
+      "subHeader": "C.S.Date"
+    },
+    "OUTSOURCING STATUS": {
+      "excel": "AL",
+      "index": 37,
+      "header": "OUTSOURCING STATUS",
+      "subHeader": "Out\r\nBal"
+    },
+    "__EMPTY_38": {
+      "excel": "AM",
+      "index": 38,
+      "header": "",
+      "subHeader": "IN\r\nBal"
+    },
+    "__EMPTY_39": {
+      "excel": "AN",
+      "index": 39,
+      "header": "",
+      "subHeader": "OSC\r\nVendor"
+    },
+    "__EMPTY_40": {
+      "excel": "AO",
+      "index": 40,
+      "header": "",
+      "subHeader": "S.Cut Bal"
+    },
+    "__EMPTY_41": {
+      "excel": "AP",
+      "index": 41,
+      "header": "",
+      "subHeader": "Pre-Sew Bal."
+    },
+    "__EMPTY_42": {
+      "excel": "AQ",
+      "index": 42,
+      "header": "",
+      "subHeader": "Sew input Bal"
+    },
+    "__EMPTY_43": {
+      "excel": "AR",
+      "index": 43,
+      "header": "",
+      "subHeader": "Sew prod.scan"
+    },
+    "PRODUCTION STATUS": {
+      "excel": "AS",
+      "index": 44,
+      "header": "PRODUCTION STATUS",
+      "subHeader": "Sew\r\nBal"
+    },
+    "__EMPTY_45": {
+      "excel": "AT",
+      "index": 45,
+      "header": "",
+      "subHeader": "O/S set.O/B"
+    },
+    "__EMPTY_46": {
+      "excel": "AU",
+      "index": 46,
+      "header": "",
+      "subHeader": "Previous sole out."
+    },
+    "__EMPTY_47": {
+      "excel": "AV",
+      "index": 47,
+      "header": "",
+      "subHeader": "O/sole Color"
+    },
+    "__EMPTY_48": {
+      "excel": "AW",
+      "index": 48,
+      "header": "",
+      "subHeader": "Outsole Vendor"
+    },
+    "__EMPTY_49": {
+      "excel": "AX",
+      "index": 49,
+      "header": "",
+      "subHeader": "CNF O/S Bal"
+    },
+    "__EMPTY_50": {
+      "excel": "AY",
+      "index": 50,
+      "header": "",
+      "subHeader": "S/Fit Bal"
+    },
+    "__EMPTY_51": {
+      "excel": "AZ",
+      "index": 51,
+      "header": "",
+      "subHeader": "Ass Bal"
+    },
+    "__EMPTY_52": {
+      "excel": "BA",
+      "index": 52,
+      "header": "",
+      "subHeader": "Ass.STK.F"
+    },
+    "WAREHOUSE": {
+      "excel": "BB",
+      "index": 53,
+      "header": "WAREHOUSE",
+      "subHeader": "W.H return Fac"
+    },
+    "__EMPTY_54": {
+      "excel": "BC",
+      "index": 54,
+      "header": "",
+      "subHeader": "W.H IN BAL"
+    },
+    "__EMPTY_55": {
+      "excel": "BD",
+      "index": 55,
+      "header": "",
+      "subHeader": "W.H OUT BAL"
+    },
+    "Pkg.Typ": {
+      "excel": "BE",
+      "index": 56,
+      "header": "Pkg.Typ",
+      "subHeader": ""
+    },
+    "Last No.": {
+      "excel": "BF",
+      "index": 57,
+      "header": "Last No.",
+      "subHeader": ""
+    },
+    "Closing Time": {
+      "excel": "BG",
+      "index": 58,
+      "header": "Closing Time",
+      "subHeader": ""
+    },
+    "OSC S/F VD(1)": {
+      "excel": "BH",
+      "index": 59,
+      "header": "OSC S/F VD(1)",
+      "subHeader": ""
+    },
+    "O/S OSC VD": {
+      "excel": "BI",
+      "index": 60,
+      "header": "O/S OSC VD",
+      "subHeader": ""
+    },
+    "Inspectin": {
+      "excel": "BJ",
+      "index": 61,
+      "header": "Inspectin",
+      "subHeader": ""
+    }
+  },
+  "Factory B": {
+    "Unit": {
+      "excel": "A",
+      "index": 0,
+      "header": "Unit",
+      "subHeader": ""
+    },
+    "Season SPEC": {
+      "excel": "B",
+      "index": 1,
+      "header": "Season SPEC",
+      "subHeader": ""
+    },
+    "Prod.LT": {
+      "excel": "C",
+      "index": 2,
+      "header": "Prod.LT",
+      "subHeader": ""
+    },
+    "Co-op": {
+      "excel": "D",
+      "index": 3,
+      "header": "Co-op",
+      "subHeader": ""
+    },
+    "CRD": {
+      "excel": "E",
+      "index": 4,
+      "header": "CRD",
+      "subHeader": ""
+    },
+    "SDD": {
+      "excel": "F",
+      "index": 5,
+      "header": "SDD",
+      "subHeader": "Original"
+    },
+    "__EMPTY_6": {
+      "excel": "G",
+      "index": 6,
+      "header": "",
+      "subHeader": "Current"
+    },
+    "Code 04": {
+      "excel": "H",
+      "index": 7,
+      "header": "Code 04",
+      "subHeader": ""
+    },
+    "Model": {
+      "excel": "I",
+      "index": 8,
+      "header": "Model",
+      "subHeader": ""
+    },
+    "Art": {
+      "excel": "J",
+      "index": 9,
+      "header": "Art",
+      "subHeader": ""
+    },
+    "Color": {
+      "excel": "K",
+      "index": 10,
+      "header": "Color",
+      "subHeader": ""
+    },
+    "GD": {
+      "excel": "L",
+      "index": 11,
+      "header": "GD",
+      "subHeader": ""
+    },
+    "Sales Order and Item": {
+      "excel": "M",
+      "index": 12,
+      "header": "Sales Order and Item",
+      "subHeader": ""
+    },
+    "Dest": {
+      "excel": "N",
+      "index": 13,
+      "header": "Dest",
+      "subHeader": ""
+    },
+    "Event": {
+      "excel": "O",
+      "index": 14,
+      "header": "Event",
+      "subHeader": ""
+    },
+    "Dummy": {
+      "excel": "P",
+      "index": 15,
+      "header": "Dummy",
+      "subHeader": ""
+    },
+    "Q.ty": {
+      "excel": "Q",
+      "index": 16,
+      "header": "Q.ty",
+      "subHeader": ""
+    },
+    "MRP.Qty": {
+      "excel": "R",
+      "index": 17,
+      "header": "MRP.Qty",
+      "subHeader": ""
+    },
+    "MRP Date": {
+      "excel": "S",
+      "index": 18,
+      "header": "MRP\r\nDate",
+      "subHeader": ""
+    },
+    "SetP": {
+      "excel": "T",
+      "index": 19,
+      "header": "SetP",
+      "subHeader": ""
+    },
+    "LABEL": {
+      "excel": "U",
+      "index": 20,
+      "header": "LABEL",
+      "subHeader": ""
+    },
+    "MCS": {
+      "excel": "V",
+      "index": 21,
+      "header": "MCS",
+      "subHeader": ""
+    },
+    "C/ton": {
+      "excel": "W",
+      "index": 22,
+      "header": "C/ton",
+      "subHeader": ""
+    },
+    "Innerbox": {
+      "excel": "X",
+      "index": 23,
+      "header": "Innerbox",
+      "subHeader": ""
+    },
+    "Intertek": {
+      "excel": "Y",
+      "index": 24,
+      "header": "Intertek",
+      "subHeader": ""
+    },
+    "OSC MATERIAL": {
+      "excel": "Z",
+      "index": 25,
+      "header": "OSC MATERIAL",
+      "subHeader": ""
+    },
+    "MAIN MATERIAL": {
+      "excel": "AA",
+      "index": 26,
+      "header": "MAIN MATERIAL",
+      "subHeader": ""
+    },
+    "LAMTION(OSC)": {
+      "excel": "AB",
+      "index": 27,
+      "header": "LAMTION(OSC)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_28": {
+      "excel": "AC",
+      "index": 28,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "LAMTION(MAIN)": {
+      "excel": "AD",
+      "index": 29,
+      "header": "LAMTION(MAIN)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_30": {
+      "excel": "AE",
+      "index": 30,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "RELEASE FAC": {
+      "excel": "AF",
+      "index": 31,
+      "header": "RELEASE FAC",
+      "subHeader": "O/S"
+    },
+    "__EMPTY_32": {
+      "excel": "AG",
+      "index": 32,
+      "header": "",
+      "subHeader": "MAIN"
+    },
+    "__EMPTY_34": {
+      "excel": "AI",
+      "index": 34,
+      "header": "",
+      "subHeader": "C.S.Date"
+    },
+    "OUTSOURCING STATUS": {
+      "excel": "AJ",
+      "index": 35,
+      "header": "OUTSOURCING STATUS",
+      "subHeader": "Out\r\nBal"
+    },
+    "__EMPTY_36": {
+      "excel": "AK",
+      "index": 36,
+      "header": "",
+      "subHeader": "IN\r\nBal"
+    },
+    "__EMPTY_37": {
+      "excel": "AL",
+      "index": 37,
+      "header": "",
+      "subHeader": "OSC\r\nVendor"
+    },
+    "__EMPTY_38": {
+      "excel": "AM",
+      "index": 38,
+      "header": "",
+      "subHeader": "S.Cut Bal"
+    },
+    "__EMPTY_39": {
+      "excel": "AN",
+      "index": 39,
+      "header": "",
+      "subHeader": "Pre-Sew Bal."
+    },
+    "__EMPTY_40": {
+      "excel": "AO",
+      "index": 40,
+      "header": "",
+      "subHeader": "Sew input Bal"
+    },
+    "__EMPTY_41": {
+      "excel": "AP",
+      "index": 41,
+      "header": "",
+      "subHeader": "Sew prod.scan"
+    },
+    "PRODUCTION STATUS": {
+      "excel": "AQ",
+      "index": 42,
+      "header": "PRODUCTION STATUS",
+      "subHeader": "Sew\r\nBal"
+    },
+    "__EMPTY_43": {
+      "excel": "AR",
+      "index": 43,
+      "header": "",
+      "subHeader": "O/S set.O/B"
+    },
+    "__EMPTY_44": {
+      "excel": "AS",
+      "index": 44,
+      "header": "",
+      "subHeader": "Previous sole out."
+    },
+    "__EMPTY_45": {
+      "excel": "AT",
+      "index": 45,
+      "header": "",
+      "subHeader": "O/sole Color"
+    },
+    "__EMPTY_46": {
+      "excel": "AU",
+      "index": 46,
+      "header": "",
+      "subHeader": "Outsole Vendor"
+    },
+    "__EMPTY_47": {
+      "excel": "AV",
+      "index": 47,
+      "header": "",
+      "subHeader": "CNF O/S Bal"
+    },
+    "__EMPTY_48": {
+      "excel": "AW",
+      "index": 48,
+      "header": "",
+      "subHeader": "FAC O/S SET STK"
+    },
+    "__EMPTY_49": {
+      "excel": "AX",
+      "index": 49,
+      "header": "",
+      "subHeader": "S/Fit Bal"
+    },
+    "__EMPTY_50": {
+      "excel": "AY",
+      "index": 50,
+      "header": "",
+      "subHeader": "Ass Bal"
+    },
+    "__EMPTY_51": {
+      "excel": "AZ",
+      "index": 51,
+      "header": "",
+      "subHeader": "Ass.STK.F"
+    },
+    "WAREHOUSE": {
+      "excel": "BA",
+      "index": 52,
+      "header": "WAREHOUSE",
+      "subHeader": "W.H return Fac"
+    },
+    "__EMPTY_53": {
+      "excel": "BB",
+      "index": 53,
+      "header": "",
+      "subHeader": "W.H IN BAL"
+    },
+    "__EMPTY_54": {
+      "excel": "BC",
+      "index": 54,
+      "header": "",
+      "subHeader": "W.H OUT BAL"
+    },
+    "Pkg.Typ": {
+      "excel": "BD",
+      "index": 55,
+      "header": "Pkg.Typ",
+      "subHeader": ""
+    },
+    "Last No.": {
+      "excel": "BE",
+      "index": 56,
+      "header": "Last No.",
+      "subHeader": ""
+    },
+    "Closing Time": {
+      "excel": "BF",
+      "index": 57,
+      "header": "Closing Time",
+      "subHeader": ""
+    },
+    "OSC S/F VD(1)": {
+      "excel": "BG",
+      "index": 58,
+      "header": "OSC S/F VD(1)",
+      "subHeader": ""
+    },
+    "O/S OSC VD": {
+      "excel": "BH",
+      "index": 59,
+      "header": "O/S OSC VD",
+      "subHeader": ""
+    },
+    "Inspectin": {
+      "excel": "BI",
+      "index": 60,
+      "header": "Inspectin",
+      "subHeader": ""
+    }
+  },
+  "Factory C": {
+    "Unit": {
+      "excel": "A",
+      "index": 0,
+      "header": "Unit",
+      "subHeader": ""
+    },
+    "Season.SPEC": {
+      "excel": "B",
+      "index": 1,
+      "header": "Season.SPEC",
+      "subHeader": ""
+    },
+    "Fac code": {
+      "excel": "C",
+      "index": 2,
+      "header": "Fac code",
+      "subHeader": ""
+    },
+    "Prod.LT": {
+      "excel": "D",
+      "index": 3,
+      "header": "Prod.LT",
+      "subHeader": ""
+    },
+    "Co-op": {
+      "excel": "E",
+      "index": 4,
+      "header": "Co-op",
+      "subHeader": ""
+    },
+    "PD": {
+      "excel": "F",
+      "index": 5,
+      "header": "PD",
+      "subHeader": ""
+    },
+    "CRD": {
+      "excel": "G",
+      "index": 6,
+      "header": "CRD",
+      "subHeader": ""
+    },
+    "SDD": {
+      "excel": "H",
+      "index": 7,
+      "header": "SDD",
+      "subHeader": "Original"
+    },
+    "__EMPTY_8": {
+      "excel": "I",
+      "index": 8,
+      "header": "",
+      "subHeader": "Current"
+    },
+    "Code 04": {
+      "excel": "J",
+      "index": 9,
+      "header": "Code 04",
+      "subHeader": ""
+    },
+    "CNF.SDD": {
+      "excel": "K",
+      "index": 10,
+      "header": "CNF.SDD",
+      "subHeader": ""
+    },
+    "Model": {
+      "excel": "L",
+      "index": 11,
+      "header": "Model",
+      "subHeader": ""
+    },
+    "Art": {
+      "excel": "M",
+      "index": 12,
+      "header": "Art",
+      "subHeader": ""
+    },
+    "Color": {
+      "excel": "O",
+      "index": 14,
+      "header": "Color",
+      "subHeader": ""
+    },
+    "GD": {
+      "excel": "P",
+      "index": 15,
+      "header": "GD",
+      "subHeader": ""
+    },
+    "Sales Order and Item": {
+      "excel": "Q",
+      "index": 16,
+      "header": "Sales Order and Item",
+      "subHeader": ""
+    },
+    "Dest": {
+      "excel": "R",
+      "index": 17,
+      "header": "Dest",
+      "subHeader": ""
+    },
+    "Intertek": {
+      "excel": "S",
+      "index": 18,
+      "header": "Intertek",
+      "subHeader": ""
+    },
+    "Event": {
+      "excel": "T",
+      "index": 19,
+      "header": "Event",
+      "subHeader": ""
+    },
+    "Dummy": {
+      "excel": "U",
+      "index": 20,
+      "header": "Dummy",
+      "subHeader": ""
+    },
+    "Q.ty": {
+      "excel": "V",
+      "index": 21,
+      "header": "Q.ty",
+      "subHeader": ""
+    },
+    "MRP.Qty": {
+      "excel": "W",
+      "index": 22,
+      "header": "MRP.Qty",
+      "subHeader": ""
+    },
+    "MRP Date": {
+      "excel": "X",
+      "index": 23,
+      "header": "MRP\r\nDate",
+      "subHeader": ""
+    },
+    "SetP": {
+      "excel": "Y",
+      "index": 24,
+      "header": "SetP",
+      "subHeader": ""
+    },
+    "LABEL": {
+      "excel": "Z",
+      "index": 25,
+      "header": "LABEL",
+      "subHeader": ""
+    },
+    "MCS": {
+      "excel": "AA",
+      "index": 26,
+      "header": "MCS",
+      "subHeader": ""
+    },
+    "C/ton": {
+      "excel": "AB",
+      "index": 27,
+      "header": "C/ton",
+      "subHeader": ""
+    },
+    "Innerbox": {
+      "excel": "AC",
+      "index": 28,
+      "header": "Innerbox",
+      "subHeader": ""
+    },
+    "UPC": {
+      "excel": "AD",
+      "index": 29,
+      "header": "UPC",
+      "subHeader": "PO"
+    },
+    "__EMPTY_30": {
+      "excel": "AE",
+      "index": 30,
+      "header": "",
+      "subHeader": "ITEM"
+    },
+    "__EMPTY_31": {
+      "excel": "AF",
+      "index": 31,
+      "header": "",
+      "subHeader": "UP"
+    },
+    "OSC MATERIAL": {
+      "excel": "AG",
+      "index": 32,
+      "header": "OSC MATERIAL",
+      "subHeader": ""
+    },
+    "MAIN MATERIAL": {
+      "excel": "AH",
+      "index": 33,
+      "header": "MAIN MATERIAL",
+      "subHeader": ""
+    },
+    "SPEC CHANGE": {
+      "excel": "AI",
+      "index": 34,
+      "header": "SPEC CHANGE",
+      "subHeader": "Sockliner\r\nLOGO"
+    },
+    "__EMPTY_35": {
+      "excel": "AJ",
+      "index": 35,
+      "header": "",
+      "subHeader": "INNER\r\nBOX"
+    },
+    "LAMTION(OSC)": {
+      "excel": "AK",
+      "index": 36,
+      "header": "LAMTION(OSC)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_37": {
+      "excel": "AL",
+      "index": 37,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "LAMTION(MAIN)": {
+      "excel": "AM",
+      "index": 38,
+      "header": "LAMTION(MAIN)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_39": {
+      "excel": "AN",
+      "index": 39,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "RELEASE FAC": {
+      "excel": "AO",
+      "index": 40,
+      "header": "RELEASE FAC",
+      "subHeader": "O/S"
+    },
+    "__EMPTY_41": {
+      "excel": "AP",
+      "index": 41,
+      "header": "",
+      "subHeader": "MAIN"
+    },
+    "__EMPTY_42": {
+      "excel": "AQ",
+      "index": 42,
+      "header": "",
+      "subHeader": "A.D.C"
+    },
+    "__EMPTY_43": {
+      "excel": "AR",
+      "index": 43,
+      "header": "",
+      "subHeader": "DAY.C.T"
+    },
+    "DAILYSHEET": {
+      "excel": "AS",
+      "index": 44,
+      "header": "DAILYSHEET",
+      "subHeader": "MTL.T"
+    },
+    "__EMPTY_45": {
+      "excel": "AT",
+      "index": 45,
+      "header": "",
+      "subHeader": "OSC Start"
+    },
+    "__EMPTY_46": {
+      "excel": "AU",
+      "index": 46,
+      "header": "",
+      "subHeader": "MS.CT.D"
+    },
+    "__EMPTY_47": {
+      "excel": "AV",
+      "index": 47,
+      "header": "",
+      "subHeader": "MS.BT.D"
+    },
+    "LEATHER": {
+      "excel": "AW",
+      "index": 48,
+      "header": "LEATHER",
+      "subHeader": ""
+    },
+    "__EMPTY_49": {
+      "excel": "AX",
+      "index": 49,
+      "header": "",
+      "subHeader": "C.S.Date"
+    },
+    "OUTSOURCING STATUS": {
+      "excel": "AY",
+      "index": 50,
+      "header": "OUTSOURCING STATUS",
+      "subHeader": "Out\r\nBal"
+    },
+    "__EMPTY_51": {
+      "excel": "AZ",
+      "index": 51,
+      "header": "",
+      "subHeader": "IN\r\nBal"
+    },
+    "__EMPTY_52": {
+      "excel": "BA",
+      "index": 52,
+      "header": "",
+      "subHeader": "OSC\r\nVendor"
+    },
+    "__EMPTY_53": {
+      "excel": "BB",
+      "index": 53,
+      "header": "",
+      "subHeader": "S.Cut Bal"
+    },
+    "__EMPTY_54": {
+      "excel": "BC",
+      "index": 54,
+      "header": "",
+      "subHeader": "Pre-Sew Bal"
+    },
+    "__EMPTY_55": {
+      "excel": "BD",
+      "index": 55,
+      "header": "",
+      "subHeader": "Sew input Bal"
+    },
+    "__EMPTY_56": {
+      "excel": "BE",
+      "index": 56,
+      "header": "",
+      "subHeader": "Sew Prod.scan"
+    },
+    "PRODUCTION STATUS": {
+      "excel": "BF",
+      "index": 57,
+      "header": "PRODUCTION STATUS",
+      "subHeader": "Sew\r\nBal"
+    },
+    "__EMPTY_58": {
+      "excel": "BG",
+      "index": 58,
+      "header": "",
+      "subHeader": "O/S set.O/B"
+    },
+    "__EMPTY_59": {
+      "excel": "BH",
+      "index": 59,
+      "header": "",
+      "subHeader": "Previous sole out."
+    },
+    "__EMPTY_60": {
+      "excel": "BI",
+      "index": 60,
+      "header": "",
+      "subHeader": "O/sole Color"
+    },
+    "__EMPTY_61": {
+      "excel": "BJ",
+      "index": 61,
+      "header": "",
+      "subHeader": "Outsole Vendor"
+    },
+    "__EMPTY_62": {
+      "excel": "BK",
+      "index": 62,
+      "header": "",
+      "subHeader": "CNF O/S Bal"
+    },
+    "__EMPTY_63": {
+      "excel": "BL",
+      "index": 63,
+      "header": "",
+      "subHeader": "S/F.Paste/B"
+    },
+    "__EMPTY_64": {
+      "excel": "BM",
+      "index": 64,
+      "header": "",
+      "subHeader": "S/Fit Bal"
+    },
+    "__EMPTY_65": {
+      "excel": "BN",
+      "index": 65,
+      "header": "",
+      "subHeader": "Ass Bal"
+    },
+    "Ass.STK.F": {
+      "excel": "BO",
+      "index": 66,
+      "header": "Ass.STK.F",
+      "subHeader": ""
+    },
+    "WAREHOUSE": {
+      "excel": "BP",
+      "index": 67,
+      "header": "WAREHOUSE",
+      "subHeader": "W.H return Fac"
+    },
+    "__EMPTY_68": {
+      "excel": "BQ",
+      "index": 68,
+      "header": "",
+      "subHeader": "W.H IN BAL"
+    },
+    "__EMPTY_69": {
+      "excel": "BR",
+      "index": 69,
+      "header": "",
+      "subHeader": "W.H OUT BAL"
+    },
+    "Pkg.Typ": {
+      "excel": "BS",
+      "index": 70,
+      "header": "Pkg.Typ",
+      "subHeader": ""
+    },
+    "Last No": {
+      "excel": "BT",
+      "index": 71,
+      "header": "Last No",
+      "subHeader": ""
+    },
+    "Closing Time": {
+      "excel": "BU",
+      "index": 72,
+      "header": "Closing Time",
+      "subHeader": ""
+    },
+    "OSC S/F VD(1)": {
+      "excel": "BV",
+      "index": 73,
+      "header": "OSC S/F VD(1)",
+      "subHeader": ""
+    },
+    "O/S OSC VD": {
+      "excel": "BW",
+      "index": 74,
+      "header": "O/S OSC VD",
+      "subHeader": ""
+    },
+    "Inspectin": {
+      "excel": "BX",
+      "index": 75,
+      "header": "Inspectin",
+      "subHeader": ""
+    }
+  },
+  "Factory D": {
+    "Unit": {
+      "excel": "A",
+      "index": 0,
+      "header": "Unit",
+      "subHeader": ""
+    },
+    "Season.SPEC": {
+      "excel": "B",
+      "index": 1,
+      "header": "Season.SPEC",
+      "subHeader": ""
+    },
+    "Prod.LT": {
+      "excel": "C",
+      "index": 2,
+      "header": "Prod.LT",
+      "subHeader": ""
+    },
+    "Co-op": {
+      "excel": "D",
+      "index": 3,
+      "header": "Co-op",
+      "subHeader": ""
+    },
+    "PD": {
+      "excel": "E",
+      "index": 4,
+      "header": "PD",
+      "subHeader": ""
+    },
+    "CRD": {
+      "excel": "F",
+      "index": 5,
+      "header": "CRD",
+      "subHeader": ""
+    },
+    "SDD": {
+      "excel": "G",
+      "index": 6,
+      "header": "SDD",
+      "subHeader": "Original"
+    },
+    "__EMPTY_7": {
+      "excel": "H",
+      "index": 7,
+      "header": "",
+      "subHeader": "Current"
+    },
+    "Code 04": {
+      "excel": "I",
+      "index": 8,
+      "header": "Code 04",
+      "subHeader": ""
+    },
+    "CNF.SDD": {
+      "excel": "J",
+      "index": 9,
+      "header": "CNF.SDD",
+      "subHeader": ""
+    },
+    "Model": {
+      "excel": "K",
+      "index": 10,
+      "header": "Model",
+      "subHeader": ""
+    },
+    "Art": {
+      "excel": "L",
+      "index": 11,
+      "header": "Art",
+      "subHeader": ""
+    },
+    "Color": {
+      "excel": "N",
+      "index": 13,
+      "header": "Color",
+      "subHeader": ""
+    },
+    "GD": {
+      "excel": "O",
+      "index": 14,
+      "header": "GD",
+      "subHeader": ""
+    },
+    "Sales Order and Item": {
+      "excel": "P",
+      "index": 15,
+      "header": "Sales Order and Item",
+      "subHeader": ""
+    },
+    "Dest": {
+      "excel": "Q",
+      "index": 16,
+      "header": "Dest",
+      "subHeader": ""
+    },
+    "Intertek": {
+      "excel": "R",
+      "index": 17,
+      "header": "Intertek",
+      "subHeader": ""
+    },
+    "Event": {
+      "excel": "S",
+      "index": 18,
+      "header": "Event",
+      "subHeader": ""
+    },
+    "Dummy": {
+      "excel": "T",
+      "index": 19,
+      "header": "Dummy",
+      "subHeader": ""
+    },
+    "Q.ty": {
+      "excel": "U",
+      "index": 20,
+      "header": "Q.ty",
+      "subHeader": ""
+    },
+    "MRP.Qty": {
+      "excel": "V",
+      "index": 21,
+      "header": "MRP.Qty",
+      "subHeader": ""
+    },
+    "MRP Date": {
+      "excel": "W",
+      "index": 22,
+      "header": "MRP\r\nDate",
+      "subHeader": ""
+    },
+    "SetP": {
+      "excel": "X",
+      "index": 23,
+      "header": "SetP",
+      "subHeader": ""
+    },
+    "LABEL": {
+      "excel": "Y",
+      "index": 24,
+      "header": "LABEL",
+      "subHeader": ""
+    },
+    "MCS": {
+      "excel": "Z",
+      "index": 25,
+      "header": "MCS",
+      "subHeader": ""
+    },
+    "C/ton": {
+      "excel": "AA",
+      "index": 26,
+      "header": "C/ton",
+      "subHeader": ""
+    },
+    "Innerbox": {
+      "excel": "AB",
+      "index": 27,
+      "header": "Innerbox",
+      "subHeader": ""
+    },
+    "UPC": {
+      "excel": "AC",
+      "index": 28,
+      "header": "UPC",
+      "subHeader": "PO"
+    },
+    "__EMPTY_29": {
+      "excel": "AD",
+      "index": 29,
+      "header": "",
+      "subHeader": "ITEM"
+    },
+    "__EMPTY_30": {
+      "excel": "AE",
+      "index": 30,
+      "header": "",
+      "subHeader": "UP"
+    },
+    "OSC MATERIAL": {
+      "excel": "AF",
+      "index": 31,
+      "header": "OSC MATERIAL",
+      "subHeader": ""
+    },
+    "MAIN MATERIAL": {
+      "excel": "AG",
+      "index": 32,
+      "header": "MAIN MATERIAL",
+      "subHeader": ""
+    },
+    "SPEC CHANGE": {
+      "excel": "AH",
+      "index": 33,
+      "header": "SPEC CHANGE",
+      "subHeader": "Sockliner\r\nLOGO"
+    },
+    "__EMPTY_34": {
+      "excel": "AI",
+      "index": 34,
+      "header": "",
+      "subHeader": "INNER\r\nBOX"
+    },
+    "LAMTION(OSC)": {
+      "excel": "AJ",
+      "index": 35,
+      "header": "LAMTION(OSC)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_36": {
+      "excel": "AK",
+      "index": 36,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "LAMTION(MAIN)": {
+      "excel": "AL",
+      "index": 37,
+      "header": "LAMTION(MAIN)",
+      "subHeader": "OUT"
+    },
+    "__EMPTY_38": {
+      "excel": "AM",
+      "index": 38,
+      "header": "",
+      "subHeader": "IN"
+    },
+    "RELEASE FAC": {
+      "excel": "AN",
+      "index": 39,
+      "header": "RELEASE FAC",
+      "subHeader": "O/S"
+    },
+    "__EMPTY_40": {
+      "excel": "AO",
+      "index": 40,
+      "header": "",
+      "subHeader": "MAIN"
+    },
+    "__EMPTY_41": {
+      "excel": "AP",
+      "index": 41,
+      "header": "",
+      "subHeader": "A.D.C"
+    },
+    "__EMPTY_42": {
+      "excel": "AQ",
+      "index": 42,
+      "header": "",
+      "subHeader": "DAY.C.T"
+    },
+    "DAILYSHEET": {
+      "excel": "AR",
+      "index": 43,
+      "header": "DAILYSHEET",
+      "subHeader": "MTL.T"
+    },
+    "__EMPTY_44": {
+      "excel": "AS",
+      "index": 44,
+      "header": "",
+      "subHeader": "OSC Start"
+    },
+    "__EMPTY_45": {
+      "excel": "AT",
+      "index": 45,
+      "header": "",
+      "subHeader": "MS.CT.D"
+    },
+    "__EMPTY_46": {
+      "excel": "AU",
+      "index": 46,
+      "header": "",
+      "subHeader": "MS.BT.D"
+    },
+    "LEATHER": {
+      "excel": "AV",
+      "index": 47,
+      "header": "LEATHER",
+      "subHeader": ""
+    },
+    "__EMPTY_48": {
+      "excel": "AW",
+      "index": 48,
+      "header": "",
+      "subHeader": "C.S.Date"
+    },
+    "OUTSOURCING STATUS": {
+      "excel": "AX",
+      "index": 49,
+      "header": "OUTSOURCING STATUS",
+      "subHeader": "Out\r\nBal"
+    },
+    "__EMPTY_50": {
+      "excel": "AY",
+      "index": 50,
+      "header": "",
+      "subHeader": "IN\r\nBal"
+    },
+    "__EMPTY_51": {
+      "excel": "AZ",
+      "index": 51,
+      "header": "",
+      "subHeader": "OSC\r\nVendor"
+    },
+    "__EMPTY_52": {
+      "excel": "BA",
+      "index": 52,
+      "header": "",
+      "subHeader": "S.Cut Bal"
+    },
+    "__EMPTY_53": {
+      "excel": "BB",
+      "index": 53,
+      "header": "",
+      "subHeader": "Pre-sew Bal"
+    },
+    "__EMPTY_54": {
+      "excel": "BC",
+      "index": 54,
+      "header": "",
+      "subHeader": "Sew input Bal"
+    },
+    "__EMPTY_55": {
+      "excel": "BD",
+      "index": 55,
+      "header": "",
+      "subHeader": "Sew Prod.scan"
+    },
+    "PRODUCTION STATUS": {
+      "excel": "BE",
+      "index": 56,
+      "header": "PRODUCTION STATUS",
+      "subHeader": "Sew\r\nBal"
+    },
+    "__EMPTY_57": {
+      "excel": "BF",
+      "index": 57,
+      "header": "",
+      "subHeader": "O/S set.O/B"
+    },
+    "__EMPTY_58": {
+      "excel": "BG",
+      "index": 58,
+      "header": "",
+      "subHeader": "Previous sole out."
+    },
+    "__EMPTY_59": {
+      "excel": "BH",
+      "index": 59,
+      "header": "",
+      "subHeader": "O/sole Color"
+    },
+    "__EMPTY_60": {
+      "excel": "BI",
+      "index": 60,
+      "header": "",
+      "subHeader": "Outsole Vendor"
+    },
+    "__EMPTY_61": {
+      "excel": "BJ",
+      "index": 61,
+      "header": "",
+      "subHeader": "CNF O/S Bal"
+    },
+    "__EMPTY_62": {
+      "excel": "BK",
+      "index": 62,
+      "header": "",
+      "subHeader": "S/Fit Bal"
+    },
+    "__EMPTY_63": {
+      "excel": "BL",
+      "index": 63,
+      "header": "",
+      "subHeader": "Ass Bal"
+    },
+    "Ass.STK.F": {
+      "excel": "BM",
+      "index": 64,
+      "header": "Ass.STK.F",
+      "subHeader": ""
+    },
+    "WAREHOUSE": {
+      "excel": "BN",
+      "index": 65,
+      "header": "WAREHOUSE",
+      "subHeader": "W.H return Fac"
+    },
+    "__EMPTY_66": {
+      "excel": "BO",
+      "index": 66,
+      "header": "",
+      "subHeader": "W.H IN BAL"
+    },
+    "__EMPTY_67": {
+      "excel": "BP",
+      "index": 67,
+      "header": "",
+      "subHeader": "W.H OUT BAL"
+    },
+    "Pkg.Typ": {
+      "excel": "BQ",
+      "index": 68,
+      "header": "Pkg.Typ",
+      "subHeader": ""
+    },
+    "Last No": {
+      "excel": "BR",
+      "index": 69,
+      "header": "Last No",
+      "subHeader": ""
+    },
+    "Closing Time": {
+      "excel": "BS",
+      "index": 70,
+      "header": "Closing Time",
+      "subHeader": ""
+    },
+    "OSC S/F VD(1)": {
+      "excel": "BT",
+      "index": 71,
+      "header": "OSC S/F VD(1)",
+      "subHeader": ""
+    },
+    "O/S OSC VD": {
+      "excel": "BU",
+      "index": 72,
+      "header": "O/S OSC VD",
+      "subHeader": ""
+    },
+    "Inspectin": {
+      "excel": "BV",
+      "index": 73,
+      "header": "Inspectin",
+      "subHeader": ""
+    }
+  }
+}

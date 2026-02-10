@@ -1,0 +1,1024 @@
+{
+  "meta": {
+    "language": "English",
+    "code": "en",
+    "direction": "ltr"
+  },
+
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "refresh": "Refresh",
+    "settings": "Settings",
+    "help": "Help",
+    "all": "All",
+    "apply": "Apply"
+  },
+
+  "header": {
+    "title": "Rachgia Factory Integrated Production Dashboard",
+    "subtitle": "Vietnam Factories A/B/C/D Real-time Status",
+    "darkMode": "Dark Mode",
+    "notifications": "Notifications",
+    "language": "Language",
+    "lastUpdate": "Last Update"
+  },
+
+  "filters": {
+    "title": "Filters",
+    "all": "All",
+    "month": "Month",
+    "destination": "Destination",
+    "vendor": "Vendor (Outsole)",
+    "factory": "Factory",
+    "status": "Status",
+    "search": "Search (Model, PO, Destination)",
+    "quickDate": "Quick Date Filter",
+    "delayed": "Delayed Orders",
+    "warning": "Warning (Within D-7)",
+    "today": "Ship Today",
+    "week": "Within 1 Week",
+    "month": "Within 1 Month",
+    "reset": "Reset Filters",
+    "apply": "Apply",
+    "importantDestinations": "Key Destinations"
+  },
+
+  "tabs": {
+    "summary": "Summary",
+    "monthly": "Monthly",
+    "destination": "Destination",
+    "model": "Model",
+    "factory": "Factory",
+    "vendor": "Vendor",
+    "heatmap": "Heatmap",
+    "data": "Data",
+    "settings": "Settings",
+    "orderSearch": "Order Search",
+    "monitoring": "Monitoring",
+    "taskAssignment": "Task Assignment",
+    "taskResult": "Task Results",
+    "navigationLabel": "Dashboard Tab Navigation"
+  },
+
+  "summary": {
+    "title": "Production Summary",
+    "totalOrders": "Total Orders",
+    "totalQuantity": "Total Quantity",
+    "completedOrders": "Completed Orders",
+    "completedQuantity": "Completed Quantity",
+    "delayedOrders": "Delayed Orders",
+    "warningOrders": "Warning Orders",
+    "completionRate": "Completion Rate",
+    "onTimeRate": "On-Time Delivery Rate",
+    "orders": "Orders",
+    "pairs": "Pairs",
+    "processFlow": "Process Flow",
+    "factoryCompletion": "Factory Completion Rate"
+  },
+
+  "processes": {
+    "s_cut": "Cutting",
+    "pre_sew": "Pre-Sewing",
+    "sew_input": "Sewing Input",
+    "sew_bal": "Sewing",
+    "s_fit": "Fitting",
+    "ass_bal": "Assembly",
+    "wh_in": "Warehouse In",
+    "wh_out": "Warehouse Out",
+    "osc": "Fitting",
+    "ass": "Assembly"
+  },
+
+  "status": {
+    "completed": "Completed",
+    "partial": "In Progress",
+    "pending": "Pending",
+    "delayed": "Delayed",
+    "warning": "Warning",
+    "onTime": "On Time"
+  },
+
+  "table": {
+    "factory": "Factory",
+    "poNumber": "PO Number",
+    "model": "Model",
+    "destination": "Destination",
+    "quantity": "Quantity",
+    "crd": "CRD",
+    "sdd": "SDD",
+    "delayStatus": "Delay Status",
+    "sCut": "Cutting",
+    "sewBal": "Sewing",
+    "whOut": "Ship Out",
+    "remaining": "Remaining",
+    "progress": "Progress",
+    "actions": "Actions",
+    "details": "Details",
+    "pageSize": "Page Size",
+    "showing": "Showing",
+    "of": "of",
+    "page": "Page",
+    "prev": "Previous",
+    "next": "Next"
+  },
+
+  "charts": {
+    "monthlyTrend": "Monthly Production Trend",
+    "destinationAnalysis": "Destination Analysis",
+    "modelBreakdown": "Model Breakdown",
+    "factoryPerformance": "Factory Performance",
+    "vendorAnalysis": "Vendor Analysis",
+    "heatmap": "Heatmap",
+    "totalOrders": "Total Orders",
+    "completedOrders": "Completed Orders",
+    "avgCompletionRate": "Avg Completion Rate",
+    "noData": "No Data"
+  },
+
+  "heatmap": {
+    "modelVendor": "Model × Vendor Heatmap",
+    "countryMonth": "Country × Month Heatmap",
+    "modelDestination": "Model × Destination Heatmap",
+    "intensity": "Intensity",
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+
+  "modal": {
+    "orderDetails": "Order Details",
+    "delayedOrdersList": "Delayed Orders List",
+    "factoryDetails": "Factory Detailed Progress",
+    "close": "Close",
+    "export": "Export",
+    "print": "Print"
+  },
+
+  "notifications": {
+    "title": "Browser Notifications",
+    "enable": "Enable Notifications",
+    "enableNotifications": "Enable Notifications",
+    "disable": "Disable Notifications",
+    "permissionGranted": "✅ Notifications enabled",
+    "permissionDenied": "❌ Notification permission denied",
+    "delayedOrders": "🚨 Delayed Orders Detected",
+    "upcomingDeadline": "⏰ Deadline Approaching",
+    "deadlineWarning": "📅 Deadline Scheduled",
+    "delayedMessage": "{count} order(s) ({quantity} pairs) are delayed.",
+    "deadlineD3": "{count} order(s) are due in 3 days.",
+    "deadlineD7": "{count} order(s) are due in 7 days.",
+    "settings": "Notification Settings",
+    "checkDelayed": "Check Delayed Orders",
+    "checkDeadlines": "Check Upcoming Deadlines",
+    "customRules": "Custom Rules"
+  },
+
+  "keyboard": {
+    "title": "⌨️ Keyboard Shortcuts",
+    "shortcuts": "Shortcuts",
+    "action": "Action",
+    "tab1": "Alt+1: Summary Tab",
+    "tab2": "Alt+2: Monthly Tab",
+    "tab3": "Alt+3: Destination Tab",
+    "tab4": "Alt+4: Model Tab",
+    "tab5": "Alt+5: Factory Tab",
+    "tab6": "Alt+6: Vendor Tab",
+    "tab7": "Alt+7: Heatmap Tab",
+    "tab8": "Alt+8: Data Tab",
+    "search": "Alt+F: Focus Search",
+    "export": "Alt+E: Export",
+    "settings": "Alt+S: Settings",
+    "help": "Alt+H: Help",
+    "reset": "Alt+R: Reset Filters",
+    "darkMode": "Alt+D: Toggle Dark Mode",
+    "escape": "ESC: Close Modal",
+    "slash": "/: Focus Search",
+    "question": "?: Keyboard Shortcuts Help",
+    "tip": "💡 Tip: Some shortcuts don't work in input fields. Press ESC to unfocus.",
+    "categoryFilter": "Filter",
+    "toggleFilterPanel": "Toggle Filter Panel"
+  },
+
+  "pwa": {
+    "installPrompt": "Add to Home Screen?",
+    "installButton": "Install",
+    "updateAvailable": "🎉 New Version Available",
+    "updateMessage": "Refresh to update to the latest version.",
+    "updateButton": "Refresh",
+    "offlineMode": "Offline Mode",
+    "onlineMode": "Online Mode"
+  },
+
+  "export": {
+    "title": "Export Data",
+    "excel": "Export Excel (.xlsx)",
+    "csv": "Export CSV (.csv)",
+    "pdf": "Export PDF Report (.pdf)",
+    "json": "Export JSON (.json)",
+    "currentFilter": "Exporting {count} filtered record(s).",
+    "success": "✅ Exported {count} record(s) to {format}.",
+    "error": "❌ An error occurred during export.",
+    "productionProcess": "Production Process",
+    "presetManagement": "Preset Management"
+  },
+
+  "settings": {
+    "title": "⚙️ User Settings",
+    "general": "General",
+    "appearance": "Appearance",
+    "notifications": "Notifications",
+    "advanced": "Advanced",
+    "language": "Language",
+    "darkMode": "Dark Mode",
+    "pageSize": "Default Page Size",
+    "autoRefresh": "Auto Refresh",
+    "refreshInterval": "Refresh Interval (seconds)",
+    "enableNotifications": "Browser Notifications",
+    "reset": "🔄 Reset Settings",
+    "resetConfirm": "Reset all settings?",
+    "saved": "✅ Settings saved.",
+    "oauth": {
+      "title": "Google Drive Settings (OAuth 2.0)",
+      "description": "Automatically load 4 factory files (A, B, C, D) from Google Drive folder via OAuth 2.0.",
+      "needLogin": "Login required",
+      "connected": "Connected",
+      "signIn": "Sign in with Google",
+      "signOut": "Sign out",
+      "clientId": "OAuth Client ID",
+      "clientIdHelp": "OAuth 2.0 Client ID from Google Cloud Console",
+      "folderId": "Google Drive Folder ID",
+      "folderIdHelp": "Value after folders/ in URL",
+      "autoSyncInterval": "Auto Sync Interval",
+      "manual": "Manual",
+      "lastSync": "Last Sync",
+      "loadedRecords": "Loaded Records",
+      "save": "Save Settings",
+      "testFolder": "Test Folder",
+      "syncNow": "Sync Now",
+      "filesInFolder": "Files in Folder"
+    },
+    "googleDrive": {
+      "title": "Google Drive Settings (Public Link)",
+      "description": "Load single Excel file via public link. (No authentication required)",
+      "fileId": "File ID",
+      "fileIdHelp": "e.g., https://drive.google.com/file/d/FILE_ID_HERE/view",
+      "syncInterval": "Sync Interval",
+      "manual": "Manual",
+      "status": "Status",
+      "notConfigured": "Not configured",
+      "lastSync": "Last Sync",
+      "testConnection": "Test Connection",
+      "save": "Save",
+      "syncNow": "Sync Now"
+    },
+    "firebase": {
+      "title": "Firebase Settings",
+      "description": "Store QMS data (monitoring targets, work orders, work results) in Firebase.",
+      "apiKey": "API Key",
+      "databaseUrl": "Database URL",
+      "databaseUrlHelp": "Copy URL from Firebase Console → Realtime Database",
+      "projectId": "Project ID",
+      "status": "Status",
+      "notConfigured": "Not configured",
+      "testConnection": "Test Connection",
+      "save": "Save"
+    },
+    "user": {
+      "title": "User Settings",
+      "name": "User Name",
+      "role": "Role",
+      "save": "Save",
+      "roles": {
+        "viewer": "Viewer",
+        "inspector": "Inspector",
+        "manager": "Manager"
+      }
+    },
+    "cache": {
+      "title": "Cache Management",
+      "localStorageSize": "Local Storage Usage",
+      "clear": "Clear Cache"
+    }
+  },
+
+  "errors": {
+    "networkError": "Network error. Please check your connection.",
+    "dataLoadError": "Error loading data.",
+    "parseError": "Error parsing data.",
+    "permissionError": "Permission denied.",
+    "unknownError": "An unknown error occurred.",
+    "retry": "Retry"
+  },
+
+  "messages": {
+    "noData": "No data to display.",
+    "noResults": "No search results.",
+    "filterApplied": "Filter applied.",
+    "dataUpdated": "Data updated.",
+    "copied": "Copied.",
+    "saved": "Saved."
+  },
+
+  "footer": {
+    "version": "Version",
+    "copyright": "© 2026 Rachgia Factory Dashboard. All rights reserved.",
+    "poweredBy": "Powered by",
+    "documentation": "Documentation",
+    "support": "Support",
+    "privacy": "Privacy Policy"
+  },
+
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "thisWeek": "This Week",
+    "lastWeek": "Last Week",
+    "thisMonth": "This Month",
+    "lastMonth": "Last Month",
+    "daysAgo": "{days} days ago",
+    "daysLater": "in {days} days",
+    "format": "YYYY-MM-DD"
+  },
+
+  "validation": {
+    "required": "This field is required.",
+    "invalidEmail": "Invalid email address.",
+    "invalidDate": "Invalid date.",
+    "invalidNumber": "Invalid number.",
+    "minLength": "Minimum {min} characters required.",
+    "maxLength": "Maximum {max} characters allowed."
+  },
+
+  "mobile": {
+    "filterToggle": "Filters",
+    "menuToggle": "Menu",
+    "menuTitle": "Dashboard Menu",
+    "openFilters": "Open Filters"
+  },
+
+  "shortcuts": {
+    "title": "Keyboard Shortcuts",
+    "description": "Quick keyboard shortcuts for faster navigation",
+    "search": "Search shortcuts...",
+    "noResults": "No shortcuts found",
+    "hint": "Press Alt + ? or ? anytime to view this help",
+    "toClose": "to close",
+    "badgeHint": "Alt + ? Shortcuts Help",
+    "inlineHelp": "⌨️ Shortcuts: Alt+1~8(Tabs), Alt+F(Search), Alt+E(Export), Alt+H(Help), ?(Shortcuts Help)",
+    "filter": "Filter",
+    "reset": "Reset",
+    "detailTab": "Detail Tab",
+    "closeModal": "Close Modal",
+    "page": "Page",
+    "categories": {
+      "navigation": "Navigation",
+      "actions": "Actions",
+      "filters": "Filters",
+      "views": "Views",
+      "help": "Help"
+    },
+    "keys": {
+      "dashboard": "Go to Dashboard (Summary)",
+      "monthly": "Go to Monthly Status",
+      "destination": "Go to Destination Analysis",
+      "model": "Go to Model Analysis",
+      "factory": "Go to Factory Comparison",
+      "vendor": "Go to Vendor Analysis",
+      "heatmap": "Go to Heatmap",
+      "dataExplorer": "Go to Data Explorer",
+      "settings": "Go to Settings",
+      "toggleFilter": "Toggle Filter Panel",
+      "refresh": "Refresh Data",
+      "export": "Export to Excel",
+      "print": "Print",
+      "search": "Focus Search",
+      "quickSearch": "Quick Search",
+      "resetFilters": "Reset Filters",
+      "darkMode": "Toggle Dark Mode",
+      "escape": "Close Modal/Filter",
+      "help": "Keyboard Shortcuts Help"
+    }
+  },
+
+  "modals": {
+    "orderDetail": "Order Details",
+    "processDetail": "Process Details",
+    "helpTitle": "Help",
+    "columnSelection": {
+      "title": "Select Columns to Display",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "apply": "Apply"
+    },
+    "notificationSettings": {
+      "title": "Notification Settings",
+      "enable": "Enable Notifications",
+      "delayed": "Delayed Order Notifications",
+      "warning": "Warning Order Notifications (D-7)",
+      "checkInterval": "Check Interval (minutes)",
+      "apply": "Apply"
+    },
+    "chunkProgress": {
+      "title": "Chunk Progress",
+      "processing": "Processing...",
+      "close": "Close"
+    },
+    "dailyReport": {
+      "title": "Daily Report",
+      "date": "Date",
+      "totalOrders": "Total Orders",
+      "completed": "Completed",
+      "delayed": "Delayed",
+      "close": "Close"
+    },
+    "keyboardShortcuts": {
+      "title": "Keyboard Shortcuts",
+      "close": "Close"
+    },
+    "notificationHistory": {
+      "title": "Notification History",
+      "clear": "Clear All",
+      "close": "Close"
+    },
+    "reportHistory": {
+      "title": "Report History",
+      "download": "Download",
+      "delete": "Delete",
+      "close": "Close"
+    }
+  },
+
+  "monthly": {
+    "title": "Monthly Production Status",
+    "chartTitle": "Monthly Orders and Completion Trend",
+    "noData": "No Data",
+    "tableTitle": "Monthly Completion Status",
+    "tableCaption": "Monthly Order Completion Status and Completion Rate Table",
+    "month": "Month",
+    "orders": "Orders",
+    "quantity": "Quantity",
+    "completed": "Completed",
+    "completionRate": "Completion Rate",
+    "trendTitle": "Monthly Trend Analysis",
+    "trendDescription": "Shows monthly trends of orders, completed quantities, and delay rates. Use trends to identify production efficiency and issues."
+  },
+
+  "destination": {
+    "title": "Production Status by Destination",
+    "chartTitle": "Order Distribution by Destination",
+    "noData": "No Data",
+    "tableTitle": "Completion Status by Destination",
+    "tableCaption": "Order Completion Status and Completion Rate by Destination Table",
+    "country": "Country",
+    "count": "Count",
+    "quantity": "Quantity",
+    "completed": "Completed",
+    "completionRate": "Completion Rate"
+  },
+
+  "model": {
+    "title": "Production Status by Model",
+    "chartTitle": "Order Distribution by Model",
+    "noData": "No Data",
+    "tableTitle": "Completion Status by Model",
+    "tableCaption": "Order Completion Status and Completion Rate by Model Table",
+    "model": "Model",
+    "count": "Count",
+    "quantity": "Quantity",
+    "completed": "Completed",
+    "completionRate": "Completion Rate"
+  },
+
+  "factory": {
+    "title": "Production Status by Factory",
+    "chartTitle": "Completion Rate by Factory",
+    "noData": "No Data",
+    "progressTitle": "Process Progress by Factory",
+    "processTitle": "Process Progress by Factory"
+  },
+
+  "vendor": {
+    "title": "Production Status by Vendor",
+    "chartTitle": "Vendor Performance",
+    "noData": "No Data",
+    "tableTitle": "Completion Status by Vendor",
+    "tableCaption": "Order Completion Status and Completion Rate by Vendor Table",
+    "vendor": "Vendor",
+    "orders": "Orders",
+    "quantity": "Quantity",
+    "completed": "Completed",
+    "completionRate": "Completion Rate",
+    "heatmapTitle": "Vendor Heatmap"
+  },
+
+  "heatmap": {
+    "title": "Heatmap Analysis",
+    "modelVendorTitle": "Model × Vendor Heatmap",
+    "countryMonthTitle": "Country × Month Heatmap",
+    "modelDestinationTitle": "Model × Destination Heatmap",
+    "modelDestTitle": "Model × Destination Heatmap",
+    "noData": "No Data",
+    "low": "Low",
+    "high": "High"
+  },
+
+  "data": {
+    "title": "Detailed Data",
+    "sortAsc": "Sort Ascending",
+    "sortDesc": "Sort Descending",
+    "filterColumn": "Filter Column",
+    "selectColumns": "Select Columns",
+    "analytics": "AI Analysis",
+    "analyticsTitle": "AI-based Predictive Analysis and Insights",
+    "analyticsAria": "View AI Analysis Insights",
+    "rowsPerPage": "Rows per Page",
+    "previous": "Previous",
+    "next": "Next",
+    "export": "Export",
+    "report": "Report",
+    "anomaly": "Anomaly",
+    "tableCaption": "Detailed Data Table",
+    "factory": "Factory",
+    "model": "Model",
+    "destination": "Destination",
+    "outsoleVendor": "Outsole Vendor",
+    "quantity": "Quantity",
+    "cutting": "Cutting",
+    "sewing": "Sewing",
+    "assembly": "Assembly",
+    "warehouse": "Warehouse",
+    "status": "Status",
+    "columnsTitle": "Select Columns",
+    "columnSettingsTitle": "Column Settings",
+    "reportTitle": "Generate Report",
+    "anomalyTitle": "Anomaly Detection",
+    "columnsgsAria": "Open Column Settings",
+    "columnSettingsAria": "Open Column Settings",
+    "reportAria": "Open Report Generator",
+    "anomalyAria": "Open Anomaly Detection",
+    "columns": {
+      "factory": "Factory",
+      "poNumber": "PO Number",
+      "model": "Model",
+      "destination": "Destination",
+      "quantity": "Quantity",
+      "crd": "CRD",
+      "sdd": "SDD",
+      "delayStatus": "Delay Status",
+      "sCut": "Cutting",
+      "sewBal": "Sewing",
+      "whOut": "Ship Out",
+      "remaining": "Remaining"
+    }
+  },
+
+  "help": {
+    "title": "User Guide and Help",
+    "overviewTitle": "📊 Dashboard Overview",
+    "filterTitle": "🔍 How to Use Filters",
+    "kpiTitle": "📈 Key Performance Indicators (KPI)",
+    "processTitle": "⚙️ Production Process Flow",
+    "vendorTitle": "🏭 Vendor Performance Evaluation",
+    "delayTitle": "⏰ Delay Criteria",
+    "dataFieldsTitle": "📋 Data Field Descriptions",
+    "notificationTitle": "🔔 Browser Notification Feature",
+    "keyboardTitle": "⌨️ Keyboard Shortcuts",
+    "kpi": {
+      "totalOrdersLabel": "Total Orders",
+      "totalOrdersDesc": "Total number of orders and quantity (pairs)",
+      "completedLabel": "Completed Orders",
+      "completedDesc": "Number of orders with WH_OUT completed",
+      "delayedLabel": "Delayed Orders",
+      "delayedDesc": "Orders where SDD > CRD (excluding Code04)",
+      "completionRateLabel": "Completion Rate",
+      "completionRateDesc": "Percentage of completed orders out of total (%)"
+    },
+    "processes": {
+      "sCut": "S_CUT (Cutting)",
+      "preSew": "PRE_SEW (Pre-Sewing)",
+      "sewInput": "SEW_INPUT (Sewing Input)",
+      "sewBal": "SEW_BAL (Sewing)",
+      "sFit": "S_FIT (Fitting)",
+      "assBal": "ASS_BAL (Assembly)",
+      "whIn": "WH_IN (Warehouse In)",
+      "whOut": "WH_OUT (Warehouse Out)",
+      "osc": "OSC (Fitting)",
+      "ass": "ASS (Assembly)"
+    },
+    "vendorScoreCode": "// Vendor Performance Score = (Completion Rate × 0.7) - (Delay Rate × 0.3)\nfunction calculateVendorScore(vendor) {\n    const completionRate = (completed / total) * 100;\n    const delayRate = (delayed / total) * 100;\n    return (completionRate * 0.7) - (delayRate * 0.3);\n}\n\n// Interpretation:\n// 80+ points: Excellent (Green)\n// 50-80 points: Average (Yellow)\n// Below 50 points: Needs Improvement (Red)",
+    "severity": {
+      "minorTitle": "Minor",
+      "minorDesc": "1-3 days delayed",
+      "moderateTitle": "Moderate",
+      "moderateDesc": "4-7 days delayed",
+      "severeTitle": "Severe",
+      "severeDesc": "7+ days delayed"
+    },
+    "fields": {
+      "tableCaption": "Dashboard Key Data Field Description Table (Field Name and Description)",
+      "fieldHeader": "Field",
+      "descHeader": "Description",
+      "sddDesc": "Scheduled Delivery Date - Expected ship out date",
+      "crdDesc": "Customer Required Date - Customer requested date",
+      "code04Desc": "Delay approval status (if true, not considered delayed)",
+      "aqlDesc": "Acceptable Quality Level - Quality inspection pass status",
+      "remainingDesc": "Remaining quantity by process (quantity - completed)",
+      "outsoleVendorDesc": "Outsole supplier vendor"
+    },
+    "notification": {
+      "subtitle": "Real-time Delayed Order Notifications",
+      "activation": "<strong>How to activate:</strong> Click 🔕 button in header → Allow permission → Changes to 🔔",
+      "conditionsLabel": "<strong>Notification Conditions:</strong>",
+      "delayedCondition": "<strong>Delayed Orders:</strong> When SDD exceeds CRD (excluding Code04)",
+      "warningCondition": "<strong>Warning Orders:</strong> When within 7 days until CRD (optional)",
+      "checkInterval": "<strong>Check Interval:</strong> Automatic check every 5 minutes (background execution)",
+      "tip": "💡 Tip: Notifications will appear in system tray even when browser is closed."
+    },
+    "kpi": {
+      "otdTitle": "On-Time Delivery (OTD)",
+      "formula": "Formula",
+      "meaning": "Meaning",
+      "goal": "Goal",
+      "reTitle": "At-Risk Revenue",
+      "aqTitle": "Quality Inspection Pass Rate",
+      "bkTitle": "Predicted Bottleneck Process",
+      "action": "Action",
+      "revenueTitle": "At-Risk Revenue",
+      "aqlTitle": "Quality Inspection Pass Rate",
+      "bottleneckTitle": "Predicted Bottleneck Process"
+    },
+    "delayCalcTitle": "Delay Calculation",
+    "warningCalcTitle": "Warning Calculation",
+    "shippedCalcTitle": "Shipped Calculation",
+    "productSTitle": "Production Status",
+    "vendorETitle": "Vendor Evaluation",
+    "delaySTitle": "Delay Severity",
+    "delayLogicTitle": "Delay Logic",
+    "warningLogicTitle": "Warning Logic",
+    "shippedLogicTitle": "Shipped Logic",
+    "productionProcessTitle": "Production Process Flow",
+    "vendorScoreTitle": "Vendor Performance Score",
+    "delaySeverityTitle": "Delay Severity Criteria"
+  },
+
+  "orderSearch": {
+    "title": "🔍 Order Search",
+    "description": "Search for specific orders and view detailed information.",
+    "searchBtn": "Search",
+    "month": "Month Filter",
+    "factory": "Factory Filter",
+    "destination": "Destination Filter",
+    "status": "Status Filter",
+    "trackDate": "Track Date",
+    "resetBtn": "Reset",
+    "tableCaption": "Order Search Results Table",
+    "filter": {
+      "month": "Month",
+      "factory": "Factory",
+      "destination": "Destination",
+      "status": "Status",
+      "quickDate": "Quick Date Filter"
+    }
+  },
+
+  "monitoring": {
+    "title": "🎯 Monitoring Targets",
+    "description": "Register important orders as monitoring targets for tracking.",
+    "addTarget": "Add Target",
+    "activeTargets": "Active Targets",
+    "noTargets": "No monitoring targets registered.",
+    "register": {
+      "title": "Monitoring Registration"
+    },
+    "list": {
+      "title": "Monitoring List"
+    }
+  },
+
+  "taskAssignment": {
+    "title": "📋 Task Assignment",
+    "description": "Create and manage work orders for specific orders.",
+    "createTask": "Create Task",
+    "taskType": "Task Type",
+    "qc": "Quality Check",
+    "rework": "Rework",
+    "freeform": "Freeform",
+    "targetOrder": "Target Order",
+    "taskTitle": "Task Title",
+    "taskDescription": "Task Description",
+    "priority": "Priority",
+    "high": "High",
+    "medium": "Medium",
+    "low": "Low",
+    "assignee": "Assignee",
+    "dueDate": "Due Date",
+    "status": "Status",
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "noTasks": "No tasks registered."
+  },
+
+  "taskResult": {
+    "title": "✅ Task Results",
+    "description": "Record and manage results of completed tasks.",
+    "recordResult": "Record Result",
+    "taskId": "Task ID",
+    "resultStatus": "Result Status",
+    "pass": "Pass",
+    "fail": "Fail",
+    "partial": "Partial Pass",
+    "findings": "Findings",
+    "actionTaken": "Action Taken",
+    "noResults": "No task results recorded."
+  },
+
+  "export": {
+    "title": "Export Data",
+    "excel": "Export Excel (.xlsx)",
+    "csv": "Export CSV (.csv)",
+    "pdf": "Export PDF Report (.pdf)",
+    "json": "Export JSON (.json)",
+    "currentFilter": "Exporting {count} filtered record(s).",
+    "success": "✅ Exported {count} record(s) to {format}.",
+    "error": "❌ An error occurred during export.",
+    "selectColumns": "Select Columns",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "essentialOnly": "Essential Only",
+    "basicInfo": "Basic Info",
+    "dateInfo": "Date Info",
+    "process": "Process Info",
+    "statusInfo": "Status Info",
+    "preManagement": "Pre-Management",
+    "selectedCount": "Selected: {count}",
+    "processing": "Processing...",
+    "progress": "Progress",
+    "processed": "Processed",
+    "chunkOptimization": "Chunk Optimization",
+    "productionProcess": "Production Process",
+    "presetManagement": "Preset Management"
+  },
+
+  "report": {
+    "title": "Report",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "printTip": "💡 Use browser print function (Ctrl+P).",
+    "printPDF": "Print to PDF",
+    "downloadHTML": "Download HTML",
+    "historyTitle": "Report History",
+    "clearAll": "Clear All"
+  },
+
+  "keyboard": {
+    "title": "⌨️ Keyboard Shortcuts",
+    "shortcuts": "Shortcuts",
+    "action": "Action",
+    "tab1": "Alt+1: Summary Tab",
+    "tab2": "Alt+2: Monthly Tab",
+    "tab3": "Alt+3: Destination Tab",
+    "tab4": "Alt+4: Model Tab",
+    "tab5": "Alt+5: Factory Tab",
+    "tab6": "Alt+6: Vendor Tab",
+    "tab7": "Alt+7: Heatmap Tab",
+    "tab8": "Alt+8: Data Tab",
+    "search": "Alt+F: Focus Search",
+    "export": "Alt+E: Export",
+    "settings": "Alt+S: Settings",
+    "help": "Alt+H: Help",
+    "reset": "Alt+R: Reset Filters",
+    "darkMode": "Alt+D: Toggle Dark Mode",
+    "escape": "ESC: Close Modal",
+    "slash": "/: Focus Search",
+    "question": "?: Keyboard Shortcuts Help",
+    "tip": "💡 Tip: Some shortcuts don't work in input fields. Press ESC to unfocus.",
+    "introTip": "Use keyboard shortcuts to work faster.",
+    "ctrlFilter": "Filter Focus",
+    "togglerPanel": "Toggle Panel",
+    "resetFilters": "Reset Filters",
+    "focusSearch": "Focus Search",
+    "categoryTabs": "Tab Navigation",
+    "tabMonthly": "Monthly Tab",
+    "tabDestination": "Destination Tab",
+    "tabModel": "Model Tab",
+    "tabFactory": "Factory Tab",
+    "tabVendor": "Vendor Tab",
+    "tabHeatmap": "Heatmap Tab",
+    "tabData": "Data Tab",
+    "categoryData": "Data Operations",
+    "exportExcel": "Export Excel",
+    "generateReport": "Generate Report",
+    "reportHistory": "Report History",
+    "detectOutliers": "Detect Outliers",
+    "categoryUI": "UI Operations",
+    "toggleDarkMode": "Toggle Dark Mode",
+    "refreshPage": "Refresh Page",
+    "categoryHelp": "Help",
+    "openShortcuts": "Open Shortcuts",
+    "or": "or",
+    "closeModal": "Close Modal",
+    "categoryFilter": "Filter",
+    "toggleFilterPanel": "Toggle Filter Panel"
+  },
+
+  "notifications": {
+    "title": "Browser Notifications",
+    "enable": "Enable Notifications",
+    "disable": "Disable Notifications",
+    "permissionGranted": "✅ Notifications enabled",
+    "permissionDenied": "❌ Notification permission denied",
+    "delayedOrders": "🚨 Delayed Orders Detected",
+    "upcomingDeadline": "⏰ Deadline Approaching",
+    "deadlineWarning": "📅 Deadline Scheduled",
+    "delayedMessage": "{count} order(s) ({quantity} pairs) are delayed.",
+    "deadlineD3": "{count} order(s) are due in 3 days.",
+    "deadlineD7": "{count} order(s) are due in 7 days.",
+    "settings": "Notification Settings",
+    "checkDelayed": "Check Delayed Orders",
+    "checkDeadlines": "Check Upcoming Deadlines",
+    "customRules": "Custom Rules",
+    "notifications": "Notifications",
+    "historyTitle": "Notification History",
+    "clearAll": "Clear All",
+    "enableNotifications": "Enable Notifications"
+  },
+
+  "cache": {
+    "justNow": "just now",
+    "minutesAgo": "{{min}} min ago",
+    "hoursAgo": "{{hour}} hr ago",
+    "staleData": "Stale data",
+    "fresh": "Fresh data"
+  },
+
+  "toast": {
+    "close": "Close",
+    "dismiss": "Dismiss",
+    "undo": "Undo",
+    "retry": "Retry",
+    "viewDetails": "View Details",
+    "success": {
+      "default": "Operation completed successfully.",
+      "saved": "Saved successfully.",
+      "deleted": "Deleted successfully.",
+      "updated": "Updated successfully.",
+      "copied": "Copied to clipboard.",
+      "exported": "Export completed.",
+      "imported": "Import completed.",
+      "synced": "Sync completed.",
+      "connected": "Connected successfully.",
+      "loggedIn": "Logged in successfully.",
+      "loggedOut": "Logged out successfully."
+    },
+    "error": {
+      "default": "An error occurred.",
+      "network": "Network error occurred.",
+      "server": "Server error occurred.",
+      "validation": "Validation failed.",
+      "permission": "Permission denied.",
+      "notFound": "Not found.",
+      "timeout": "Request timed out.",
+      "unauthorized": "Authentication required.",
+      "forbidden": "Access denied."
+    },
+    "warning": {
+      "default": "Attention required.",
+      "unsavedChanges": "You have unsaved changes.",
+      "sessionExpiring": "Your session is about to expire.",
+      "lowStorage": "Storage is running low.",
+      "outdatedData": "Data is outdated."
+    },
+    "info": {
+      "default": "Information",
+      "loading": "Loading...",
+      "processing": "Processing...",
+      "syncing": "Syncing...",
+      "uploading": "Uploading...",
+      "downloading": "Downloading..."
+    }
+  },
+
+  "quickAction": {
+    "open": "Quick Actions",
+    "close": "Close",
+    "refresh": "Refresh",
+    "refreshSuccess": "Data refreshed successfully",
+    "search": "Quick Search",
+    "viewDelayed": "Delayed Orders",
+    "export": "Export Excel",
+    "exportSuccess": "Excel file downloaded",
+    "exportNotReady": "Export feature loading...",
+    "print": "Print",
+    "analytics": "Analytics Report"
+  },
+
+  "dataFreshness": {
+    "fresh": "Fresh",
+    "recent": "Recent",
+    "stale": "Stale",
+    "outdated": "Outdated",
+    "critical": "Very Old",
+    "unknown": "Unknown",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago",
+    "refreshing": "Refreshing...",
+    "syncing": "Syncing...",
+    "clickToRefresh": "Click to refresh",
+    "refresh": "Refresh",
+    "autoRefresh": "Auto refresh",
+    "offline": "Offline"
+  },
+
+  "network": {
+    "offline": "Internet Disconnected",
+    "offlineMessage": "Some features may be limited",
+    "online": "Online",
+    "reconnected": "Connection Restored"
+  },
+
+  "swipe": {
+    "hint": "Swipe left/right for quick actions",
+    "viewDetails": "View Details",
+    "markComplete": "Mark Complete"
+  },
+
+  "aql": {
+    "title": "AQL Risk Management",
+    "addEvent": "Register AQL Reject",
+    "editEvent": "Edit AQL Event",
+    "selectPO": "Select PO#",
+    "searchPO": "Search PO# or Article...",
+    "noResults": "No search results",
+    "selectedOrder": "Selected Order",
+    "rejectQty": "Reject Quantity",
+    "defectType": "Primary Defect Type",
+    "defectDescription": "Defect Description",
+    "defectPlaceholder": "e.g., Stitching defect, Color difference, Adhesive failure...",
+    "currentStatus": "Current Status",
+    "expectedRepackDate": "Expected Repacking Completion Date",
+    "notes": "Notes",
+    "notesPlaceholder": "Additional notes...",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "update": "Update",
+    "selectPOAlert": "Please select a PO.",
+    "pairs": "pairs",
+    "factory": "Factory",
+    "destination": "Destination",
+    "quantity": "Quantity",
+    "status": {
+      "reject": "Reject (Inspection Failed)",
+      "repacking": "Repacking (In Progress)",
+      "reinspection": "Re-inspection (Pending)",
+      "pass": "Pass (Final Approval)"
+    },
+    "defect": {
+      "critical": "Critical (Safety/Function)",
+      "major": "Major (Appearance)",
+      "minor": "Minor (Slight)"
+    },
+    "dashboard": {
+      "title": "AQL Risk Status",
+      "noEvents": "No AQL Reject History",
+      "noEventsSubtitle": "Quality status is good",
+      "addFirst": "Register the first AQL Reject",
+      "registerReject": "Register Reject",
+      "reinspectionPending": "Re-inspection Pending",
+      "repackingInProgress": "Repacking In Progress",
+      "repackingInProgressLabel": "Repacking",
+      "crdAtRisk": "CRD At Risk",
+      "crdAtRiskSubtitle": "Delay risk due to re-inspection",
+      "totalRejectQty": "Reject Quantity",
+      "totalRejectQtySubtitle": "In-progress total",
+      "allStatus": "All Status",
+      "includeCompleted": "Include Completed",
+      "articleRisk": "Repeated Reject Article Warning",
+      "repeatReject": "times",
+      "edit": "Edit",
+      "delete": "Delete",
+      "expectedRepack": "Expected Repacking Completion",
+      "startRepacking": "Start Repacking",
+      "waitReinspection": "Wait for Re-inspection",
+      "passLabel": "Pass",
+      "reReject": "Re-Reject"
+    }
+  }
+}

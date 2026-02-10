@@ -1,19 +1,33 @@
 {
+  "functions": {
+    "source": "react-app/functions",
+    "runtime": "nodejs22",
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run lint || true"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
   "storage": {
     "rules": "storage.rules"
   },
   "hosting": {
-    "public": ".",
+    "public": "react-app/dist",
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**",
-      "archive/**",
-      "tests/**",
-      "docs/**",
-      "*.tar.gz",
-      "*.md",
-      "build.sh"
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ],
     "headers": [
       {

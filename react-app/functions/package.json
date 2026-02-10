@@ -1,0 +1,29 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Rachgia Dashboard",
+  "scripts": {
+    "lint": "eslint . --ext .js --max-warnings 0 || true",
+    "serve": "firebase emulators:start --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test": "node test/test.js"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.0.0",
+    "googleapis": "^144.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "firebase-functions-test": "^3.4.1"
+  },
+  "private": true
+}
