@@ -27,3 +27,4 @@ export { useCacheStatus } from './useCacheStatus';
 export { useErrorTracking, ERROR_CATEGORY, ERROR_SEVERITY } from './useErrorTracking';
 export { useSnapshot } from './useSnapshot';
 export { useAQLEvents } from './useAQLEvents';
+export { useTasks, TASK_STATUS, TASK_PRIORITY } from './useTasks';

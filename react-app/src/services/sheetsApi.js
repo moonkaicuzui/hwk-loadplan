@@ -21,6 +21,8 @@ import {
   getCachedData,
 } from './firestoreCache';
 import { CACHE_CONFIG, calculateBackoff } from '../config/caching';
+import { PROCESS_STAGES } from '../constants/processes';
+import { isDelayed, isWarning, getProductionData } from '../utils/orderUtils';
 
 // ========================================
 // Error Event System
@@ -343,30 +345,389 @@ class SheetsAPI {
     }
   }
 
-  // Private methods - Direct Sheets API (to be implemented)
+  // ========================================
+  // Private Methods - Compute from Local Data
+  // ========================================
+
+  /**
+   * Get orders from localStorage cache (fallback when Firestore is unavailable)
+   * @returns {Array} Array of orders or empty array
+   * @private
+   */
+  _getLocalCachedOrders() {
+    try {
+      // Try to get orders from OrdersContext localStorage cache
+      const localKey = 'rachgia_orders_cache';
+      const stored = localStorage.getItem(localKey);
+      if (!stored) return [];
+
+      const { orders, timestamp } = JSON.parse(stored);
+      const age = Date.now() - timestamp;
+      const TTL = 60 * 60 * 1000; // 60 minutes
+
+      if (age > TTL) {
+        console.log('[SheetsAPI] Local orders cache expired');
+        return [];
+      }
+
+      // Filter by current factory if not ALL_FACTORIES
+      if (this.currentFactory !== 'ALL_FACTORIES' && this.config?.filterValue) {
+        return orders.filter(order => order.factory === this.config.filterValue);
+      }
+
+      return orders || [];
+    } catch (error) {
+      console.warn('[SheetsAPI] Error reading local orders cache:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch statistics from local computed data
+   * Computes statistics from locally cached orders when Firestore cache is unavailable
+   * @returns {Promise<Object|null>} Statistics object
+   * @private
+   */
   async _fetchStatisticsFromSheets() {
-    console.warn('[SheetsAPI] Direct Sheets API not implemented yet');
-    return null;
+    console.log('[SheetsAPI] Computing statistics from local data for', this.currentFactory);
+
+    const orders = this._getLocalCachedOrders();
+
+    if (orders.length === 0) {
+      console.log('[SheetsAPI] No local orders available for statistics computation');
+      // Return default statistics structure
+      return {
+        totalOrders: 0,
+        totalQuantity: 0,
+        completedQuantity: 0,
+        delayedOrders: 0,
+        warningOrders: 0,
+        delayRate: '0.00',
+        completionRate: '0.00'
+      };
+    }
+
+    // Compute statistics
+    let totalQuantity = 0;
+    let completedQuantity = 0;
+    let delayedOrders = 0;
+    let warningOrders = 0;
+
+    orders.forEach(order => {
+      const qty = order.quantity || order.ttl_qty || 0;
+      const whInCompleted = getProductionData(order, 'wh_in', 'completed', 0);
+
+      totalQuantity += qty;
+      completedQuantity += whInCompleted;
+
+      if (isDelayed(order)) {
+        delayedOrders++;
+      }
+      if (isWarning(order)) {
+        warningOrders++;
+      }
+    });
+
+    const totalOrders = orders.length;
+    const delayRate = totalOrders > 0
+      ? ((delayedOrders / totalOrders) * 100).toFixed(2)
+      : '0.00';
+    const completionRate = totalQuantity > 0
+      ? ((completedQuantity / totalQuantity) * 100).toFixed(2)
+      : '0.00';
+
+    console.log('[SheetsAPI] Statistics computed:', { totalOrders, delayedOrders, warningOrders });
+
+    return {
+      totalOrders,
+      totalQuantity,
+      completedQuantity,
+      delayedOrders,
+      warningOrders,
+      delayRate,
+      completionRate
+    };
   }
 
+  /**
+   * Fetch daily data from local computed data
+   * Groups orders by date and computes daily aggregations
+   * @returns {Promise<Array>} Daily data array
+   * @private
+   */
   async _fetchDailyDataFromSheets() {
-    console.warn('[SheetsAPI] Direct Sheets API not implemented yet');
-    return [];
+    console.log('[SheetsAPI] Computing daily data from local data for', this.currentFactory);
+
+    const orders = this._getLocalCachedOrders();
+
+    if (orders.length === 0) {
+      console.log('[SheetsAPI] No local orders available for daily data computation');
+      return [];
+    }
+
+    // Group by date (using SDD)
+    const dailyMap = new Map();
+
+    orders.forEach(order => {
+      const dateField = order.sddValue || order.sdd;
+      if (!dateField || dateField === '00:00:00') return;
+
+      // Extract just the date part (YYYY-MM-DD)
+      const dateKey = dateField.substring(0, 10);
+
+      if (!dailyMap.has(dateKey)) {
+        dailyMap.set(dateKey, {
+          date: dateKey,
+          orders: 0,
+          quantity: 0,
+          completed: 0
+        });
+      }
+
+      const daily = dailyMap.get(dateKey);
+      daily.orders += 1;
+      daily.quantity += order.quantity || 0;
+      daily.completed += getProductionData(order, 'wh_in', 'completed', 0);
+    });
+
+    // Sort by date
+    const result = Array.from(dailyMap.values())
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    console.log('[SheetsAPI] Daily data computed:', result.length, 'days');
+    return result;
   }
 
+  /**
+   * Fetch model data from local computed data
+   * Groups orders by model and computes aggregations
+   * @returns {Promise<Array>} Model data array
+   * @private
+   */
   async _fetchModelDataFromSheets() {
-    console.warn('[SheetsAPI] Direct Sheets API not implemented yet');
-    return [];
+    console.log('[SheetsAPI] Computing model data from local data for', this.currentFactory);
+
+    const orders = this._getLocalCachedOrders();
+
+    if (orders.length === 0) {
+      console.log('[SheetsAPI] No local orders available for model data computation');
+      return [];
+    }
+
+    // Group by model
+    const modelMap = new Map();
+
+    orders.forEach(order => {
+      const model = order.model || 'Unknown';
+      const qty = order.quantity || 0;
+
+      if (!modelMap.has(model)) {
+        modelMap.set(model, {
+          model,
+          orders: 0,
+          quantity: 0,
+          delayedQuantity: 0
+        });
+      }
+
+      const modelData = modelMap.get(model);
+      modelData.orders += 1;
+      modelData.quantity += qty;
+
+      if (isDelayed(order)) {
+        modelData.delayedQuantity += qty;
+      }
+    });
+
+    // Calculate delay rate and sort by quantity (descending)
+    const result = Array.from(modelMap.values())
+      .map(m => ({
+        ...m,
+        delayRate: m.quantity > 0
+          ? parseFloat(((m.delayedQuantity / m.quantity) * 100).toFixed(2))
+          : 0
+      }))
+      .sort((a, b) => b.quantity - a.quantity);
+
+    console.log('[SheetsAPI] Model data computed:', result.length, 'models');
+    return result;
   }
 
+  /**
+   * Fetch factory comparison data from local computed data
+   * Computes statistics for each factory for comparison
+   * @returns {Promise<Array>} Factory comparison data
+   * @private
+   */
   async _fetchFactoryComparisonFromSheets() {
-    console.warn('[SheetsAPI] Direct Sheets API not implemented yet');
-    return [];
+    console.log('[SheetsAPI] Computing factory comparison data from local data');
+
+    try {
+      // Get all orders from localStorage
+      const localKey = 'rachgia_orders_cache';
+      const stored = localStorage.getItem(localKey);
+      if (!stored) {
+        console.log('[SheetsAPI] No local orders available for factory comparison');
+        return [];
+      }
+
+      const { orders } = JSON.parse(stored);
+      if (!orders || orders.length === 0) return [];
+
+      // Group by factory
+      const factoryMap = new Map();
+      const factoryNames = ['A', 'B', 'C', 'D'];
+
+      // Initialize all factories
+      factoryNames.forEach(f => {
+        factoryMap.set(f, {
+          factoryId: `FACTORY_${f}`,
+          factoryName: `Factory ${f}`,
+          totalOrders: 0,
+          totalQuantity: 0,
+          completedQuantity: 0,
+          delayedOrders: 0,
+          warningOrders: 0
+        });
+      });
+
+      // Aggregate orders by factory
+      orders.forEach(order => {
+        const factory = order.factory;
+        if (!factory || !factoryMap.has(factory)) return;
+
+        const data = factoryMap.get(factory);
+        const qty = order.quantity || 0;
+
+        data.totalOrders += 1;
+        data.totalQuantity += qty;
+        data.completedQuantity += getProductionData(order, 'wh_in', 'completed', 0);
+
+        if (isDelayed(order)) {
+          data.delayedOrders++;
+        }
+        if (isWarning(order)) {
+          data.warningOrders++;
+        }
+      });
+
+      // Calculate rates
+      const result = Array.from(factoryMap.values()).map(data => ({
+        ...data,
+        delayRate: data.totalOrders > 0
+          ? ((data.delayedOrders / data.totalOrders) * 100).toFixed(2)
+          : '0.00',
+        completionRate: data.totalQuantity > 0
+          ? ((data.completedQuantity / data.totalQuantity) * 100).toFixed(2)
+          : '0.00'
+      }));
+
+      console.log('[SheetsAPI] Factory comparison computed for', result.length, 'factories');
+      return result;
+
+    } catch (error) {
+      console.warn('[SheetsAPI] Error computing factory comparison:', error.message);
+      return [];
+    }
   }
 
+  /**
+   * Fetch process data from local computed data
+   * Computes production pipeline status for each process stage
+   * @returns {Promise<Object|null>} Process data object
+   * @private
+   */
   async _fetchProcessDataFromSheets() {
-    console.warn('[SheetsAPI] Direct Sheets API not implemented yet');
-    return null;
+    console.log('[SheetsAPI] Computing process data from local data for', this.currentFactory);
+
+    const orders = this._getLocalCachedOrders();
+
+    if (orders.length === 0) {
+      console.log('[SheetsAPI] No local orders available for process data computation');
+      // Return default process structure
+      const defaultProcessData = {};
+      PROCESS_STAGES.forEach(stage => {
+        defaultProcessData[stage.id] = {
+          id: stage.id,
+          code: stage.code,
+          name: stage.name,
+          order: stage.order,
+          totalQuantity: 0,
+          completedQuantity: 0,
+          pendingQuantity: 0,
+          completionRate: 0
+        };
+      });
+      return {
+        processes: defaultProcessData,
+        summary: {
+          totalOrders: 0,
+          totalQuantity: 0,
+          overallCompletionRate: 0
+        }
+      };
+    }
+
+    // Compute process data for each stage
+    const processData = {};
+    let totalQuantity = 0;
+
+    // Initialize process data
+    PROCESS_STAGES.forEach(stage => {
+      processData[stage.id] = {
+        id: stage.id,
+        code: stage.code,
+        name: stage.name,
+        order: stage.order,
+        totalQuantity: 0,
+        completedQuantity: 0,
+        pendingQuantity: 0,
+        completionRate: 0
+      };
+    });
+
+    // Aggregate data from orders
+    orders.forEach(order => {
+      const qty = order.quantity || 0;
+      totalQuantity += qty;
+
+      PROCESS_STAGES.forEach(stage => {
+        const process = processData[stage.id];
+        process.totalQuantity += qty;
+
+        const completed = getProductionData(order, stage.id, 'completed', 0);
+        process.completedQuantity += completed;
+        process.pendingQuantity += Math.max(0, qty - completed);
+      });
+    });
+
+    // Calculate completion rates
+    let overallCompletedQty = 0;
+    PROCESS_STAGES.forEach(stage => {
+      const process = processData[stage.id];
+      process.completionRate = process.totalQuantity > 0
+        ? Math.round((process.completedQuantity / process.totalQuantity) * 100)
+        : 0;
+
+      // For overall rate, use WH_OUT (final stage)
+      if (stage.id === 'wh_out') {
+        overallCompletedQty = process.completedQuantity;
+      }
+    });
+
+    const result = {
+      processes: processData,
+      summary: {
+        totalOrders: orders.length,
+        totalQuantity,
+        overallCompletionRate: totalQuantity > 0
+          ? Math.round((overallCompletedQty / totalQuantity) * 100)
+          : 0
+      }
+    };
+
+    console.log('[SheetsAPI] Process data computed for', Object.keys(processData).length, 'stages');
+    return result;
   }
 }
 
