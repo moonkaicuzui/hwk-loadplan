@@ -94,11 +94,11 @@
     "sew_input": "재봉 투입",
     "sew_bal": "재봉",
     "s_fit": "핏팅",
-    "ass_bal": "조립",
-    "wh_in": "입고",
-    "wh_out": "출고",
+    "ass_bal": "제화",
+    "wh_in": "제품창고 입고",
+    "wh_out": "제품창고 출고",
     "osc": "핏팅",
-    "ass": "조립"
+    "ass": "제화"
   },
 
   "status": {
@@ -570,7 +570,7 @@
     "quantity": "수량",
     "cutting": "재단",
     "sewing": "재봉",
-    "assembly": "조립",
+    "assembly": "제화",
     "warehouse": "창고",
     "status": "상태",
     "columnsTitle": "컬럼 선택",
@@ -624,11 +624,11 @@
       "sewInput": "SEW_INPUT (재봉투입)",
       "sewBal": "SEW_BAL (재봉)",
       "sFit": "S_FIT (핏팅)",
-      "assBal": "ASS_BAL (조립)",
-      "whIn": "WH_IN (창고입고)",
-      "whOut": "WH_OUT (창고출고)",
+      "assBal": "ASS_BAL (제화)",
+      "whIn": "WH_IN (제품창고 입고)",
+      "whOut": "WH_OUT (제품창고 출고)",
       "osc": "OSC (핏팅)",
-      "ass": "ASS (조립)"
+      "ass": "ASS (제화)"
     },
     "vendorScoreCode": "// 벤더 성과 점수 = (완료율 × 0.7) - (지연율 × 0.3)\nfunction calculateVendorScore(vendor) {\n    const completionRate = (completed / total) * 100;\n    const delayRate = (delayed / total) * 100;\n    return (completionRate * 0.7) - (delayRate * 0.3);\n}\n\n// 해석:\n// 80점 이상: 우수 (Green)\n// 50-80점: 보통 (Yellow)\n// 50점 미만: 개선 필요 (Red)",
     "severity": {

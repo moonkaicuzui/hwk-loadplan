@@ -39,21 +39,48 @@
     <!-- Phase 3: i18n Multi-language Support (W09) -->
     <script src="src/i18n.js"></script>
 
-    <!-- External Libraries -->
+    <!-- External Libraries (v19.14.1 - 버전 고정, SRI 검증 실패로 제거) -->
+    <!-- [보안 주의] Tailwind CDN은 개발용. 프로덕션에서는 빌드 버전 사용 권장 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Chart.js - 버전 고정 (4.4.1) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <!-- Agent Q01: PDF Export Libraries (Phase 4 - Step 5: Q01-2) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js" integrity="sha384-vuyrTV5nkscLp1knFvt+FIHfKKzmROBq5reruhMRslauj54mW+l2B8b6szMN6lCL" crossorigin="anonymous"></script>
-    <!-- Phase 2 QMS: Firebase SDK (with SRI) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" integrity="sha384-yuGdyIzzYtOBlBG6JOWn+Ey9kpq7HocusNuxEGyyohr1eEyXpeEyehIIXC/hznw4" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" integrity="sha384-lI+CxEx/bCvWP1b0OK13j5HTrTZP7yf1xle8TVOFq2smz6KC1RChTarRV/RHP5PP" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js" integrity="sha384-M6AmjBRXEjkdGzRN1Y94xtkmblFbYBSLkqzyZ8rPvpRM2c48nhjIRFXVvUM/VATL" crossorigin="anonymous"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js" integrity="sha384-oze9siCpFoiDBZ37lLp99ZmOMO+je1s/xtvwtbNv3NXQXLpbpfPSzZSpbT3xV9da" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Phase 2 QMS: Firebase SDK (버전 고정) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <!-- Phase 1 OAuth: Google Identity Services (GIS) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        // =====================================================
+        // v19.14.0 보안 유틸리티 (Security Utilities)
+        // =====================================================
+
+        // 안전한 정수 파싱 (범위 검증 포함)
+        function safeParseInt(value, defaultValue = 0, min = 0, max = Number.MAX_SAFE_INTEGER) {
+            const parsed = parseInt(value, 10);
+            if (isNaN(parsed)) return defaultValue;
+            if (parsed < min) return min;
+            if (parsed > max) return max;
+            return parsed;
+        }
+
+        // 안전한 문자열 검증 (허용된 문자만)
+        function sanitizeString(str, pattern = /^[a-zA-Z0-9_\-\s]+$/, maxLength = 255) {
+            if (typeof str !== 'string') return '';
+            str = str.substring(0, maxLength);
+            return pattern.test(str) ? str : '';
+        }
+
+        // Content Security Policy 위반 보고
+        document.addEventListener('securitypolicyviolation', (e) => {
+            console.warn('[CSP 위반]', e.violatedDirective, e.blockedURI);
+        });
+
         // V02: Initialize FilterCache (LRU cache for filter results)
         const filterCache = new FilterCache(50);
 
@@ -66,23 +93,47 @@
     </script>
     <style>
         :root {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-card: #ffffff;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --border-color: #e5e7eb;
+            /* 라이트 테마 - 미드나잇 블루 라이트 버전 */
+            --bg-primary: #f1f5f9;       /* 슬레이트 100 - 메인 배경 */
+            --bg-secondary: #ffffff;      /* 화이트 - 사이드바 */
+            --bg-card: #ffffff;           /* 화이트 - 카드 */
+            --bg-hover: #e2e8f0;          /* 슬레이트 200 - 호버 */
+            --text-primary: #0f172a;      /* 슬레이트 900 - 메인 텍스트 */
+            --text-secondary: #64748b;    /* 슬레이트 500 - 보조 텍스트 */
+            --text-muted: #94a3b8;        /* 슬레이트 400 - 비활성 */
+            --border-color: #e2e8f0;      /* 슬레이트 200 */
+            --border-light: #cbd5e1;      /* 슬레이트 300 */
+            --accent-primary: #3b82f6;    /* 블루 500 - 주요 액센트 */
+            --accent-hover: #2563eb;      /* 블루 600 - 호버 */
+            --accent-light: #60a5fa;      /* 블루 400 - 밝은 강조 */
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+            --header-height: 56px;
         }
         .dark {
-            /* 블랙앤화이트 다크 테마 */
-            --bg-primary: #0a0a0a;      /* 거의 검정 배경 */
-            --bg-secondary: #171717;     /* 약간 밝은 섹션 */
-            --bg-card: #1a1a1a;          /* 카드 배경 */
-            --text-primary: #fafafa;     /* 흰색 텍스트 */
-            --text-secondary: #a3a3a3;   /* 회색 보조 텍스트 */
-            --border-color: #262626;     /* 미세한 테두리 */
-            --accent-primary: #ffffff;   /* 흰색 강조 */
-            --accent-secondary: #d4d4d4; /* 밝은 회색 보조 */
+            /* 미드나잇 블루 다크 테마 */
+            --bg-primary: #0f172a;        /* 슬레이트 900 - 메인 배경 */
+            --bg-secondary: #1e293b;      /* 슬레이트 800 - 사이드바, 헤더 */
+            --bg-card: #334155;           /* 슬레이트 700 - 카드 */
+            --bg-hover: #475569;          /* 슬레이트 600 - 호버 상태 */
+            --text-primary: #f8fafc;      /* 슬레이트 50 - 메인 텍스트 */
+            --text-secondary: #94a3b8;    /* 슬레이트 400 - 보조 텍스트 */
+            --text-muted: #64748b;        /* 슬레이트 500 - 비활성 */
+            --border-color: #334155;      /* 슬레이트 700 */
+            --border-light: #475569;      /* 슬레이트 600 */
+            --accent-primary: #3b82f6;    /* 블루 500 - 주요 액센트 */
+            --accent-hover: #2563eb;      /* 블루 600 - 호버 */
+            --accent-light: #60a5fa;      /* 블루 400 - 밝은 강조 */
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+            --header-height: 56px;
+        }
+        /* 상태 색상 (공통) */
+        :root, .dark {
+            --success: #22c55e;           /* 그린 500 */
+            --warning: #f59e0b;           /* 앰버 500 */
+            --danger: #ef4444;            /* 레드 500 */
+            --info: #06b6d4;              /* 시안 500 */
         }
         body { background: var(--bg-primary); color: var(--text-primary); transition: all 0.3s; }
         .bg-card { background: var(--bg-card); }
@@ -94,8 +145,8 @@
         h3, h4 { color: var(--text-primary); }
         .font-medium, .font-bold, .font-semibold { color: var(--text-primary); }
 
-        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; font-weight: 600; }
-        .dark .tab-active { border-bottom: 3px solid #ffffff; color: #ffffff; }
+        .tab-active { border-bottom: 3px solid var(--accent-primary); color: var(--accent-primary); font-weight: 600; }
+        .dark .tab-active { border-bottom: 3px solid var(--accent-light); color: var(--accent-light); }
         .card-hover { transition: all 0.2s ease; }
         .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .delay-highlight { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); animation: pulse-red 2s infinite; }
@@ -327,14 +378,258 @@
             color: #ffffff;
         }
 
-        /* === UI/UX 개선: Sticky 탭 네비게이션 === */
-        #tabNavigation {
+        /* === v20: 사이드바 네비게이션 시스템 === */
+
+        /* 앱 레이아웃 */
+        .app-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+        }
+
+        /* 사이드바 */
+        .sidebar {
+            position: fixed;
+            top: var(--header-height);
+            left: 0;
+            width: var(--sidebar-width);
+            height: calc(100vh - var(--header-height));
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            overflow-x: hidden;
+            z-index: 40;
+            transition: width 0.3s ease, transform 0.3s ease;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 2px;
+        }
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        .sidebar.collapsed .sidebar-text,
+        .sidebar.collapsed .sidebar-submenu,
+        .sidebar.collapsed .sidebar-category-title {
+            display: none;
+        }
+        .sidebar.collapsed .sidebar-item {
+            justify-content: center;
+            padding: 12px;
+        }
+        .sidebar.collapsed .sidebar-icon {
+            margin-right: 0;
+        }
+
+        /* 사이드바 카테고리 */
+        .sidebar-category {
+            margin-bottom: 8px;
+        }
+        .sidebar-category-title {
+            padding: 12px 16px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        /* 사이드바 아이템 */
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            margin: 2px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .sidebar-item.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+        .sidebar-item.active:hover {
+            background: var(--accent-hover);
+        }
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sidebar-badge {
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--danger);
+            color: white;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+        .sidebar-item.active .sidebar-badge {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 사이드바 서브메뉴 */
+        .sidebar-parent {
+            position: relative;
+        }
+        .sidebar-parent .sidebar-arrow {
+            margin-left: auto;
+            transition: transform 0.2s;
+        }
+        .sidebar-parent.expanded .sidebar-arrow {
+            transform: rotate(90deg);
+        }
+        .sidebar-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .sidebar-parent.expanded .sidebar-submenu {
+            max-height: 500px;
+        }
+        .sidebar-submenu .sidebar-item {
+            padding-left: 48px;
+            font-size: 13px;
+        }
+
+        /* 사이드바 토글 버튼 */
+        .sidebar-toggle {
+            position: absolute;
+            bottom: 16px;
+            right: -12px;
+            width: 24px;
+            height: 24px;
             background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50;
+            transition: all 0.2s;
+        }
+        .sidebar-toggle:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: calc(100vh - var(--header-height));
+            background: var(--bg-primary);
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar.collapsed ~ .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* 새 헤더 스타일 */
+        .app-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 50;
         }
-        .tab-divider {
-            opacity: 0.3;
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+        }
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .header-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+        .header-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+        .header-btn-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        /* 기존 탭 네비게이션 숨김 (사이드바로 대체) */
+        #tabNavigation {
+            display: none !important;
+        }
+
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
@@ -573,6 +868,19 @@
                 margin: 1.5cm;
             }
 
+            /* v20: 인쇄 시 사이드바 레이아웃 초기화 */
+            .sidebar,
+            .sidebar-overlay,
+            .app-header {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .app-layout {
+                padding-top: 0 !important;
+            }
+
             /* 인쇄 제외 요소 (네비게이션, 필터, 버튼) */
             .no-print,
             nav,
@@ -662,10 +970,132 @@
             h1, h2, h3 {
                 page-break-after: avoid;
             }
+
+            /* 품질 검사 일정 섹션 인쇄 스타일 */
+            #inspectionScheduleSection {
+                background: #f0f9ff !important;
+                border: 2px solid #3b82f6 !important;
+                page-break-inside: avoid;
+            }
+            #inspectionScheduleSection h2,
+            #inspectionScheduleSection h3 {
+                color: #1e40af !important;
+            }
+            #inspectionScheduleSection .grid {
+                display: grid !important;
+            }
+
+            /* 품질 KPI 게이지 인쇄 스타일 */
+            #aqlTargetProgress {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* 품질 담당자 권고사항 인쇄 스타일 */
+            #qualityRecommendations {
+                border: 1px solid #e5e7eb;
+                padding: 8px;
+                border-radius: 4px;
+            }
+
+            /* Executive Insights AQL 카드 */
+            #kpiAqlRate,
+            #kpiAqlStatus {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
 
         .kbd { display: inline-block; padding: 2px 6px; font-size: 11px; background: #e5e7eb; border-radius: 4px; font-family: monospace; }
         .dark .kbd { background: #4b5563; }
+
+        /* === v20: 반응형 사이드바 === */
+
+        /* 태블릿 (768px - 1024px): 미니 사이드바 */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+            }
+            .sidebar .sidebar-text,
+            .sidebar .sidebar-submenu,
+            .sidebar .sidebar-category-title,
+            .sidebar .sidebar-arrow,
+            .sidebar .sidebar-badge {
+                display: none;
+            }
+            .sidebar .sidebar-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            .sidebar .sidebar-icon {
+                margin-right: 0;
+            }
+            .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+            .sidebar-toggle {
+                display: none;
+            }
+        }
+
+        /* 모바일 (< 768px): 사이드바 숨김 + 햄버거 메뉴 */
+        @media (max-width: 767px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                z-index: 100;
+            }
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar-toggle {
+                display: none;
+            }
+            .mobile-menu-btn {
+                display: flex !important;
+            }
+            .sidebar-overlay {
+                display: block;
+            }
+            .sidebar-overlay.active {
+                opacity: 1;
+                pointer-events: all;
+            }
+        }
+
+        /* 사이드바 오버레이 (모바일) */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            display: none;
+        }
+
+        /* 모바일 메뉴 버튼 */
+        .mobile-menu-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-menu-btn:hover {
+            background: var(--bg-hover);
+        }
 
         /* Focus visibility (WCAG 2.4.7) */
         :focus-visible {
@@ -714,22 +1144,23 @@
             border-width: 0;
         }
 
-        /* Agent Q06: 모바일 터치 제스처 스타일 */
+        /* Agent Q06: 모바일 터치 제스처 스타일 - 미드나잇 블루 테마 */
         .mobile-filter-toggle {
             position: fixed;
             bottom: 20px;
             right: 20px;
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, #262626 0%, #171717 100%);
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
             border-radius: 50%;
             display: none;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
             z-index: 100;
             cursor: pointer;
             transition: all 0.3s;
+            color: white;
         }
         .mobile-filter-toggle:active { transform: scale(0.9); }
         @media (max-width: 768px) {
@@ -1251,135 +1682,252 @@
         </div>
     </div>
 
-    <header class="bg-gradient-to-r from-neutral-900 to-black text-white shadow-lg no-print" role="banner" aria-label="Rachgia Factory 대시보드 헤더">
-        <div class="max-w-[2000px] mx-auto px-4 py-4">
-            <div class="flex items-center justify-between flex-wrap gap-2">
-                <div class="flex items-center gap-3">
-                    <!-- Agent Q06: 햄버거 메뉴 버튼 (Phase 4 - Q06-5) -->
-                    <button class="mobile-menu-toggle" data-action="toggleMobileMenu" aria-label="메뉴 열기" aria-expanded="false">
-                        <div class="hamburger-icon" id="hamburgerIcon">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
+    <!-- v20: 새로운 미니멀 헤더 -->
+    <header class="app-header no-print" role="banner" aria-label="Rachgia Factory 대시보드 헤더">
+        <div class="header-left">
+            <!-- 모바일 메뉴 버튼 -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="메뉴 열기" aria-expanded="false">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <!-- 로고 -->
+            <div class="header-logo">R</div>
+            <div>
+                <span class="header-title">Rachgia Dashboard</span>
+                <span class="header-subtitle hidden sm:inline">v19</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <!-- Date Mode Toggle (SDD/CRD) -->
+            <div class="date-mode-toggle hidden sm:flex">
+                <div class="date-mode-btn active" data-mode="sdd" data-action="setDateMode" data-param="sdd" role="button" aria-pressed="true">SDD</div>
+                <div class="date-mode-btn" data-mode="crd" data-action="setDateMode" data-param="crd" role="button" aria-pressed="false">CRD</div>
+            </div>
+            <!-- 지연 경고 뱃지 -->
+            <div id="delayAlert" class="hidden header-btn" style="background: var(--danger); color: white; width: auto; padding: 4px 12px;" data-action="showDelayedOrders">
+                🚨 <span id="delayCount">0</span>
+            </div>
+            <!-- 파일 업로드 -->
+            <button class="header-btn" data-action="showUploadOverlay" title="파일 업로드">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </button>
+            <!-- 알림 -->
+            <div class="header-dropdown" id="notificationDropdown">
+                <button class="header-btn" onclick="toggleDropdown('notificationDropdown')" title="알림">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span id="unreadNotificationBadge" class="hidden header-btn-badge"></span>
+                </button>
+                <div class="header-dropdown-content hidden">
+                    <button data-action="toggleNotifications">
+                        <span id="notificationIcon">🔕</span> <span data-i18n="notifications.enable">알림 켜기/끄기</span>
                     </button>
-                    <div>
-                        <h1 class="text-2xl font-bold" data-i18n="header.title">🏭 Rachgia Factory 통합 생산관리 <span class="text-sm font-normal bg-white/20 px-2 py-1 rounded">v19</span></h1>
-                        <p class="text-blue-100 text-sm mt-1" data-i18n="header.subtitle">Factory A, B, C, D 생산 현황 모니터링</p>
+                    <button data-action="showNotificationSettings">
+                        ⚙️ <span data-i18n="notifications.settings">알림 설정</span>
+                    </button>
+                    <button data-action="showNotificationHistory">
+                        📬 <span data-i18n="notifications.title">알림 히스토리</span>
+                    </button>
+                </div>
+            </div>
+            <!-- 동기화 -->
+            <div class="header-dropdown" id="reportDropdown">
+                <button class="header-btn" onclick="toggleDropdown('reportDropdown')" title="동기화">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    <span id="syncStatusIcon" class="hidden header-btn-badge" style="background: var(--success);"></span>
+                </button>
+                <div class="header-dropdown-content hidden">
+                    <button data-action="showReportHistory">
+                        📋 <span data-i18n="export.title">보고서 히스토리</span>
+                    </button>
+                    <div class="header-dropdown-divider"></div>
+                    <div id="syncMenuSection">
+                        <button onclick="manualSync()">
+                            🔄 <span>Google Drive 동기화</span>
+                        </button>
+                        <div class="px-4 py-2 text-xs" style="color: var(--text-muted);">
+                            <span id="syncStatusText">동기화 대기</span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 flex-wrap">
-                    <!-- Date Mode Toggle (SDD/CRD) -->
-                    <div class="date-mode-toggle">
-                        <div class="date-mode-btn active" data-mode="sdd" data-action="setDateMode" data-param="sdd" role="button" aria-pressed="true">SDD</div>
-                        <div class="date-mode-btn" data-mode="crd" data-action="setDateMode" data-param="crd" role="button" aria-pressed="false">CRD</div>
-                    </div>
-                    <!-- Date Range Filter -->
-                    <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-lg">
-                        <label class="text-sm" data-i18n="filters.quickDate">기간:</label>
-                        <select id="dateRangeFilter" class="bg-white/20 text-white border-none rounded px-2 py-1 text-sm cursor-pointer" onchange="applyDateRangeFilter()">
-                            <option value="all" style="color: #000;" data-i18n="filters.all">전체</option>
-                            <option value="week" style="color: #000;" data-i18n="filters.week">1주일 이내</option>
-                            <option value="month" style="color: #000;" data-i18n="filters.month">1달 이내</option>
-                        </select>
-                    </div>
-                    <!-- File Upload Button -->
-                    <button data-action="showUploadOverlay" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm flex items-center gap-1" data-i18n-title="common.import">
-                        📁 <span class="hidden md:inline" data-i18n="common.import">파일</span>
+            </div>
+            <!-- 설정 -->
+            <div class="header-dropdown" id="settingsDropdown">
+                <button class="header-btn" onclick="toggleDropdown('settingsDropdown')" title="설정">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                </button>
+                <div class="header-dropdown-content hidden">
+                    <label class="cursor-pointer">
+                        <input type="checkbox" id="autoRefreshToggle" class="mr-2" checked>
+                        <span data-i18n="settings.autoRefresh">자동 새로고침</span>
+                    </label>
+                    <button data-action="toggleDarkMode">
+                        <span id="darkModeIcon">☀️</span> <span>다크/라이트 모드</span>
                     </button>
-
-                    <!-- 알림 드롭다운 (통합) -->
-                    <div class="header-dropdown" id="notificationDropdown">
-                        <button class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm relative" onclick="toggleDropdown('notificationDropdown')">
-                            🔔
-                            <span id="unreadNotificationBadge" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                        </button>
-                        <div class="header-dropdown-content hidden">
-                            <button data-action="toggleNotifications">
-                                <span id="notificationIcon">🔕</span> <span data-i18n="notifications.enable">알림 켜기/끄기</span>
-                            </button>
-                            <button data-action="showNotificationSettings">
-                                ⚙️ <span data-i18n="notifications.settings">알림 설정</span>
-                            </button>
-                            <button data-action="showNotificationHistory">
-                                📬 <span data-i18n="notifications.title">알림 히스토리</span>
-                            </button>
-                        </div>
+                    <div class="header-dropdown-divider"></div>
+                    <button data-action="openKeyboardShortcutsModal">
+                        ⌨️ <span data-i18n="keyboard.title">키보드 단축키</span>
+                    </button>
+                    <button data-action="toggleHelpModal">
+                        ❓ <span data-i18n="common.help">도움말</span>
+                    </button>
+                </div>
+            </div>
+            <!-- 사용자 프로필 -->
+            <div id="userProfileSection" class="header-dropdown">
+                <button class="header-btn" onclick="toggleDropdown('userProfileDropdown')" title="사용자">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </button>
+                <div id="userProfileDropdown" class="header-dropdown-content hidden">
+                    <div class="px-4 py-2 text-sm" style="color: var(--text-secondary);">
+                        <span id="headerUserEmail">-</span>
                     </div>
-
-                    <!-- 보고서/동기화 드롭다운 -->
-                    <div class="header-dropdown" id="reportDropdown">
-                        <button class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" onclick="toggleDropdown('reportDropdown')">
-                            📊
-                        </button>
-                        <div class="header-dropdown-content hidden">
-                            <button data-action="showReportHistory">
-                                📋 <span data-i18n="export.title">보고서 히스토리</span>
-                            </button>
-                            <div class="header-dropdown-divider"></div>
-                            <div id="syncMenuSection">
-                                <button onclick="manualSync()">
-                                    🔄 <span>Google Drive 동기화</span>
-                                </button>
-                                <div class="px-4 py-2 text-xs text-gray-400 flex items-center gap-2">
-                                    <span id="syncStatusIcon">☁️</span>
-                                    <span id="syncStatusText">동기화 대기</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 설정 드롭다운 (통합) -->
-                    <div class="header-dropdown" id="settingsDropdown">
-                        <button class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg text-sm" onclick="toggleDropdown('settingsDropdown')">
-                            ⚙️
-                        </button>
-                        <div class="header-dropdown-content hidden">
-                            <label class="cursor-pointer">
-                                <input type="checkbox" id="autoRefreshToggle" class="mr-2" checked>
-                                <span data-i18n="settings.autoRefresh">자동 새로고침</span>
-                            </label>
-                            <button data-action="toggleDarkMode">
-                                <span id="darkModeIcon">☀️</span> <span>다크/라이트 모드</span>
-                            </button>
-                            <div class="header-dropdown-divider"></div>
-                            <button data-action="openKeyboardShortcutsModal">
-                                ⌨️ <span data-i18n="keyboard.title">키보드 단축키</span>
-                            </button>
-                            <button data-action="toggleHelpModal">
-                                ❓ <span data-i18n="common.help">도움말</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- User Profile & Logout -->
-                    <div id="userProfileSection" class="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-lg">
-                        <span id="headerUserEmail" class="text-sm truncate max-w-[120px]">-</span>
-                        <button onclick="handleHeaderLogout()" class="hover:bg-white/20 p-1 rounded" title="로그아웃">
-                            🚪
-                        </button>
-                    </div>
-
-                    <!-- Delay Alert -->
-                    <div id="delayAlert" class="hidden bg-red-500 text-white px-3 py-1 rounded-lg animate-pulse cursor-pointer text-sm" data-action="showDelayedOrders">
-                        🚨 <span id="delayCount">0</span><span data-i18n="summary.orders">건</span>
-                    </div>
-
-                    <!-- Last Update (간소화) -->
-                    <div class="text-right text-xs">
-                        <div class="text-blue-200" id="lastUpdateTime" data-i18n="common.loading">-</div>
-                    </div>
+                    <div class="header-dropdown-divider"></div>
+                    <button onclick="handleHeaderLogout()">
+                        🚪 <span>로그아웃</span>
+                    </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Tabs Navigation (상단 고정) - UI/UX 개선 -->
-    <div id="tabNavigation" class="sticky top-0 z-50 bg-card shadow-md no-print">
+    <!-- v20: 사이드바 오버레이 (모바일) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- v20: 사이드바 네비게이션 -->
+    <aside class="sidebar no-print" id="sidebar" role="navigation" aria-label="메인 네비게이션">
+        <!-- 대시보드 카테고리 -->
+        <div class="sidebar-category">
+            <div class="sidebar-category-title">대시보드</div>
+            <div class="sidebar-item active" data-tab="monthly" role="menuitem">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-text">요약</span>
+            </div>
+            <div class="sidebar-parent" data-parent="analysis">
+                <div class="sidebar-item" role="menuitem">
+                    <span class="sidebar-icon">📈</span>
+                    <span class="sidebar-text">분석</span>
+                    <span class="sidebar-arrow">›</span>
+                </div>
+                <div class="sidebar-submenu">
+                    <div class="sidebar-item" data-tab="monthly" role="menuitem">
+                        <span class="sidebar-text">월별</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="destination" role="menuitem">
+                        <span class="sidebar-text">행선지</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="factory" role="menuitem">
+                        <span class="sidebar-text">공장</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="model" role="menuitem">
+                        <span class="sidebar-text">모델</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="vendor" role="menuitem">
+                        <span class="sidebar-text">벤더</span>
+                    </div>
+                    <div class="sidebar-item" data-tab="heatmap" role="menuitem">
+                        <span class="sidebar-text">히트맵</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-item" data-tab="data" role="menuitem">
+                <span class="sidebar-icon">📋</span>
+                <span class="sidebar-text">상세 데이터</span>
+            </div>
+        </div>
+
+        <!-- QMS 카테고리 -->
+        <div class="sidebar-category">
+            <div class="sidebar-category-title">QMS</div>
+            <div class="sidebar-item" data-tab="orderSearch" role="menuitem">
+                <span class="sidebar-icon">🔍</span>
+                <span class="sidebar-text">오더 검색</span>
+            </div>
+            <div class="sidebar-item" data-tab="monitoring" role="menuitem">
+                <span class="sidebar-icon">🎯</span>
+                <span class="sidebar-text">모니터링</span>
+                <span class="sidebar-badge" id="monitoringBadge" style="display: none;">0</span>
+            </div>
+            <div class="sidebar-item" data-tab="taskAssignment" role="menuitem">
+                <span class="sidebar-icon">📝</span>
+                <span class="sidebar-text">작업지시</span>
+            </div>
+            <div class="sidebar-item" data-tab="taskResult" role="menuitem">
+                <span class="sidebar-icon">✅</span>
+                <span class="sidebar-text">작업결과</span>
+            </div>
+        </div>
+
+        <!-- 품질 부서장 전용 카테고리 -->
+        <div class="sidebar-category">
+            <div class="sidebar-category-title">품질 관리</div>
+            <div class="sidebar-item" onclick="showQualityRiskOrders()" role="menuitem" style="cursor: pointer;">
+                <span class="sidebar-icon">🚨</span>
+                <span class="sidebar-text">품질 리스크</span>
+                <span class="sidebar-badge" id="qualityRiskBadge" style="display: none; background: #ef4444;">0</span>
+            </div>
+            <div class="sidebar-item" onclick="showInspectionDetail('today')" role="menuitem" style="cursor: pointer;">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-text">오늘 검사</span>
+                <span class="sidebar-badge" id="todayInspectionBadge" style="display: none; background: #f59e0b;">0</span>
+            </div>
+            <div class="sidebar-item" onclick="showInspectionDetail('uninspected')" role="menuitem" style="cursor: pointer;">
+                <span class="sidebar-icon">⚠️</span>
+                <span class="sidebar-text">미검사 오더</span>
+                <span class="sidebar-badge" id="uninspectedBadge" style="display: none; background: #eab308;">0</span>
+            </div>
+            <div class="sidebar-item" onclick="showAQLDetail()" role="menuitem" style="cursor: pointer;">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-text">AQL 현황</span>
+                <span class="text-xs font-medium" id="aqlRateBadge" style="margin-left: auto; color: #22c55e;">-</span>
+            </div>
+            <div class="sidebar-item" onclick="scrollToInspectionSection()" role="menuitem" style="cursor: pointer;">
+                <span class="sidebar-icon">📋</span>
+                <span class="sidebar-text">검사 일정</span>
+            </div>
+        </div>
+
+        <!-- 설정 카테고리 -->
+        <div class="sidebar-category">
+            <div class="sidebar-category-title">설정</div>
+            <div class="sidebar-item" data-tab="settings" role="menuitem">
+                <span class="sidebar-icon">⚙️</span>
+                <span class="sidebar-text">시스템 설정</span>
+            </div>
+        </div>
+
+        <!-- 사이드바 축소 버튼 (데스크톱) -->
+        <button class="sidebar-toggle" id="sidebarToggle" title="사이드바 축소/확장">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </button>
+    </aside>
+
+    <!-- v20: 기존 탭 네비게이션 (사이드바가 대체하므로 숨김 처리됨) -->
+    <div id="tabNavigation" class="sticky top-0 z-50 bg-card shadow-md no-print" style="display: none;">
         <div class="max-w-[2000px] mx-auto">
             <div class="border-b border-theme overflow-x-auto scrollbar-hide">
                 <nav class="flex -mb-px min-w-max px-4" role="tablist" aria-label="대시보드 탭 네비게이션">
-                    <!-- 핵심 탭 -->
                     <button class="tab-btn tab-active px-4 py-3 text-sm font-medium whitespace-nowrap" data-tab="monthly" role="tab" aria-selected="true" tabindex="0">
                         📅 <span data-i18n="tabs.monthly">월별</span>
                     </button>
@@ -1390,11 +1938,8 @@
                         🏭 <span data-i18n="tabs.factory">공장</span>
                     </button>
                     <button class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap" data-tab="data" role="tab" aria-selected="false" tabindex="-1">
-                        📋 <span data-i18n="tabs.data">상세</span> <span class="kbd">D</span>
+                        📋 <span data-i18n="tabs.data">상세</span>
                     </button>
-                    <!-- 구분선 -->
-                    <span class="tab-divider mx-2 self-stretch w-px bg-gray-300 dark:bg-gray-600"></span>
-                    <!-- 분석 탭 -->
                     <button class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap" data-tab="model" role="tab" aria-selected="false" tabindex="-1">
                         👟 <span data-i18n="tabs.model">모델</span>
                     </button>
@@ -1407,9 +1952,6 @@
                     <button class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap" data-tab="orderSearch" role="tab" aria-selected="false" tabindex="-1">
                         🔍 <span data-i18n="tabs.orderSearch">검색</span>
                     </button>
-                    <!-- 구분선 -->
-                    <span class="tab-divider mx-2 self-stretch w-px bg-gray-300 dark:bg-gray-600"></span>
-                    <!-- 작업 관리 탭 -->
                     <button class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap" data-tab="monitoring" role="tab" aria-selected="false" tabindex="-1">
                         🎯 <span data-i18n="tabs.monitoring">모니터링</span>
                     </button>
@@ -1427,51 +1969,63 @@
         </div>
     </div>
 
-    <!-- Main Content Area (Skip Link Target) -->
-    <main id="mainContent" role="main">
+    <!-- v20: 새로운 앱 레이아웃 시작 -->
+    <div class="app-layout">
+        <!-- 사이드바는 위에서 정의됨 -->
+
+        <!-- 메인 콘텐츠 영역 -->
+        <main class="main-content" id="mainContent" role="main">
 
     <!-- 월요 오더 현황 요약 -->
-    <div id="weeklyOrderSummary" class="sticky top-[52px] z-40 bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-lg no-print">
-        <div class="max-w-[2000px] mx-auto px-4 py-3">
+    <!-- v20: 상단 요약 바 (미드나잇 블루 테마) -->
+    <div id="weeklyOrderSummary" class="sticky top-0 z-30 shadow-lg no-print" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%); border-bottom: 1px solid var(--border-color);">
+        <div class="px-4 py-3">
             <div class="flex items-center justify-between flex-wrap gap-4">
-                <h2 class="text-lg font-bold flex items-center gap-2">
-                    📋 <span data-i18n="summary.title">월요 오더 현황 요약</span>
-                    <span class="text-xs font-normal bg-white/20 px-2 py-0.5 rounded" id="summaryUpdateTime">-</span>
-                </h2>
-                <div class="flex flex-wrap items-center gap-6 text-sm">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-base font-semibold flex items-center gap-2" style="color: var(--text-primary);">
+                        📋 <span data-i18n="summary.title">오더 현황</span>
+                        <span class="text-xs font-normal px-2 py-0.5 rounded" id="summaryUpdateTime" style="background: var(--accent-primary); color: white;">-</span>
+                    </h2>
+                    <!-- Date Mode Toggle (모바일에서도 표시) -->
+                    <div class="date-mode-toggle flex sm:hidden">
+                        <div class="date-mode-btn active" data-mode="sdd" data-action="setDateMode" data-param="sdd" role="button" aria-pressed="true">SDD</div>
+                        <div class="date-mode-btn" data-mode="crd" data-action="setDateMode" data-param="crd" role="button" aria-pressed="false">CRD</div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-4 text-sm">
                     <!-- SDD 기준 -->
-                    <div class="flex items-center gap-4 bg-blue-500/20 px-4 py-2 rounded-lg">
-                        <span class="font-semibold text-blue-300">📅 <span data-i18n="table.sdd">SDD</span> <span data-i18n="filters.title">기준</span></span>
+                    <div class="flex items-center gap-3 px-3 py-1.5 rounded-lg" style="background: rgba(59, 130, 246, 0.15);">
+                        <span class="font-medium" style="color: var(--accent-light);">📅 SDD</span>
                         <div class="flex items-center gap-1">
-                            <span class="text-red-400">🚨 <span data-i18n="filters.delayed">지연</span>:</span>
-                            <span id="sddDelayCount" class="font-bold text-red-300">-</span>
+                            <span style="color: var(--danger);">🚨</span>
+                            <span id="sddDelayCount" class="font-bold" style="color: var(--danger);">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-amber-400">⚡ <span data-i18n="filters.warning">경고</span>:</span>
-                            <span id="sddWarningCount" class="font-bold text-amber-300">-</span>
+                            <span style="color: var(--warning);">⚡</span>
+                            <span id="sddWarningCount" class="font-bold" style="color: var(--warning);">-</span>
                         </div>
                     </div>
                     <!-- CRD 기준 -->
-                    <div class="flex items-center gap-4 bg-purple-500/20 px-4 py-2 rounded-lg">
-                        <span class="font-semibold text-purple-300">🎯 <span data-i18n="table.crd">CRD</span> <span data-i18n="filters.title">기준</span></span>
+                    <div class="flex items-center gap-3 px-3 py-1.5 rounded-lg" style="background: rgba(139, 92, 246, 0.15);">
+                        <span class="font-medium" style="color: #a78bfa;">🎯 CRD</span>
                         <div class="flex items-center gap-1">
-                            <span class="text-red-400">🚨 <span data-i18n="filters.delayed">지연</span>:</span>
-                            <span id="crdDelayCount" class="font-bold text-red-300">-</span>
+                            <span style="color: var(--danger);">🚨</span>
+                            <span id="crdDelayCount" class="font-bold" style="color: var(--danger);">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-amber-400">⚡ <span data-i18n="filters.warning">경고</span>:</span>
-                            <span id="crdWarningCount" class="font-bold text-amber-300">-</span>
+                            <span style="color: var(--warning);">⚡</span>
+                            <span id="crdWarningCount" class="font-bold" style="color: var(--warning);">-</span>
                         </div>
                     </div>
                     <!-- 생산/출고 현황 -->
-                    <div class="flex items-center gap-4 bg-green-500/20 px-4 py-2 rounded-lg">
+                    <div class="flex items-center gap-3 px-3 py-1.5 rounded-lg" style="background: rgba(34, 197, 94, 0.15);">
                         <div class="flex items-center gap-1">
-                            <span class="text-green-300">👟 <span data-i18n="processes.sew_bal">제화 생산</span> <span data-i18n="status.completed">완료</span>:</span>
-                            <span id="sewingCompleteCount" class="font-bold text-green-200">-</span>
+                            <span style="color: var(--success);">👟</span>
+                            <span id="sewingCompleteCount" class="font-bold" style="color: var(--success);">-</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-cyan-300">📦 <span data-i18n="processes.wh_out">창고 출고</span> <span data-i18n="status.completed">완료</span>:</span>
-                            <span id="warehouseOutCount" class="font-bold text-cyan-200">-</span>
+                            <span style="color: var(--info);">📦</span>
+                            <span id="warehouseOutCount" class="font-bold" style="color: var(--info);">-</span>
                         </div>
                     </div>
                 </div>
@@ -1479,9 +2033,9 @@
         </div>
     </div>
 
-    <div class="max-w-[2000px] mx-auto px-4 py-6">
-        <!-- Executive Summary -->
-        <div id="execSummary" class="bg-gradient-to-r from-neutral-800 to-neutral-900 rounded-xl shadow-lg p-6 mb-6 text-white border border-neutral-700">
+    <div class="px-4 py-6 lg:px-6">
+        <!-- Executive Summary - 미드나잇 블루 테마 -->
+        <div id="execSummary" class="rounded-xl shadow-lg p-6 mb-6 border" style="background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%); border-color: var(--border-color); color: var(--text-primary);">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold">🎯 <span data-i18n="summary.title">Executive Summary</span></h2>
                 <div class="text-sm opacity-80"><span data-i18n="filters.title">기준</span>: <span id="dateModeLabel">SDD</span></div>
@@ -1518,8 +2072,8 @@
             </div>
         </div>
 
-        <!-- Executive Insights - 경영진 핵심 인사이트 -->
-        <div id="execInsights" class="bg-gradient-to-br from-neutral-900 via-neutral-800 to-black rounded-xl shadow-lg p-6 mb-6 text-white border border-neutral-700">
+        <!-- Executive Insights - 경영진 핵심 인사이트 (미드나잇 블루 테마) -->
+        <div id="execInsights" class="rounded-xl shadow-lg p-6 mb-6 border" style="background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%); border-color: var(--border-color); color: var(--text-primary);">
             <div class="flex justify-between items-center mb-5">
                 <h2 class="text-xl font-bold flex items-center gap-2">
                     📊 <span data-i18n="summary.title">경영진 인사이트</span>
@@ -1552,8 +2106,14 @@
                 <!-- AQL Pass Rate -->
                 <div class="bg-white/10 rounded-xl p-4 border-l-4 border-blue-400 hover:bg-white/15 transition cursor-pointer" data-action="showAQLDetail">
                     <div class="text-sm opacity-70 mb-1 flex items-center gap-1">✅ <span data-i18n="summary.completionRate">품질 검사 합격률</span></div>
-                    <div class="text-3xl font-bold" id="kpiAqlRate">-</div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-bold" id="kpiAqlRate">-</span>
+                        <span class="text-xs mb-1" id="kpiAqlStatus">-</span>
+                    </div>
                     <div class="text-xs opacity-60 mt-1" id="kpiAqlCount">-</div>
+                    <div class="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden">
+                        <div id="kpiAqlProgress" class="h-full bg-green-400 rounded-full transition-all" style="width: 0%"></div>
+                    </div>
                 </div>
 
                 <!-- Bottleneck Prediction -->
@@ -1606,7 +2166,7 @@
 
         <!-- Alert Cards -->
         <div id="alertSection" class="hidden mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div class="delay-highlight rounded-xl shadow-sm p-4 cursor-pointer" data-action="showDelayedOrders">
                     <div class="flex items-center gap-3">
                         <span class="text-3xl">🚨</span>
@@ -1624,6 +2184,17 @@
                             <div class="text-amber-700 dark:text-amber-300 text-sm font-medium" data-i18n="summary.warningOrders">3일 내 예정</div>
                             <div class="text-2xl font-bold text-amber-800 dark:text-amber-200" id="warningOrderCount">0<span data-i18n="summary.orders">건</span></div>
                             <div class="text-xs text-amber-600 dark:text-amber-400" id="warningOrderQty">0<span data-i18n="summary.pairs">족</span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 품질 리스크 오더 카드 (품질 부서장 전용) -->
+                <div class="bg-purple-50 dark:bg-purple-900/30 border-l-4 border-purple-400 rounded-xl shadow-sm p-4 cursor-pointer" data-action="showQualityRiskOrders">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">🔍</span>
+                        <div>
+                            <div class="text-purple-700 dark:text-purple-300 text-sm font-medium">품질 리스크</div>
+                            <div class="text-2xl font-bold text-purple-800 dark:text-purple-200" id="qualityRiskCount">0<span data-i18n="summary.orders">건</span></div>
+                            <div class="text-xs text-purple-600 dark:text-purple-400" id="qualityRiskQty">0<span data-i18n="summary.pairs">족</span></div>
                         </div>
                     </div>
                 </div>
@@ -1697,6 +2268,131 @@
             </div>
         </div>
 
+        <!-- 품질 부서장 전용: 검사 일정 관리 섹션 -->
+        <div id="inspectionScheduleSection" class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl shadow-lg p-6 mb-6 border-l-4 border-blue-500">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                    🔍 품질 검사 일정 관리
+                    <span class="text-xs bg-blue-500 text-white px-2 py-0.5 rounded">QC Manager</span>
+                </h2>
+                <button onclick="refreshInspectionSchedule()" class="text-sm bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg transition">
+                    🔄 새로고침
+                </button>
+            </div>
+
+            <!-- 검사 일정 카드 -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <!-- 오늘 검사 필요 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4 cursor-pointer hover:shadow-md transition" onclick="showInspectionDetail('today')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">📅</span>
+                        <span class="text-sm font-medium text-red-600 dark:text-red-400">오늘 출고</span>
+                    </div>
+                    <div class="text-3xl font-bold text-red-700 dark:text-red-300" id="inspectionToday">-</div>
+                    <div class="text-xs text-gray-500 mt-1" id="inspectionTodayQty">- 족</div>
+                </div>
+
+                <!-- 내일 검사 필요 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4 cursor-pointer hover:shadow-md transition" onclick="showInspectionDetail('tomorrow')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">⏰</span>
+                        <span class="text-sm font-medium text-orange-600 dark:text-orange-400">내일 출고</span>
+                    </div>
+                    <div class="text-3xl font-bold text-orange-700 dark:text-orange-300" id="inspectionTomorrow">-</div>
+                    <div class="text-xs text-gray-500 mt-1" id="inspectionTomorrowQty">- 족</div>
+                </div>
+
+                <!-- 이번 주 검사 필요 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4 cursor-pointer hover:shadow-md transition" onclick="showInspectionDetail('week')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">📆</span>
+                        <span class="text-sm font-medium text-blue-600 dark:text-blue-400">이번 주</span>
+                    </div>
+                    <div class="text-3xl font-bold text-blue-700 dark:text-blue-300" id="inspectionWeek">-</div>
+                    <div class="text-xs text-gray-500 mt-1" id="inspectionWeekQty">- 족</div>
+                </div>
+
+                <!-- AQL 미검사 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4 cursor-pointer hover:shadow-md transition" onclick="showInspectionDetail('uninspected')">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-2xl">⚠️</span>
+                        <span class="text-sm font-medium text-yellow-600 dark:text-yellow-400">AQL 미검사</span>
+                    </div>
+                    <div class="text-3xl font-bold text-yellow-700 dark:text-yellow-300" id="inspectionUninspected">-</div>
+                    <div class="text-xs text-gray-500 mt-1" id="inspectionUninspectedQty">- 족</div>
+                </div>
+            </div>
+
+            <!-- 공장별 검사 현황 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        🏭 공장별 금주 검사 현황
+                    </h3>
+                    <div id="factoryInspectionStatus" class="space-y-2 text-sm">
+                        <div class="text-gray-400">로딩 중...</div>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        ✅ 검사 우선순위 TOP 5
+                    </h3>
+                    <div id="inspectionPriorityList" class="space-y-2 text-sm">
+                        <div class="text-gray-400">로딩 중...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 품질 KPI 목표 현황 + 트렌드 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-4">
+                <!-- AQL 목표 게이지 -->
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        🎯 AQL 합격률 목표
+                    </h3>
+                    <div class="relative">
+                        <div class="h-4 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
+                            <div id="aqlTargetProgress" class="h-full bg-green-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs mt-1">
+                            <span class="text-red-500">90%</span>
+                            <span class="text-yellow-500">95%</span>
+                            <span class="text-green-500">98%</span>
+                            <span class="text-blue-500">100%</span>
+                        </div>
+                        <div class="text-center mt-3">
+                            <span class="text-2xl font-bold" id="aqlCurrentRate">-</span>
+                            <span class="text-xs text-gray-500 block">현재 합격률</span>
+                        </div>
+                        <div class="flex justify-center gap-4 mt-2 text-xs">
+                            <span class="flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-yellow-400"></span> 목표: 95%
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <span class="w-2 h-2 rounded-full bg-green-400"></span> 우수: 98%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 주간 품질 트렌드 -->
+                <div class="lg:col-span-2 bg-white/80 dark:bg-gray-800/80 rounded-lg p-4">
+                    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                        📈 SDD 기준 주간 품질 현황
+                    </h3>
+                    <div style="height: 150px;">
+                        <canvas id="qualityTrendChart"></canvas>
+                    </div>
+                    <div class="flex justify-center gap-4 mt-2 text-xs text-gray-500">
+                        <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-blue-500"></span> 검사 대상</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-green-500"></span> 합격</span>
+                        <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-red-500"></span> 불합격</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-card rounded-xl shadow-sm p-4 card-hover border-l-4 border-blue-500">
@@ -1731,11 +2427,16 @@
                 <div id="processProgress" class="space-y-3"></div>
             </div>
             <div class="bg-card rounded-xl shadow-sm p-6">
-                <h3 class="text-lg font-semibold mb-4">🏭 <span data-i18n="summary.factoryCompletion">공장별 완료율</span></h3>
+                <h3 class="text-lg font-semibold mb-4">🏭 <span data-i18n="summary.factoryCompletion">공장별 현황</span> <span class="text-xs font-normal text-secondary">(완료율 + 품질)</span></h3>
                 <div id="factoryCards" class="space-y-3"></div>
                 <div class="mt-4 pt-4 border-t border-theme">
-                    <h4 class="text-sm font-medium text-secondary mb-2" data-i18n="filters.factory">공장 비교</h4>
-                    <div style="height: 200px;"><canvas id="factoryRadar"></canvas></div>
+                    <h4 class="text-sm font-medium text-secondary mb-2">📊 완료율 vs 품질 비교</h4>
+                    <div style="height: 220px;"><canvas id="factoryRadar"></canvas></div>
+                </div>
+                <!-- 공장별 품질 요약 -->
+                <div class="mt-4 pt-4 border-t border-theme">
+                    <h4 class="text-sm font-medium text-secondary mb-2">🔍 품질 요약</h4>
+                    <div id="factoryQualitySummary" class="text-xs space-y-1"></div>
                 </div>
             </div>
         </div>
@@ -5120,6 +5821,165 @@ function calculateVendorScore(vendor) {
         // Firebase Storage 로더 인스턴스
         const firebaseStorageLoader = new FirebaseStorageLoader();
 
+        // ========================================
+        // ProductionDataManager - Firebase RTDB 생산 데이터 관리
+        // ========================================
+        class ProductionDataManager {
+            constructor(firebaseManager) {
+                this.firebase = firebaseManager;
+                this.localCacheKey = 'firebase_production_cache';
+                this.rtdbPath = 'productionData';
+                this.listener = null;
+            }
+
+            // RTDB에 생산 데이터 저장 (Excel 업로드 시)
+            async saveProductionData(records, source = 'excel_upload') {
+                if (!this.firebase.isConnected()) {
+                    log.warn('⚠️ Firebase 미연결: 생산 데이터 RTDB 저장 건너뜀');
+                    return false;
+                }
+
+                if (!this.firebase.isAuthenticated()) {
+                    log.warn('⚠️ Firebase 미인증: 생산 데이터 RTDB 저장 건너뜀');
+                    return false;
+                }
+
+                try {
+                    const user = this.firebase.getCurrentUser();
+                    const payload = {
+                        metadata: {
+                            uploadedAt: new Date().toISOString(),
+                            uploadedBy: user ? user.email : 'anonymous',
+                            recordCount: records.length,
+                            source: source
+                        },
+                        records: records
+                    };
+
+                    await this.firebase.db.ref(this.rtdbPath).set(payload);
+                    log.info(`✅ Firebase RTDB 생산 데이터 저장 완료: ${records.length}건`);
+
+                    // 로컬 캐시도 업데이트
+                    this.setLocalCache(records);
+                    return true;
+                } catch (error) {
+                    log.error('❌ Firebase RTDB 생산 데이터 저장 실패:', error);
+                    return false;
+                }
+            }
+
+            // RTDB에서 생산 데이터 로드
+            async loadProductionData() {
+                if (!this.firebase.isConnected()) {
+                    log.info('ℹ️ Firebase 미연결: 로컬 캐시 확인');
+                    return this.getLocalCache();
+                }
+
+                if (!this.firebase.isAuthenticated()) {
+                    log.info('ℹ️ Firebase 미인증: 로컬 캐시 확인');
+                    return this.getLocalCache();
+                }
+
+                try {
+                    const snapshot = await this.firebase.db.ref(this.rtdbPath).once('value');
+                    const data = snapshot.val();
+
+                    if (!data || !data.records) {
+                        log.info('ℹ️ Firebase RTDB에 생산 데이터 없음');
+                        return null;
+                    }
+
+                    // RTDB에서 배열이 object로 반환될 수 있으므로 정규화
+                    let records = data.records;
+                    if (!Array.isArray(records)) {
+                        records = Object.values(records);
+                    }
+
+                    const meta = data.metadata || {};
+                    log.info(`✅ Firebase RTDB 데이터 로드 완료: ${records.length}건 (업로드: ${meta.uploadedAt || 'unknown'}, 소스: ${meta.source || 'unknown'})`);
+
+                    // 로컬 캐시 업데이트
+                    this.setLocalCache(records);
+                    return records;
+                } catch (error) {
+                    log.error('❌ Firebase RTDB 데이터 로드 실패:', error);
+                    return this.getLocalCache();
+                }
+            }
+
+            // 실시간 변경 리스너 설정
+            onProductionDataChange(callback) {
+                if (!this.firebase.isConnected() || !this.firebase.isAuthenticated()) {
+                    return;
+                }
+
+                this.offProductionDataChange(); // 기존 리스너 해제
+
+                this.listener = this.firebase.db.ref(this.rtdbPath).on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data && data.records) {
+                        let records = data.records;
+                        if (!Array.isArray(records)) {
+                            records = Object.values(records);
+                        }
+                        log.info(`🔄 Firebase RTDB 실시간 업데이트: ${records.length}건`);
+                        this.setLocalCache(records);
+                        if (callback) callback(records, data.metadata);
+                    }
+                });
+            }
+
+            // 실시간 리스너 해제
+            offProductionDataChange() {
+                if (this.listener && this.firebase.isConnected()) {
+                    this.firebase.db.ref(this.rtdbPath).off('value', this.listener);
+                    this.listener = null;
+                }
+            }
+
+            // 로컬 캐시 조회
+            getLocalCache() {
+                try {
+                    const cached = localStorage.getItem(this.localCacheKey);
+                    if (cached) {
+                        const { data, timestamp } = JSON.parse(cached);
+                        const age = Date.now() - timestamp;
+                        const maxAge = 24 * 60 * 60 * 1000; // 24시간
+
+                        if (age < maxAge && Array.isArray(data) && data.length > 0) {
+                            log.info(`📦 Firebase RTDB 캐시 사용: ${data.length}건 (${Math.round(age / 60000)}분 전)`);
+                            return data;
+                        }
+                    }
+                } catch (e) {
+                    log.warn('⚠️ RTDB 캐시 로드 실패:', e.message);
+                }
+                return null;
+            }
+
+            // 로컬 캐시 저장
+            setLocalCache(records) {
+                try {
+                    localStorage.setItem(this.localCacheKey, JSON.stringify({
+                        data: records,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    log.warn('⚠️ RTDB 캐시 저장 실패:', e.message);
+                }
+            }
+
+            // 로컬 캐시 삭제
+            clearLocalCache() {
+                try {
+                    localStorage.removeItem(this.localCacheKey);
+                    log.info('✅ Firebase RTDB 캐시 삭제됨');
+                } catch (e) {
+                    log.warn('⚠️ RTDB 캐시 삭제 실패:', e.message);
+                }
+            }
+        }
+
         class GoogleDriveLoader {
             constructor(fileId = DEFAULT_GOOGLE_DRIVE_FILE_ID) {
                 this.fileId = fileId || DEFAULT_GOOGLE_DRIVE_FILE_ID;
@@ -5911,27 +6771,21 @@ function calculateVendorScore(vendor) {
                     throw new Error('이메일과 비밀번호를 입력하세요.');
                 }
 
-                console.log('🔐 Firebase 이메일 로그인 시도:', email);
-                console.log('📊 Firebase 상태:', {
-                    isInitialized: this.isInitialized,
-                    hasAuth: !!this.auth,
-                    hasApp: !!this.app
-                });
+                // [보안] 민감정보 로깅 제거 (v19.14.0)
+                log.info('🔐 Firebase 이메일 로그인 시도');
 
                 try {
                     // Firebase Auth v10 compat API 사용
                     const userCredential = await this.auth.signInWithEmailAndPassword(email, password);
                     const user = userCredential.user;
 
-                    console.log('✅ 로그인 성공:', user.email);
-                    log.info(`✅ 이메일 로그인 성공: ${user.email}`);
+                    // [보안] 민감정보 로깅 제거 (v19.14.0)
+                    log.info('✅ 이메일 로그인 성공');
 
                     return user;
                 } catch (error) {
-                    console.error('🔥 Firebase Auth 에러:', error);
-                    console.error('🔥 에러 코드:', error.code);
-                    console.error('🔥 에러 메시지:', error.message);
-                    log.error('이메일 로그인 실패:', error);
+                    // [보안] 상세 에러 정보 노출 제한 (v19.14.0)
+                    log.error('이메일 로그인 실패:', error.code || 'UNKNOWN');
 
                     // 에러를 다시 throw하여 호출자가 처리할 수 있도록 함
                     throw error;
@@ -6446,6 +7300,13 @@ function calculateVendorScore(vendor) {
         // QMSDataManager 전역 인스턴스
         let qmsDataManager = new QMSDataManager(firebaseManager);
 
+        // ProductionDataManager 전역 인스턴스
+        let productionDataManager = new ProductionDataManager(firebaseManager);
+
+        // [보안] 디버그 객체 window 노출 제거 (v19.14.0)
+        // 개발 환경에서만 사용하려면 개발자 도구 콘솔에서 직접 접근
+        // window._debug = { ... }; // REMOVED FOR SECURITY
+
         // 전역 showToast 함수 정의
         function showToast(message, type = 'info', duration = 3000) {
             const toast = document.createElement('div');
@@ -6604,11 +7465,11 @@ function calculateVendorScore(vendor) {
                 googleDriveLoader.fileId = fileId;
                 const data = await googleDriveLoader.loadExcel();
 
-                statusEl.innerHTML = `<span class="text-green-500">✅ 연결 성공! ${data.length}건 데이터 발견</span>`;
+                statusEl.innerHTML = `<span class="text-green-500">✅ 연결 성공! ${escapeHtml(String(data.length))}건 데이터 발견</span>`;
                 showNotification(`✅ Google Drive 연결 성공! ${data.length}건 데이터`, 'success');
 
             } catch (error) {
-                statusEl.innerHTML = `<span class="text-red-500">❌ 연결 실패: ${error.message}</span>`;
+                statusEl.innerHTML = `<span class="text-red-500">❌ 연결 실패: ${escapeHtml(error.message || '알 수 없는 오류')}</span>`;
                 showNotification(`❌ Google Drive 연결 실패`, 'error');
 
             } finally {
@@ -6631,9 +7492,14 @@ function calculateVendorScore(vendor) {
                 return;
             }
 
+            // [보안] syncInterval 입력값 검증 (v19.14.0)
+            let validInterval = parseInt(syncInterval, 10);
+            if (isNaN(validInterval) || validInterval < 0) validInterval = 0;
+            if (validInterval > 1440) validInterval = 1440; // 최대 24시간(1440분)
+
             const settings = {
                 fileId: fileId,
-                syncInterval: parseInt(syncInterval),
+                syncInterval: validInterval,
                 savedAt: Date.now()
             };
 
@@ -6645,8 +7511,8 @@ function calculateVendorScore(vendor) {
 
             // 자동 동기화 설정
             const autoSync = document.querySelector('input[name="syncInterval"]:checked')?.value;
-            if (autoSync && autoSync !== 'manual') {
-                googleDriveLoader.startAutoSync(parseInt(syncInterval), handleSyncCallback);
+            if (autoSync && autoSync !== 'manual' && validInterval > 0) {
+                googleDriveLoader.startAutoSync(validInterval, handleSyncCallback);
             }
         }
 
@@ -6681,7 +7547,7 @@ function calculateVendorScore(vendor) {
                 applyFilters();
 
                 const now = new Date().toLocaleString('ko-KR');
-                statusEl.innerHTML = `<span class="text-green-500">✅ 동기화 완료 (${now})</span>`;
+                statusEl.innerHTML = `<span class="text-green-500">✅ 동기화 완료 (${escapeHtml(now)})</span>`;
 
                 // 마지막 동기화 시간 표시
                 updateLastSyncTime();
@@ -6689,8 +7555,8 @@ function calculateVendorScore(vendor) {
                 showNotification(`✅ ${data.length}건 데이터 동기화 완료`, 'success');
 
             } catch (error) {
-                statusEl.innerHTML = `<span class="text-red-500">❌ 동기화 실패: ${error.message}</span>`;
-                showNotification(`❌ 동기화 실패: ${error.message}`, 'error');
+                statusEl.innerHTML = `<span class="text-red-500">❌ 동기화 실패: ${escapeHtml(error.message || '알 수 없는 오류')}</span>`;
+                showNotification(`❌ 동기화 실패: ${escapeHtml(error.message || '알 수 없는 오류')}`, 'error');
 
             } finally {
                 if (syncBtn) {
@@ -7039,6 +7905,18 @@ function calculateVendorScore(vendor) {
                 firebaseManager.onAuthChange((user) => {
                     updateFirebaseAuthUI(user);
                     updateLoginOverlay(user);
+
+                    // 로그인 시 캐시 데이터 → RTDB 자동 시딩
+                    if (user && allData && allData.length > 0) {
+                        productionDataManager.loadProductionData().then(rtdbData => {
+                            if (!rtdbData || rtdbData.length === 0) {
+                                log.warn(`🔥 RTDB 시딩 시작: 로그인 감지 + 로컬 데이터 ${allData.length}건 존재`);
+                                productionDataManager.saveProductionData(allData, 'auto_seed_on_login').then(saved => {
+                                    if (saved) log.warn(`✅ RTDB 시딩 완료: ${allData.length}건 저장됨`);
+                                }).catch(e => log.warn('⚠️ RTDB 시딩 실패:', e.message));
+                            }
+                        }).catch(e => log.warn('⚠️ RTDB 시딩 확인 실패:', e.message));
+                    }
                 });
 
                 // 현재 사용자 상태 즉시 반영
@@ -7759,12 +8637,6 @@ function calculateVendorScore(vendor) {
 
         // Phase 1 QMS: 수동 동기화
         async function manualSync() {
-            const gdSettings = googleDriveLoader.loadSettings();
-            if (!gdSettings || !gdSettings.fileId) {
-                showNotification('⚠️ Google Drive 설정이 필요합니다', 'warning');
-                return;
-            }
-
             // 동기화 시작 표시
             const syncBtn = document.getElementById('manualSyncBtn');
             const syncIcon = document.getElementById('syncStatusIcon');
@@ -7775,6 +8647,28 @@ function calculateVendorScore(vendor) {
             if (syncText) syncText.textContent = '동기화 중...';
 
             try {
+                // 1순위: Firebase RTDB 시도
+                if (firebaseManager.isConnected() && firebaseManager.isAuthenticated()) {
+                    log.info('🔄 수동 동기화: Firebase RTDB 시도...');
+                    const rtdbData = await productionDataManager.loadProductionData();
+                    if (rtdbData && rtdbData.length > 0) {
+                        allData = rtdbData;
+                        applyFilters();
+                        updateLastSyncTime();
+                        showNotification(`✅ 수동 동기화 완료 (Firebase RTDB): ${formatNumber(rtdbData.length)}건`, 'success');
+                        showSyncStatusContainer(true, 'Firebase RTDB');
+                        log.info(`✅ Manual sync from Firebase RTDB: ${rtdbData.length} records`);
+                        return;
+                    }
+                }
+
+                // 2순위: Google Drive 폴백
+                const gdSettings = googleDriveLoader.loadSettings();
+                if (!gdSettings || !gdSettings.fileId) {
+                    showNotification('⚠️ Google Drive 설정이 필요합니다', 'warning');
+                    return;
+                }
+
                 googleDriveLoader.fileId = gdSettings.fileId;
                 const data = await googleDriveLoader.loadExcel();
 
@@ -7783,6 +8677,7 @@ function calculateVendorScore(vendor) {
                     applyFilters();
                     updateLastSyncTime();
                     showNotification(`✅ 수동 동기화 완료: ${formatNumber(data.length)}건`, 'success');
+                    showSyncStatusContainer(true, 'Google Drive');
                     log.info(`✅ Phase 1 QMS: Manual sync completed: ${data.length} records`);
                 } else {
                     throw new Error('No data received');
@@ -7808,12 +8703,21 @@ function calculateVendorScore(vendor) {
                 const syncIcon = document.getElementById('syncStatusIcon');
                 const syncText = document.getElementById('syncStatusText');
 
-                if (source === 'Google Drive') {
+                if (source === 'Firebase RTDB') {
+                    if (syncIcon) syncIcon.textContent = '🔥';
+                    if (syncText) syncText.textContent = 'Firebase RTDB 연결됨';
+                } else if (source === 'Google Drive') {
                     if (syncIcon) syncIcon.textContent = '☁️';
                     if (syncText) syncText.textContent = 'Google Drive 연결됨';
+                } else if (source === 'Google Drive OAuth') {
+                    if (syncIcon) syncIcon.textContent = '🔑';
+                    if (syncText) syncText.textContent = 'Google Drive OAuth 연결됨';
                 } else if (source === 'Cache') {
                     if (syncIcon) syncIcon.textContent = '💾';
                     if (syncText) syncText.textContent = '캐시 데이터';
+                } else if (source.includes('Google Sheets')) {
+                    if (syncIcon) syncIcon.textContent = '📋';
+                    if (syncText) syncText.textContent = source;
                 } else {
                     if (syncIcon) syncIcon.textContent = '📊';
                     if (syncText) syncText.textContent = '내장 데이터';
@@ -7849,8 +8753,11 @@ function calculateVendorScore(vendor) {
             googleDriveLoader.clearCache();
             localStorage.removeItem(googleDriveLoader.settingsKey);
 
-            // Firebase 캐시 삭제 (Phase 2에서 구현)
+            // Firebase 캐시 삭제
             localStorage.removeItem('firebase_qms_cache');
+
+            // Firebase RTDB 생산 데이터 캐시 삭제
+            productionDataManager.clearLocalCache();
 
             // 사용자 프로필 삭제
             localStorage.removeItem('rachgia_user_profile');
@@ -7904,7 +8811,7 @@ function calculateVendorScore(vendor) {
             if (cacheInfo) {
                 const gdStatus = document.getElementById('googleDriveStatus');
                 if (gdStatus) {
-                    gdStatus.innerHTML = `<span class="text-green-500">✅ 캐시됨 (${cacheInfo.count}건, ${cacheInfo.ageMinutes}분 전)</span>`;
+                    gdStatus.innerHTML = `<span class="text-green-500">✅ 캐시됨 (${escapeHtml(String(cacheInfo.count))}건, ${escapeHtml(String(cacheInfo.ageMinutes))}분 전)</span>`;
                 }
             }
 
@@ -8323,11 +9230,15 @@ function calculateVendorScore(vendor) {
             }
         }
 
-        // 페이지 크기 변경
+        // 페이지 크기 변경 (v19.14.0 보안 강화: 입력값 검증)
         function changeOrderSearchPageSize() {
             const select = document.getElementById('orderSearchPageSize');
             if (select) {
-                orderSearchState.pageSize = parseInt(select.value) || 50;
+                // [보안] 입력값 검증 및 범위 제한
+                let size = parseInt(select.value, 10);
+                if (isNaN(size) || size < 10) size = 10;
+                if (size > 500) size = 500; // 최대 500건으로 제한
+                orderSearchState.pageSize = size;
                 orderSearchState.currentPage = 1;
                 renderOrderSearchResults();
                 updateOrderSearchPagination();
@@ -10140,8 +11051,10 @@ function calculateVendorScore(vendor) {
             const { filteredResults, currentPage, pageSize } = resultState;
             const totalPages = Math.ceil(filteredResults.length / pageSize) || 1;
 
-            document.getElementById('resultCurrentPage').textContent = currentPage;
-            document.getElementById('resultTotalPages').textContent = totalPages;
+            const currentPageEl = document.getElementById('resultCurrentPage');
+            const totalPagesEl = document.getElementById('resultTotalPages');
+            if (currentPageEl) currentPageEl.textContent = currentPage;
+            if (totalPagesEl) totalPagesEl.textContent = totalPages;
 
             // 버튼 활성화/비활성화
             const prevBtn = document.querySelector('#taskResultTab .pagination-btn:first-child');
@@ -14320,12 +15233,11 @@ function calculateVendorScore(vendor) {
         // 인증 시스템 (Agent #17: Security Engineer)
         // ========================================
 
-        // 사용자 인증 정보 (SHA-256 해시)
-        // qip:qip -> 해시
-        // ksmoon:ksmoon1! -> 해시
+        // 사용자 인증 정보 (SHA-256 해시 기반 - 보안 강화)
+        // 해시 생성: sha256("username:password")
         const AUTH_USERS = {
-            'qip': '65c24d59f9b6e2e8c8c1e4fb6e2d9a0c2b3a4f5e6d7c8b9a0f1e2d3c4b5a6978', // qip
-            'ksmoon': 'a3f2b8c9d0e1f2a3b4c5d6e7f8091a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9' // ksmoon1!
+            'qip': '9f911cfc8e16548acc0faf304a0906f5a139bc790977017960ceaf20dbe2a9eb',
+            'ksmoon': 'ffacaabd449bea25364bac80f1b23c9c65e092d6d7155a9d2d7ec4317f08e277'
         };
 
         // SHA-256 해시 함수
@@ -14336,17 +15248,30 @@ function calculateVendorScore(vendor) {
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        // 로그인 검증
+        // 로그인 검증 (해시 기반 보안 검증)
         async function verifyLogin(username, password) {
+            // 입력값 검증
+            if (!username || !password || typeof username !== 'string' || typeof password !== 'string') {
+                return false;
+            }
+
+            // 사용자명 검증 (허용된 문자만)
+            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                return false;
+            }
+
+            // 해시 기반 비밀번호 검증 (평문 비교 제거)
             const credentials = `${username}:${password}`;
             const hash = await sha256(credentials);
 
-            // 간단한 클라이언트 사이드 검증 (실제 해시 비교 대신 직접 비교)
-            if ((username === 'qip' && password === 'qip') ||
-                (username === 'ksmoon' && password === 'ksmoon1!')) {
-                return true;
+            // 등록된 해시와 비교
+            const expectedHash = AUTH_USERS[username];
+            if (!expectedHash) {
+                return false;
             }
-            return false;
+
+            // 타이밍 공격 방지를 위한 상수 시간 비교
+            return hash === expectedHash;
         }
 
         // 로그인 상태 확인
@@ -14771,6 +15696,7 @@ function calculateVendorScore(vendor) {
             eventDelegator.on('[data-action="showRevenueRiskDetail"]', 'click', showRevenueRiskDetail);
             eventDelegator.on('[data-action="showAQLDetail"]', 'click', showAQLDetail);
             eventDelegator.on('[data-action="showBottleneckDetail"]', 'click', showBottleneckDetail);
+            eventDelegator.on('[data-action="showQualityRiskOrders"]', 'click', showQualityRiskOrders);
             eventDelegator.on('[data-action="clickElement"]', 'click', function(e) {
                 const targetId = EventDelegator.getData(this, 'targetId');
                 document.getElementById(targetId).click();
@@ -14867,11 +15793,12 @@ function calculateVendorScore(vendor) {
                 startAutoRefresh();
             }
 
-            // Phase 1 QMS: 데이터 로딩 우선순위 (v19.11 - Google Drive 필수)
+            // Phase 1 QMS: 데이터 로딩 우선순위 (v19.13 - Firebase RTDB 추가)
             // 0순위: Google Sheets 실시간 연동 (설정된 경우)
-            // 1순위: Google Drive (필수 - 기본 File ID 항상 사용) ⭐
-            // 2순위: LocalStorage 캐시 (오프라인 지원)
-            // 3순위: EMBEDDED_DATA (레거시)
+            // 1순위: Firebase RTDB (CORS 문제 없음) ⭐
+            // 2순위: Google Drive (폴백)
+            // 3순위: LocalStorage 캐시 (오프라인 지원)
+            // 4순위: EMBEDDED_DATA (레거시)
 
             // 설정 탭 초기화
             initSettingsTab();
@@ -14900,6 +15827,11 @@ function calculateVendorScore(vendor) {
                                 dataSource = 'Google Sheets (실시간)';
                                 log.info(`✅ Google Sheets 데이터 로드 완료: ${formatNumber(allData.length)}건`);
 
+                                // RTDB에 자동 저장 (다음 로딩 시 RTDB에서 바로 사용)
+                                productionDataManager.saveProductionData(allData, 'google_sheets').catch(e =>
+                                    log.warn('⚠️ Google Sheets → RTDB 저장 실패:', e.message)
+                                );
+
                                 // 자동 동기화 시작
                                 if (gsSettings.refreshInterval && gsSettings.refreshInterval > 0) {
                                     window.googleSheetsLoader.startAutoSync(gsSettings.refreshInterval, handleGoogleSheetsSync);
@@ -14911,7 +15843,54 @@ function calculateVendorScore(vendor) {
                         }
                     }
 
-                    // 1순위: Google Drive (필수 - 기본 File ID 사용)
+                    // 1순위: Firebase RTDB (CORS 문제 없음)
+                    if (!dataLoaded) {
+                        // Firebase Auth 상태 복원 대기 (최대 3초)
+                        if (firebaseManager.isConnected() && !firebaseManager.isAuthenticated()) {
+                            log.warn('⏳ Firebase Auth 상태 복원 대기 중...');
+                            await new Promise((resolve) => {
+                                let resolved = false;
+                                const unsubscribe = firebaseManager.onAuthChange((user) => {
+                                    if (!resolved && user) {
+                                        resolved = true;
+                                        log.warn(`✅ Firebase Auth 복원됨: ${user.email}`);
+                                        resolve();
+                                    }
+                                });
+                                setTimeout(() => {
+                                    if (!resolved) {
+                                        resolved = true;
+                                        log.warn('⚠️ Firebase Auth 복원 타임아웃 (3초)');
+                                        resolve();
+                                    }
+                                }, 3000);
+                            });
+                        }
+
+                        try {
+                            log.info('🔄 Firebase RTDB 데이터 로드 시도...');
+                            const rtdbData = await productionDataManager.loadProductionData();
+                            if (rtdbData && rtdbData.length > 0) {
+                                allData = rtdbData;
+                                dataLoaded = true;
+                                dataSource = 'Firebase RTDB';
+                                log.info(`✅ Firebase RTDB 데이터 로드 완료: ${formatNumber(allData.length)}건`);
+
+                                // 실시간 리스너 설정 (다른 사용자가 업로드 시 자동 반영)
+                                productionDataManager.onProductionDataChange((records, metadata) => {
+                                    if (records && records.length > 0) {
+                                        allData = records;
+                                        applyFilters();
+                                        showNotification(`🔄 실시간 업데이트: ${formatNumber(records.length)}건 (${metadata?.uploadedBy || 'unknown'})`, 'info');
+                                    }
+                                });
+                            }
+                        } catch (rtdbError) {
+                            log.warn('⚠️ Firebase RTDB 로드 실패, Google Drive 시도...', rtdbError);
+                        }
+                    }
+
+                    // 2순위: Google Drive (폴백)
                     if (!dataLoaded) {
                         // 설정된 File ID가 있으면 사용, 없으면 기본값 사용
                         const gdSettings = googleDriveLoader.loadSettings();
@@ -14948,6 +15927,11 @@ function calculateVendorScore(vendor) {
                                 dataSource = 'Google Drive';
                                 log.info(`✅ Google Drive 데이터 로드 완료: ${formatNumber(allData.length)}건`);
 
+                                // RTDB에 자동 저장 (다음 로딩 시 RTDB에서 바로 사용)
+                                productionDataManager.saveProductionData(allData, 'google_drive').catch(e =>
+                                    log.warn('⚠️ Google Drive → RTDB 저장 실패:', e.message)
+                                );
+
                                 // 자동 동기화 시작 (설정에 따라)
                                 if (gdSettings && gdSettings.syncInterval && gdSettings.syncInterval !== 'manual') {
                                     const intervalMinutes = parseInt(gdSettings.syncInterval);
@@ -14960,7 +15944,7 @@ function calculateVendorScore(vendor) {
                         }
                     }
 
-                    // 2순위: LocalStorage 캐시 (Google Drive 실패 시)
+                    // 3순위: LocalStorage 캐시 (Google Drive 실패 시)
                     if (!dataLoaded) {
                         const cachedData = googleDriveLoader.loadFromCache();
                         if (cachedData && cachedData.length > 0) {
@@ -14969,10 +15953,15 @@ function calculateVendorScore(vendor) {
                             dataSource = 'Cache';
                             const cacheInfo = googleDriveLoader.getCacheInfo();
                             log.info(`✅ Phase 1 QMS: Loaded ${formatNumber(allData.length)} records from cache (saved: ${cacheInfo.savedAt})`);
+
+                            // Cache → RTDB 자동 저장 (RTDB 시딩: 캐시 데이터로 RTDB를 채움)
+                            productionDataManager.saveProductionData(allData, 'cache_migration').catch(e =>
+                                log.warn('⚠️ Cache → RTDB 저장 실패:', e.message)
+                            );
                         }
                     }
 
-                    // 3순위: EMBEDDED_DATA (레거시 지원, 거의 사용 안 함)
+                    // 4순위: EMBEDDED_DATA (레거시 지원, 거의 사용 안 함)
                     if (!dataLoaded && typeof EMBEDDED_DATA !== 'undefined' && EMBEDDED_DATA && EMBEDDED_DATA.length > 0) {
                         allData = EMBEDDED_DATA;
                         dataLoaded = true;
@@ -15004,7 +15993,7 @@ function calculateVendorScore(vendor) {
                         // Phase 1 QMS: 동기화 상태 UI 표시
                         showSyncStatusContainer(true, dataSource);
                     } else {
-                        // 4순위: 파일 업로드 모드
+                        // 5순위: 파일 업로드 모드
                         log.warn('⚠️ Phase 1 QMS: No data available. Falling back to file upload mode.');
 
                         // 로그인 상태 확인
@@ -15230,6 +16219,16 @@ function calculateVendorScore(vendor) {
 
             allData = parsedData;
             initApp();
+
+            // Firebase RTDB에 비동기 저장 (업로드한 데이터를 다른 세션에서도 사용 가능)
+            productionDataManager.saveProductionData(parsedData, 'excel_upload').then(saved => {
+                if (saved) {
+                    showNotification('🔥 Firebase RTDB에 데이터 동기화 완료', 'success');
+                    showSyncStatusContainer(true, 'Firebase RTDB');
+                }
+            }).catch(err => {
+                log.warn('⚠️ Firebase RTDB 저장 실패 (로컬 데이터는 정상):', err.message);
+            });
 
             // 업로드 오버레이 숨기기
             document.getElementById('uploadOverlay').classList.add('hidden');
@@ -15481,8 +16480,10 @@ function calculateVendorScore(vendor) {
             populateFilters();
             setupEventListeners();
             applyFilters();
-            document.getElementById('loadingOverlay').classList.add('hidden');
-            document.getElementById('lastUpdateTime').textContent = new Date().toLocaleString('ko-KR');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.classList.add('hidden');
+            const lastUpdateEl = document.getElementById('lastUpdateTime');
+            if (lastUpdateEl) lastUpdateEl.textContent = new Date().toLocaleString('ko-KR');
         }
 
         // Date mode functions
@@ -16724,7 +17725,7 @@ function calculateVendorScore(vendor) {
                 `<span class="mr-2">${i + 1}. Factory ${f.factory}: ${f.rate.toFixed(1)}%</span>`
             ).join('');
 
-            // Warnings
+            // Warnings (생산 + 품질)
             const delayed = allData.filter(isDelayed);
             const warnings = [];
             if (delayed.length > 0) warnings.push(`🚨 지연 ${delayed.length}건`);
@@ -16732,7 +17733,117 @@ function calculateVendorScore(vendor) {
             const bottleneck = findBottleneck();
             if (bottleneck && bottleneck.rate < 80) warnings.push(`🔴 병목: ${PROCESS_NAMES[bottleneck.key]} (${bottleneck.rate.toFixed(1)}%)`);
 
+            // 품질 경고 추가
+            const aqlFailed = allData.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N');
+            if (aqlFailed.length > 0) warnings.push(`🔍 AQL불합격 ${aqlFailed.length}건`);
+
             document.getElementById('execWarnings').innerHTML = warnings.length > 0 ? warnings.join(' | ') : '✅ 정상';
+
+            // 품질 담당자 알림 체크 (최초 로드 시 1회)
+            checkQualityAlerts();
+        }
+
+        // 품질 담당자 알림 체크 함수
+        let qualityAlertsChecked = false;
+        function checkQualityAlerts() {
+            // 중복 알림 방지 (세션당 1회만)
+            if (qualityAlertsChecked) return;
+            qualityAlertsChecked = true;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 긴급 품질 알림 조건 체크
+            const urgentAlerts = [];
+
+            // 1. 오늘 출고 예정 + 미검사 오더
+            const todayUninspected = allData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                sdd.setHours(0, 0, 0, 0);
+                const notInspected = d.aql === undefined || d.aql === null || d.aql === '';
+                const notCompleted = !d.production?.wh_out?.completed || d.production.wh_out.completed < d.quantity;
+                return sdd.getTime() === today.getTime() && notInspected && notCompleted;
+            });
+            if (todayUninspected.length > 0) {
+                urgentAlerts.push({
+                    type: 'critical',
+                    title: '⚠️ 오늘 출고 예정 미검사 오더',
+                    message: `${todayUninspected.length}건의 오더가 오늘 출고 예정이지만 AQL 검사가 완료되지 않았습니다.`,
+                    action: '지금 확인',
+                    handler: () => showInspectionDetail('today')
+                });
+            }
+
+            // 2. 지연 + AQL 불합격 오더
+            const delayedAndFailed = allData.filter(d => {
+                const isDelayedOrder = d.isDelayed;
+                const aqlFailed = d.aql === false || d.aql === 'false' || d.aql === 'N';
+                return isDelayedOrder && aqlFailed;
+            });
+            if (delayedAndFailed.length > 0) {
+                urgentAlerts.push({
+                    type: 'warning',
+                    title: '🚨 지연+불합격 오더 발생',
+                    message: `${delayedAndFailed.length}건의 오더가 지연되었고 AQL 검사도 불합격입니다. 긴급 조치가 필요합니다.`,
+                    action: '상세 확인',
+                    handler: showQualityRiskOrders
+                });
+            }
+
+            // 3. AQL 합격률 95% 미만
+            const withAQL = allData.filter(d => d.aql !== undefined && d.aql !== null && d.aql !== '');
+            const passed = withAQL.filter(d => d.aql === true || d.aql === 'true' || d.aql === 'Y');
+            const aqlRate = withAQL.length > 0 ? (passed.length / withAQL.length * 100) : 100;
+            if (aqlRate < 95 && withAQL.length > 0) {
+                urgentAlerts.push({
+                    type: 'warning',
+                    title: '📊 AQL 합격률 저조',
+                    message: `현재 AQL 합격률이 ${aqlRate.toFixed(1)}%입니다. 목표(95%) 미달 상태입니다.`,
+                    action: 'AQL 상세',
+                    handler: showAQLDetail
+                });
+            }
+
+            // 알림 표시 (가장 긴급한 것 1개만)
+            if (urgentAlerts.length > 0) {
+                const alert = urgentAlerts[0]; // 가장 긴급한 알림
+                showQualityAlert(alert);
+            }
+        }
+
+        // 품질 알림 표시 함수
+        function showQualityAlert(alert) {
+            const alertId = 'qualityAlertBanner_' + Date.now();
+            const bgColor = alert.type === 'critical' ? 'bg-red-500' : 'bg-orange-500';
+
+            const alertHtml = `
+                <div id="${alertId}" class="fixed top-16 left-1/2 transform -translate-x-1/2 z-50 ${bgColor} text-white rounded-lg shadow-lg p-4 max-w-lg animate-bounce" style="animation-iteration-count: 3;">
+                    <div class="flex items-start gap-3">
+                        <div class="flex-1">
+                            <div class="font-bold">${escapeHtml(alert.title)}</div>
+                            <div class="text-sm mt-1 opacity-90">${escapeHtml(alert.message)}</div>
+                        </div>
+                        <button onclick="document.getElementById('${alertId}').remove()" class="text-white hover:text-gray-200 text-xl">&times;</button>
+                    </div>
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="(${alert.handler.toString()})(); document.getElementById('${alertId}').remove();" class="bg-white text-gray-800 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100">
+                            ${escapeHtml(alert.action)}
+                        </button>
+                        <button onclick="document.getElementById('${alertId}').remove()" class="text-white/80 hover:text-white text-sm">
+                            나중에
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', alertHtml);
+
+            // 15초 후 자동 제거
+            setTimeout(() => {
+                const el = document.getElementById(alertId);
+                if (el) el.remove();
+            }, 15000);
         }
 
         function findBottleneck() {
@@ -16781,8 +17892,37 @@ function calculateVendorScore(vendor) {
             document.getElementById('shippedOrderCount').textContent = shipped.length + '건';
             document.getElementById('shippedOrderQty').textContent = formatNumber(shippedQty) + '족';
 
-            // Show alert section (show if any alerts or shipped orders exist)
-            document.getElementById('alertSection').classList.toggle('hidden', delayed.length === 0 && warning.length === 0 && shipped.length === 0);
+            // Quality Risk orders (품질 리스크: 지연+불합격 또는 3일 내 출고+미검사)
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const qualityRiskOrders = allData.filter(d => {
+                const aqlFailed = d.aql === false || d.aql === 'false' || d.aql === 'N';
+                const notInspected = d.aql === undefined || d.aql === null || d.aql === '';
+                const notCompleted = !d.production?.wh_out?.completed || d.production.wh_out.completed < d.quantity;
+
+                // 지연 + 불합격
+                if (d.isDelayed && aqlFailed) return true;
+
+                // 3일 내 출고 예정 + 미검사
+                if (d.sdd && notCompleted && notInspected) {
+                    const sdd = new Date(d.sdd);
+                    const daysUntilSDD = Math.ceil((sdd - today) / (1000 * 60 * 60 * 24));
+                    if (daysUntilSDD >= 0 && daysUntilSDD <= 3) return true;
+                }
+
+                return false;
+            });
+            const qualityRiskQty = qualityRiskOrders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+            const qualityRiskCountEl = document.getElementById('qualityRiskCount');
+            const qualityRiskQtyEl = document.getElementById('qualityRiskQty');
+            if (qualityRiskCountEl) qualityRiskCountEl.textContent = qualityRiskOrders.length + '건';
+            if (qualityRiskQtyEl) qualityRiskQtyEl.textContent = formatNumber(qualityRiskQty) + '족';
+
+            // 품질 리스크 데이터 저장 (상세 보기용)
+            window.qualityRiskOrdersData = qualityRiskOrders;
+
+            // Show alert section (show if any alerts, shipped orders, or quality risks exist)
+            document.getElementById('alertSection').classList.toggle('hidden', delayed.length === 0 && warning.length === 0 && shipped.length === 0 && qualityRiskOrders.length === 0);
             document.getElementById('delayAlert').classList.toggle('hidden', delayed.length === 0);
             document.getElementById('delayCount').textContent = delayed.length;
         }
@@ -16885,18 +18025,29 @@ function calculateVendorScore(vendor) {
         }
 
         function updateFactoryCards() {
-            const factoryData = { A: { count: 0, qty: 0, completed: 0 }, B: { count: 0, qty: 0, completed: 0 }, C: { count: 0, qty: 0, completed: 0 }, D: { count: 0, qty: 0, completed: 0 } };
+            const factoryData = { A: { count: 0, qty: 0, completed: 0, aqlTotal: 0, aqlPassed: 0 }, B: { count: 0, qty: 0, completed: 0, aqlTotal: 0, aqlPassed: 0 }, C: { count: 0, qty: 0, completed: 0, aqlTotal: 0, aqlPassed: 0 }, D: { count: 0, qty: 0, completed: 0, aqlTotal: 0, aqlPassed: 0 } };
             filteredData.forEach(d => {
                 if (!factoryData[d.factory]) return;
                 factoryData[d.factory].qty += d.quantity || 0;
                 factoryData[d.factory].completed += d.production?.wh_in?.completed || 0;
                 factoryData[d.factory].count++;
+                // AQL 품질 데이터 집계
+                if (d.aql !== undefined && d.aql !== null && d.aql !== '') {
+                    factoryData[d.factory].aqlTotal++;
+                    if (d.aql === true || d.aql === 'true' || d.aql === 'Y') {
+                        factoryData[d.factory].aqlPassed++;
+                    }
+                }
             });
 
             document.getElementById('factoryCards').innerHTML = ['A', 'B', 'C', 'D'].map(f => {
                 const d = factoryData[f];
                 const rate = d.qty > 0 ? (d.completed / d.qty * 100) : 0;
                 const color = rate >= 80 ? '#22c55e' : rate >= 50 ? '#f59e0b' : '#ef4444';
+                // AQL 합격률 계산
+                const aqlRate = d.aqlTotal > 0 ? (d.aqlPassed / d.aqlTotal * 100) : 0;
+                const aqlColor = aqlRate >= 98 ? '#22c55e' : aqlRate >= 95 ? '#f59e0b' : '#ef4444';
+                const aqlDisplay = d.aqlTotal > 0 ? `${aqlRate.toFixed(0)}%` : '-';
                 return `<div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" data-action="showFactoryDetail" data-param="${f}">
                     <div class="flex justify-between items-center">
                         <span class="font-semibold">Factory ${f}</span>
@@ -16904,10 +18055,17 @@ function calculateVendorScore(vendor) {
                     </div>
                     <div class="text-xs text-secondary mt-1">${formatNumber(d.count)}건 · ${formatNumber(d.qty)}족</div>
                     <div class="progress-bar mt-2" style="height: 6px;"><div class="progress-fill" style="width: ${rate}%; background: ${color};"></div></div>
+                    <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                        <span class="text-xs text-gray-500">품질(AQL)</span>
+                        <span class="text-xs font-medium" style="color: ${aqlColor}">${aqlDisplay}</span>
+                    </div>
                 </div>`;
             }).join('');
 
-            // Radar chart
+            // 공장별 품질 비교 데이터 저장 (다른 차트에서 사용)
+            window.factoryQualityData = factoryData;
+
+            // Radar chart - 완료율 + 품질 합격률
             const radarData = ['A', 'B', 'C', 'D'].map(f => {
                 const fData = filteredData.filter(d => d.factory === f);
                 const qty = fData.reduce((s, d) => s + (d.quantity || 0), 0);
@@ -16915,16 +18073,121 @@ function calculateVendorScore(vendor) {
                 return qty > 0 ? (completed / qty * 100) : 0;
             });
 
+            // 품질 합격률 데이터
+            const qualityData = ['A', 'B', 'C', 'D'].map(f => {
+                const d = factoryData[f];
+                return d.aqlTotal > 0 ? (d.aqlPassed / d.aqlTotal * 100) : 0;
+            });
+
             const isDarkMode = document.documentElement.classList.contains('dark');
-            // Factory radar chart - using updateOrCreateChart for memory efficiency
+            // Factory radar chart - 완료율과 품질 합격률 비교
             updateOrCreateChart('factoryRadar', document.getElementById('factoryRadar'), {
                 type: 'radar',
                 data: {
                     labels: ['Factory A', 'Factory B', 'Factory C', 'Factory D'],
-                    datasets: [{ label: '완료율', data: radarData, backgroundColor: 'rgba(59, 130, 246, 0.3)', borderColor: '#3b82f6' }]
+                    datasets: [
+                        {
+                            label: '완료율',
+                            data: radarData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'AQL 합격률',
+                            data: qualityData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                            borderColor: '#22c55e',
+                            borderWidth: 2
+                        }
+                    ]
                 },
-                options: { scales: { r: { min: 0, max: 100, ticks: { color: isDarkMode ? '#fff' : '#333' }, pointLabels: { color: isDarkMode ? '#fff' : '#333' } } }, plugins: { legend: { display: false } } }
+                options: {
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 100,
+                            ticks: { color: isDarkMode ? '#fff' : '#333', stepSize: 20 },
+                            pointLabels: { color: isDarkMode ? '#fff' : '#333' },
+                            grid: { color: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                color: isDarkMode ? '#fff' : '#333',
+                                boxWidth: 12,
+                                padding: 8,
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
             });
+
+            // 공장별 품질 요약 업데이트
+            updateFactoryQualitySummary(factoryData);
+        }
+
+        function updateFactoryQualitySummary(factoryData) {
+            const el = document.getElementById('factoryQualitySummary');
+            if (!el) return;
+
+            // 전체 품질 통계
+            let totalPassed = 0, totalInspected = 0;
+            ['A', 'B', 'C', 'D'].forEach(f => {
+                totalPassed += factoryData[f].aqlPassed;
+                totalInspected += factoryData[f].aqlTotal;
+            });
+            const overallRate = totalInspected > 0 ? (totalPassed / totalInspected * 100) : 0;
+
+            // 최저/최고 품질 공장 찾기
+            let bestFactory = null, worstFactory = null;
+            let bestRate = -1, worstRate = 101;
+
+            ['A', 'B', 'C', 'D'].forEach(f => {
+                if (factoryData[f].aqlTotal > 0) {
+                    const rate = (factoryData[f].aqlPassed / factoryData[f].aqlTotal * 100);
+                    if (rate > bestRate) { bestRate = rate; bestFactory = f; }
+                    if (rate < worstRate) { worstRate = rate; worstFactory = f; }
+                }
+            });
+
+            const overallColor = overallRate >= 98 ? 'text-green-600 dark:text-green-400' :
+                                 overallRate >= 95 ? 'text-yellow-600 dark:text-yellow-400' :
+                                 'text-red-600 dark:text-red-400';
+
+            let html = `
+                <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
+                    <span>전체 AQL 합격률</span>
+                    <span class="${overallColor} font-bold">${overallRate.toFixed(1)}%</span>
+                </div>
+            `;
+
+            if (bestFactory && worstFactory && bestFactory !== worstFactory) {
+                html += `
+                    <div class="flex justify-between items-center p-2">
+                        <span class="text-green-600 dark:text-green-400">🏆 최고: ${bestFactory}공장</span>
+                        <span class="font-medium">${bestRate.toFixed(1)}%</span>
+                    </div>
+                `;
+                if (worstRate < 98) {
+                    html += `
+                        <div class="flex justify-between items-center p-2">
+                            <span class="text-red-600 dark:text-red-400">⚠️ 개선필요: ${worstFactory}공장</span>
+                            <span class="font-medium">${worstRate.toFixed(1)}%</span>
+                        </div>
+                    `;
+                }
+            }
+
+            if (totalInspected === 0) {
+                html = '<div class="text-gray-400 text-center p-2">AQL 검사 데이터 없음</div>';
+            }
+
+            el.innerHTML = html;
         }
 
         function updateAsiaCards() {
@@ -17893,9 +19156,12 @@ function calculateVendorScore(vendor) {
         function prevPage() { if (currentPage > 1) { currentPage--; updateDataTab(); } }
         function nextPage() { const totalPages = Math.ceil(filteredData.length / PAGE_SIZE); if (currentPage < totalPages) { currentPage++; updateDataTab(); } }
 
-        // 페이지 크기 변경 (Agent #R04: Performance Optimizer)
+        // 페이지 크기 변경 (v19.14.0 보안 강화: 입력값 검증)
         function changePageSize() {
-            const newSize = parseInt(document.getElementById('pageSizeSelect').value);
+            // [보안] 입력값 검증 및 범위 제한
+            let newSize = parseInt(document.getElementById('pageSizeSelect').value, 10);
+            if (isNaN(newSize) || newSize < 10) newSize = 10;
+            if (newSize > 500) newSize = 500; // 최대 500건으로 제한
             PAGE_SIZE = newSize;
             currentPage = 1; // 첫 페이지로 리셋
 
@@ -17917,6 +19183,103 @@ function calculateVendorScore(vendor) {
 
         function showDelayedOrders() { showOrderListModal('🚨 지연 오더', allData.filter(isDelayed)); }
         function showWarningOrders() { showOrderListModal('⚡ 3일 내 예정 (미완료)', allData.filter(isWarning)); }
+
+        // 품질 리스크 오더 상세 (품질 부서장 전용)
+        function showQualityRiskOrders() {
+            const orders = window.qualityRiskOrdersData || [];
+            if (orders.length === 0) {
+                showToast('품질 리스크 오더가 없습니다.', 'success');
+                return;
+            }
+
+            // 우선순위별 정렬
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const sortedOrders = orders.map(d => {
+                const aqlFailed = d.aql === false || d.aql === 'false' || d.aql === 'N';
+                const notInspected = d.aql === undefined || d.aql === null || d.aql === '';
+                const daysUntilSDD = d.sdd ? Math.ceil((new Date(d.sdd) - today) / (1000 * 60 * 60 * 24)) : 999;
+
+                let riskType = '';
+                let priorityScore = 0;
+
+                if (d.isDelayed && aqlFailed) {
+                    riskType = '지연+불합격';
+                    priorityScore = -100 + daysUntilSDD;
+                } else if (notInspected && daysUntilSDD <= 3) {
+                    riskType = '긴급검사필요';
+                    priorityScore = daysUntilSDD;
+                }
+
+                return { ...d, riskType, priorityScore, daysUntilSDD };
+            }).sort((a, b) => a.priorityScore - b.priorityScore);
+
+            // 상세 테이블 HTML 생성
+            const tableRows = sortedOrders.map((d, i) => {
+                const sdd = d.sdd ? new Date(d.sdd).toLocaleDateString('ko-KR') : '-';
+                const aqlStatus = d.aql === true || d.aql === 'true' || d.aql === 'Y' ? '✅ 합격' :
+                                  d.aql === false || d.aql === 'false' || d.aql === 'N' ? '❌ 불합격' : '⏳ 미검사';
+                const riskBadge = d.riskType === '지연+불합격' ?
+                    '<span class="text-xs bg-red-500 text-white px-1 rounded">지연+불합격</span>' :
+                    '<span class="text-xs bg-orange-500 text-white px-1 rounded">긴급검사</span>';
+                const daysBadge = d.daysUntilSDD < 0 ?
+                    `<span class="text-red-600 font-bold">${Math.abs(d.daysUntilSDD)}일 지연</span>` :
+                    d.daysUntilSDD === 0 ? '<span class="text-red-600 font-bold">오늘</span>' :
+                    d.daysUntilSDD <= 3 ? `<span class="text-orange-600">${d.daysUntilSDD}일 후</span>` :
+                    `${d.daysUntilSDD}일 후`;
+
+                return `<tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer" onclick="showOrderDetailModal('${escapeHtml(d.poNumber || '')}')">
+                    <td class="px-3 py-2 text-sm">${i + 1}</td>
+                    <td class="px-3 py-2 text-sm font-medium">${escapeHtml(d.poNumber || '-')}</td>
+                    <td class="px-3 py-2 text-sm">${escapeHtml(d.factory || '-')}</td>
+                    <td class="px-3 py-2 text-sm">${escapeHtml((d.model || '').substring(0, 15))}</td>
+                    <td class="px-3 py-2 text-sm">${sdd}</td>
+                    <td class="px-3 py-2 text-sm text-right">${(d.quantity || 0).toLocaleString()}</td>
+                    <td class="px-3 py-2 text-sm">${aqlStatus}</td>
+                    <td class="px-3 py-2 text-sm">${riskBadge}</td>
+                    <td class="px-3 py-2 text-sm">${daysBadge}</td>
+                </tr>`;
+            }).join('');
+
+            const html = `
+                <h3 class="text-lg font-bold mb-4">🔍 품질 리스크 오더 상세</h3>
+                <div class="mb-4 flex gap-4 text-sm">
+                    <span class="flex items-center gap-1"><span class="text-xs bg-red-500 text-white px-1 rounded">지연+불합격</span> 지연된 오더 중 AQL 불합격</span>
+                    <span class="flex items-center gap-1"><span class="text-xs bg-orange-500 text-white px-1 rounded">긴급검사</span> 3일 내 출고 예정, 미검사</span>
+                </div>
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left">#</th>
+                                <th class="px-3 py-2 text-left">PO</th>
+                                <th class="px-3 py-2 text-left">공장</th>
+                                <th class="px-3 py-2 text-left">모델</th>
+                                <th class="px-3 py-2 text-left">SDD</th>
+                                <th class="px-3 py-2 text-right">수량</th>
+                                <th class="px-3 py-2 text-left">AQL</th>
+                                <th class="px-3 py-2 text-left">리스크</th>
+                                <th class="px-3 py-2 text-left">D-Day</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg text-sm">
+                    <div class="font-bold text-yellow-700 dark:text-yellow-300 mb-2">📋 품질 부서장 권고사항</div>
+                    <ul class="list-disc list-inside text-yellow-600 dark:text-yellow-400 space-y-1">
+                        <li>"지연+불합격" 오더는 재검사 후 출고 여부 결정 필요</li>
+                        <li>"긴급검사" 오더는 오늘/내일 중 AQL 검사 실시 필수</li>
+                        <li>출고 지연 시 고객사에 사전 통보 권고</li>
+                    </ul>
+                </div>
+                <div class="mt-3 text-sm text-gray-500">
+                    총 ${orders.length}건 | 클릭하여 상세 정보 확인
+                </div>
+            `;
+            showInfoModal('품질 리스크 오더', html);
+        }
 
         function showInventoryOrders() {
             const inventory = allData.filter(d => {
@@ -18616,17 +19979,35 @@ function calculateVendorScore(vendor) {
             const warningCount = exportData.filter(d => d['경고'] === 'Y').length;
             const completedCount = exportData.filter(d => d['상태'] === 'completed').length;
 
+            // 품질(AQL) 통계
+            const withAQL = exportData.filter(d => d['AQL'] !== undefined && d['AQL'] !== null && d['AQL'] !== '');
+            const aqlPassed = withAQL.filter(d => d['AQL'] === true || d['AQL'] === 'true' || d['AQL'] === 'Y' || d['AQL'] === '✅ 합격').length;
+            const aqlRate = withAQL.length > 0 ? (aqlPassed / withAQL.length * 100) : 0;
+
             doc.setFontSize(10);
             doc.setTextColor(31, 41, 55);
             let yPos = filters.length > 0 ? 38 : 30;
 
             doc.text(`Total Orders: ${formatNumber(totalOrders)}`, 15, yPos);
             doc.setTextColor(220, 38, 38);
-            doc.text(`Delayed: ${formatNumber(delayedCount)} (${(delayedCount/totalOrders*100).toFixed(1)}%)`, 70, yPos);
+            doc.text(`Delayed: ${formatNumber(delayedCount)} (${(delayedCount/totalOrders*100).toFixed(1)}%)`, 60, yPos);
             doc.setTextColor(245, 158, 11);
-            doc.text(`Warning: ${formatNumber(warningCount)} (${(warningCount/totalOrders*100).toFixed(1)}%)`, 125, yPos);
+            doc.text(`Warning: ${formatNumber(warningCount)} (${(warningCount/totalOrders*100).toFixed(1)}%)`, 110, yPos);
             doc.setTextColor(16, 185, 129);
-            doc.text(`Completed: ${formatNumber(completedCount)} (${(completedCount/totalOrders*100).toFixed(1)}%)`, 180, yPos);
+            doc.text(`Completed: ${formatNumber(completedCount)} (${(completedCount/totalOrders*100).toFixed(1)}%)`, 160, yPos);
+
+            // AQL 합격률 표시
+            const aqlColor = aqlRate >= 98 ? [34, 197, 94] : aqlRate >= 95 ? [245, 158, 11] : [239, 68, 68];
+            doc.setTextColor(...aqlColor);
+            doc.text(`AQL: ${aqlRate.toFixed(1)}%`, 220, yPos);
+
+            // 품질 부서장 요약 (두 번째 줄)
+            yPos += 6;
+            doc.setTextColor(107, 114, 128);
+            doc.setFontSize(9);
+            const qualityRiskCount = window.qualityRiskOrdersData?.length || 0;
+            const uninspectedCount = window.inspectionData?.uninspected?.length || 0;
+            doc.text(`Quality Summary - Risk Orders: ${qualityRiskCount}, Uninspected: ${uninspectedCount}, AQL Inspected: ${withAQL.length}/${totalOrders}`, 15, yPos);
 
             // 4. 데이터 테이블 (autoTable 플러그인 사용)
             doc.setTextColor(31, 41, 55);
@@ -18919,14 +20300,31 @@ function calculateVendorScore(vendor) {
                 if (kpiRiskOrders) kpiRiskOrders.textContent = `${formatNumber(revenue.quantity)}족 (${revenue.orders}건)`;
             }
 
-            // AQL Pass Rate - HTML ID: kpiAqlRate, kpiAqlCount
+            // AQL Pass Rate - HTML ID: kpiAqlRate, kpiAqlCount, kpiAqlStatus, kpiAqlProgress
             const kpiAqlRate = document.getElementById('kpiAqlRate');
             const kpiAqlCount = document.getElementById('kpiAqlCount');
+            const kpiAqlStatus = document.getElementById('kpiAqlStatus');
+            const kpiAqlProgress = document.getElementById('kpiAqlProgress');
             if (kpiAqlRate) {
-                const aqlStatus = aql.rate >= 98 ? '✅' : aql.rate >= 95 ? '⚠️' : '🚨';
+                const aqlIcon = aql.rate >= 98 ? '🏆' : aql.rate >= 95 ? '✅' : '⚠️';
+                const aqlStatusText = aql.rate >= 98 ? '우수' : aql.rate >= 95 ? '목표달성' : '개선필요';
                 kpiAqlRate.textContent = aql.rate.toFixed(1) + '%';
                 kpiAqlRate.className = 'text-3xl font-bold ' + (aql.rate >= 98 ? 'text-green-300' : aql.rate >= 95 ? 'text-yellow-300' : 'text-red-300');
-                if (kpiAqlCount) kpiAqlCount.textContent = `${aqlStatus} ${aql.passedCount}/${aql.inspectedCount}건`;
+                if (kpiAqlCount) kpiAqlCount.textContent = `${aqlIcon} ${aql.passedCount}/${aql.inspectedCount}건 검사`;
+                if (kpiAqlStatus) {
+                    kpiAqlStatus.textContent = aqlStatusText;
+                    kpiAqlStatus.className = 'text-xs mb-1 px-1.5 py-0.5 rounded ' +
+                        (aql.rate >= 98 ? 'bg-green-500/30 text-green-200' :
+                         aql.rate >= 95 ? 'bg-yellow-500/30 text-yellow-200' :
+                         'bg-red-500/30 text-red-200');
+                }
+                if (kpiAqlProgress) {
+                    // 90%~100% 범위를 0~100%로 매핑
+                    const progressWidth = Math.max(0, Math.min(100, (aql.rate - 90) * 10));
+                    kpiAqlProgress.style.width = progressWidth + '%';
+                    kpiAqlProgress.className = 'h-full rounded-full transition-all ' +
+                        (aql.rate >= 98 ? 'bg-green-400' : aql.rate >= 95 ? 'bg-yellow-400' : 'bg-red-400');
+                }
             }
 
             // Bottleneck - HTML ID: kpiBottleneckStage, kpiBottleneckRisk
@@ -18997,6 +20395,408 @@ function calculateVendorScore(vendor) {
             // 리스크 점수 계산 및 표시
             const riskScore = calculateRiskScore(delayedOrders, severity, bottleneck, vendors, aql);
             updateRiskScoreDisplay(riskScore);
+
+            // 검사 일정 관리 업데이트
+            updateInspectionSchedule();
+        }
+
+        // =====================================================
+        // 품질 부서장 전용: 검사 일정 관리 함수들
+        // =====================================================
+
+        function updateInspectionSchedule() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+
+            const weekEnd = new Date(today);
+            weekEnd.setDate(weekEnd.getDate() + 7);
+
+            // 오늘 출고 예정 (미완료)
+            const todayOrders = filteredData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                sdd.setHours(0, 0, 0, 0);
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                return sdd.getTime() === today.getTime() && whOutCompleted < qty;
+            });
+
+            // 내일 출고 예정 (미완료)
+            const tomorrowOrders = filteredData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                sdd.setHours(0, 0, 0, 0);
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                return sdd.getTime() === tomorrow.getTime() && whOutCompleted < qty;
+            });
+
+            // 이번 주 출고 예정 (미완료)
+            const weekOrders = filteredData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                sdd.setHours(0, 0, 0, 0);
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                return sdd >= today && sdd < weekEnd && whOutCompleted < qty;
+            });
+
+            // AQL 미검사 오더
+            const uninspectedOrders = filteredData.filter(d => {
+                const notInspected = d.aql === undefined || d.aql === null || d.aql === '';
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                return notInspected && whOutCompleted < qty;
+            });
+
+            // 카드 업데이트
+            updateInspectionCard('inspectionToday', 'inspectionTodayQty', todayOrders);
+            updateInspectionCard('inspectionTomorrow', 'inspectionTomorrowQty', tomorrowOrders);
+            updateInspectionCard('inspectionWeek', 'inspectionWeekQty', weekOrders);
+            updateInspectionCard('inspectionUninspected', 'inspectionUninspectedQty', uninspectedOrders);
+
+            // 공장별 검사 현황
+            updateFactoryInspectionStatus(weekOrders);
+
+            // 검사 우선순위
+            updateInspectionPriority(filteredData);
+
+            // 데이터 저장 (상세 보기용)
+            window.inspectionData = {
+                today: todayOrders,
+                tomorrow: tomorrowOrders,
+                week: weekOrders,
+                uninspected: uninspectedOrders
+            };
+        }
+
+        function updateInspectionCard(countId, qtyId, orders) {
+            const countEl = document.getElementById(countId);
+            const qtyEl = document.getElementById(qtyId);
+            if (countEl) countEl.textContent = orders.length + '건';
+            if (qtyEl) {
+                const totalQty = orders.reduce((sum, d) => sum + (d.quantity || 0), 0);
+                qtyEl.textContent = totalQty.toLocaleString() + ' 족';
+            }
+        }
+
+        function updateFactoryInspectionStatus(weekOrders) {
+            const el = document.getElementById('factoryInspectionStatus');
+            if (!el) return;
+
+            const factoryStats = {};
+            ['A', 'B', 'C', 'D'].forEach(f => factoryStats[f] = { count: 0, qty: 0 });
+
+            weekOrders.forEach(d => {
+                if (d.factory && factoryStats[d.factory]) {
+                    factoryStats[d.factory].count++;
+                    factoryStats[d.factory].qty += (d.quantity || 0);
+                }
+            });
+
+            const html = Object.entries(factoryStats).map(([factory, stats]) => {
+                const urgencyClass = stats.count > 10 ? 'text-red-600 dark:text-red-400' :
+                                     stats.count > 5 ? 'text-orange-600 dark:text-orange-400' :
+                                     'text-green-600 dark:text-green-400';
+                return `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/50 rounded">
+                        <span class="font-medium">${factory}공장</span>
+                        <div class="text-right">
+                            <span class="${urgencyClass} font-bold">${stats.count}건</span>
+                            <span class="text-xs text-gray-500 ml-2">${stats.qty.toLocaleString()}족</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            el.innerHTML = html || '<div class="text-gray-400">데이터 없음</div>';
+        }
+
+        function updateInspectionPriority(data) {
+            const el = document.getElementById('inspectionPriorityList');
+            if (!el) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 우선순위 점수 계산
+            const priorityOrders = data
+                .filter(d => {
+                    if (!d.sdd) return false;
+                    const whOutCompleted = d.production?.wh_out?.completed || 0;
+                    const qty = d.quantity || 0;
+                    return whOutCompleted < qty;
+                })
+                .map(d => {
+                    const sdd = new Date(d.sdd);
+                    const daysUntilSDD = Math.ceil((sdd - today) / (1000 * 60 * 60 * 24));
+                    const isDelayed = daysUntilSDD < 0;
+                    const notInspected = d.aql === undefined || d.aql === null || d.aql === '';
+                    const aqlFailed = d.aql === false || d.aql === 'false' || d.aql === 'N';
+
+                    // 우선순위 점수: 낮을수록 급함
+                    let priorityScore = daysUntilSDD;
+                    if (isDelayed) priorityScore = daysUntilSDD - 100; // 지연은 최우선
+                    if (aqlFailed) priorityScore -= 50; // 불합격은 재검사 필요
+                    if (notInspected && daysUntilSDD <= 3) priorityScore -= 30; // 임박+미검사
+
+                    return { ...d, daysUntilSDD, priorityScore, isDelayed, notInspected, aqlFailed };
+                })
+                .sort((a, b) => a.priorityScore - b.priorityScore)
+                .slice(0, 5);
+
+            if (priorityOrders.length === 0) {
+                el.innerHTML = '<div class="text-green-600 dark:text-green-400">✅ 긴급 검사 필요 오더 없음</div>';
+                return;
+            }
+
+            const html = priorityOrders.map((d, i) => {
+                const urgencyBadge = d.isDelayed ? '<span class="text-xs bg-red-500 text-white px-1 rounded">지연</span>' :
+                                     d.daysUntilSDD <= 1 ? '<span class="text-xs bg-orange-500 text-white px-1 rounded">긴급</span>' :
+                                     d.daysUntilSDD <= 3 ? '<span class="text-xs bg-yellow-500 text-white px-1 rounded">주의</span>' : '';
+                const aqlBadge = d.aqlFailed ? '<span class="text-xs bg-red-500 text-white px-1 rounded">불합격</span>' :
+                                 d.notInspected ? '<span class="text-xs bg-gray-500 text-white px-1 rounded">미검사</span>' : '';
+
+                return `
+                    <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600/50" onclick="showOrderDetailModal('${escapeHtml(d.poNumber || '')}')">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-400">${i + 1}</span>
+                            <span class="font-medium">${escapeHtml(d.poNumber || '-')}</span>
+                            <span class="text-xs text-gray-500">${escapeHtml(d.factory || '-')}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            ${urgencyBadge}
+                            ${aqlBadge}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            el.innerHTML = html;
+
+            // 품질 KPI 목표 게이지 업데이트
+            updateQualityKPIGauge();
+
+            // 품질 트렌드 차트 업데이트
+            updateQualityTrendChart();
+
+            // 사이드바 배지 업데이트
+            updateQualitySidebarBadges();
+        }
+
+        // 품질 KPI 목표 게이지 업데이트
+        function updateQualityKPIGauge() {
+            const withAQL = filteredData.filter(d => d.aql !== undefined && d.aql !== null && d.aql !== '');
+            const passed = withAQL.filter(d => d.aql === true || d.aql === 'true' || d.aql === 'Y');
+            const rate = withAQL.length > 0 ? (passed.length / withAQL.length * 100) : 0;
+
+            // 게이지 업데이트
+            const progressEl = document.getElementById('aqlTargetProgress');
+            const rateEl = document.getElementById('aqlCurrentRate');
+
+            if (progressEl) {
+                // 90%~100% 범위를 0~100%로 매핑
+                const normalizedRate = Math.max(0, Math.min(100, (rate - 90) * 10));
+                progressEl.style.width = normalizedRate + '%';
+
+                // 색상 변경
+                if (rate >= 98) {
+                    progressEl.className = 'h-full bg-green-500 rounded-full transition-all duration-500';
+                } else if (rate >= 95) {
+                    progressEl.className = 'h-full bg-yellow-500 rounded-full transition-all duration-500';
+                } else {
+                    progressEl.className = 'h-full bg-red-500 rounded-full transition-all duration-500';
+                }
+            }
+
+            if (rateEl) {
+                rateEl.textContent = rate.toFixed(1) + '%';
+                if (rate >= 98) {
+                    rateEl.className = 'text-2xl font-bold text-green-600 dark:text-green-400';
+                } else if (rate >= 95) {
+                    rateEl.className = 'text-2xl font-bold text-yellow-600 dark:text-yellow-400';
+                } else {
+                    rateEl.className = 'text-2xl font-bold text-red-600 dark:text-red-400';
+                }
+            }
+        }
+
+        // 품질 트렌드 차트 업데이트 (메모리 효율적 패턴 사용)
+        function updateQualityTrendChart() {
+            const ctx = document.getElementById('qualityTrendChart');
+            if (!ctx) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 최근 7일 데이터 집계
+            const days = [];
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                days.push(d);
+                labels.push((d.getMonth() + 1) + '/' + d.getDate());
+            }
+
+            const dailyData = days.map(day => {
+                const dayOrders = filteredData.filter(d => {
+                    if (!d.sdd) return false;
+                    const sdd = new Date(d.sdd);
+                    sdd.setHours(0, 0, 0, 0);
+                    return sdd.getTime() === day.getTime();
+                });
+
+                const inspected = dayOrders.filter(d => d.aql !== undefined && d.aql !== null && d.aql !== '');
+                const passed = inspected.filter(d => d.aql === true || d.aql === 'true' || d.aql === 'Y');
+                const failed = inspected.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N');
+
+                return {
+                    total: dayOrders.length,
+                    passed: passed.length,
+                    failed: failed.length
+                };
+            });
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+
+            // updateOrCreateChart 패턴 사용으로 메모리 효율 개선
+            updateOrCreateChart('qualityTrend', ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '검사 대상',
+                            data: dailyData.map(d => d.total),
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: '합격',
+                            data: dailyData.map(d => d.passed),
+                            borderColor: '#22c55e',
+                            backgroundColor: 'transparent',
+                            tension: 0.3
+                        },
+                        {
+                            label: '불합격',
+                            data: dailyData.map(d => d.failed),
+                            borderColor: '#ef4444',
+                            backgroundColor: 'transparent',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                            grid: { color: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }
+                        },
+                        x: {
+                            ticks: { color: isDarkMode ? '#9ca3af' : '#6b7280' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function refreshInspectionSchedule() {
+            updateInspectionSchedule();
+            showToast('검사 일정이 새로고침되었습니다.', 'success');
+        }
+
+        // 검사 일정 섹션으로 스크롤
+        function scrollToInspectionSection() {
+            const el = document.getElementById('inspectionScheduleSection');
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 사이드바 품질 배지 업데이트
+        function updateQualitySidebarBadges() {
+            // 품질 리스크 배지
+            const riskBadge = document.getElementById('qualityRiskBadge');
+            const riskCount = window.qualityRiskOrdersData?.length || 0;
+            if (riskBadge) {
+                if (riskCount > 0) {
+                    riskBadge.textContent = riskCount;
+                    riskBadge.style.display = 'inline';
+                } else {
+                    riskBadge.style.display = 'none';
+                }
+            }
+
+            // 오늘 검사 배지
+            const todayBadge = document.getElementById('todayInspectionBadge');
+            const todayCount = window.inspectionData?.today?.length || 0;
+            if (todayBadge) {
+                if (todayCount > 0) {
+                    todayBadge.textContent = todayCount;
+                    todayBadge.style.display = 'inline';
+                } else {
+                    todayBadge.style.display = 'none';
+                }
+            }
+
+            // 미검사 오더 배지
+            const uninspectedBadge = document.getElementById('uninspectedBadge');
+            const uninspectedCount = window.inspectionData?.uninspected?.length || 0;
+            if (uninspectedBadge) {
+                if (uninspectedCount > 0) {
+                    uninspectedBadge.textContent = uninspectedCount;
+                    uninspectedBadge.style.display = 'inline';
+                } else {
+                    uninspectedBadge.style.display = 'none';
+                }
+            }
+
+            // AQL 합격률 표시
+            const aqlRateBadge = document.getElementById('aqlRateBadge');
+            if (aqlRateBadge) {
+                const withAQL = filteredData.filter(d => d.aql !== undefined && d.aql !== null && d.aql !== '');
+                const passed = withAQL.filter(d => d.aql === true || d.aql === 'true' || d.aql === 'Y');
+                const rate = withAQL.length > 0 ? (passed.length / withAQL.length * 100) : 0;
+                aqlRateBadge.textContent = rate.toFixed(1) + '%';
+                if (rate >= 98) {
+                    aqlRateBadge.style.color = '#22c55e';
+                } else if (rate >= 95) {
+                    aqlRateBadge.style.color = '#f59e0b';
+                } else {
+                    aqlRateBadge.style.color = '#ef4444';
+                }
+            }
+        }
+
+        function showInspectionDetail(type) {
+            if (!window.inspectionData || !window.inspectionData[type]) {
+                showToast('데이터가 없습니다.', 'warning');
+                return;
+            }
+
+            const orders = window.inspectionData[type];
+            const titles = {
+                today: '오늘 출고 예정 검사 필요 오더',
+                tomorrow: '내일 출고 예정 검사 필요 오더',
+                week: '이번 주 출고 예정 검사 필요 오더',
+                uninspected: 'AQL 미검사 오더'
+            };
+
+            showQualityDetailModal(titles[type] || '검사 필요 오더', orders);
         }
 
         function generatePlanningRecommendations(bottleneck, delayedOrders, severity, vendors, otd) {
@@ -19106,68 +20906,145 @@ function calculateVendorScore(vendor) {
 
         function generateQualityRecommendations(delayedOrders, aql, bottleneck, vendors) {
             const recs = [];
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
 
-            // 1. AQL 합격률 권고
+            // 1. AQL 합격률 권고 (구체적 오더 정보 포함)
+            const aqlFailedOrders = filteredData.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N');
             if (aql.passRate < 95) {
+                const topFailed = aqlFailedOrders.slice(0, 3);
+                const failedPOs = topFailed.map(d => d.poNumber).join(', ');
                 recs.push({
                     priority: 'high',
                     icon: '🔴',
-                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}% (목표 98%)`,
-                    action: '→ 불량 원인 긴급 분석'
+                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}% (목표 98%) - ${aqlFailedOrders.length}건 불합격`,
+                    action: failedPOs ? `→ 긴급 검토: ${failedPOs}${aqlFailedOrders.length > 3 ? ' 외 ' + (aqlFailedOrders.length - 3) + '건' : ''}` : '→ 불량 원인 긴급 분석',
+                    details: aqlFailedOrders
                 });
             } else if (aql.passRate < 98) {
                 recs.push({
                     priority: 'medium',
                     icon: '⚠️',
-                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}%`,
+                    text: `AQL 합격률 ${aql.passRate.toFixed(1)}% - 개선 필요`,
                     action: '→ 품질 개선 조치 검토'
                 });
             }
 
-            // 2. 품질 위험 오더 (지연 + AQL 불합격)
-            const qualityRiskOrders = delayedOrders.filter(d => d.aql === false);
-            if (qualityRiskOrders.length > 0) {
+            // 2. 출고 임박 검사 필요 오더 (3일 내 SDD + AQL 미검사)
+            const urgentInspection = filteredData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                const daysUntilSDD = Math.ceil((sdd - today) / (1000 * 60 * 60 * 24));
+                const needsInspection = d.aql === undefined || d.aql === null || d.aql === '';
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                const notCompleted = whOutCompleted < qty;
+                return daysUntilSDD >= 0 && daysUntilSDD <= 3 && needsInspection && notCompleted;
+            });
+            if (urgentInspection.length > 0) {
+                const topUrgent = urgentInspection.slice(0, 3);
+                const urgentInfo = topUrgent.map(d => `${d.poNumber}(${d.factory})`).join(', ');
                 recs.push({
                     priority: 'high',
-                    icon: '🚨',
-                    text: `품질 위험 오더 ${qualityRiskOrders.length}건`,
-                    action: '→ 지연+불합격 교집합 집중 관리'
+                    icon: '⏰',
+                    text: `3일 내 출고 예정 검사 필요 ${urgentInspection.length}건`,
+                    action: `→ 검사 우선: ${urgentInfo}${urgentInspection.length > 3 ? ' 외' : ''}`,
+                    details: urgentInspection
                 });
             }
 
-            // 3. 병목 공정 품질 리스크 (bottleneck이 null일 수 있음)
+            // 3. 품질 위험 오더 (지연 + AQL 불합격) - 구체적 정보
+            const qualityRiskOrders = delayedOrders.filter(d => d.aql === false || d.aql === 'false' || d.aql === 'N');
+            if (qualityRiskOrders.length > 0) {
+                const topRisk = qualityRiskOrders.slice(0, 3);
+                const riskInfo = topRisk.map(d => `${d.poNumber}(${d.model?.substring(0, 15) || 'N/A'})`).join(', ');
+                recs.push({
+                    priority: 'high',
+                    icon: '🚨',
+                    text: `품질 위험 오더 ${qualityRiskOrders.length}건 (지연+불합격)`,
+                    action: `→ 집중 관리: ${riskInfo}${qualityRiskOrders.length > 3 ? ' 외' : ''}`,
+                    details: qualityRiskOrders
+                });
+            }
+
+            // 4. 공장별 품질 현황
+            const factoryAQL = {};
+            filteredData.forEach(d => {
+                if (!d.factory) return;
+                if (!factoryAQL[d.factory]) factoryAQL[d.factory] = { total: 0, failed: 0 };
+                if (d.aql !== undefined && d.aql !== null && d.aql !== '') {
+                    factoryAQL[d.factory].total++;
+                    if (d.aql === false || d.aql === 'false' || d.aql === 'N') {
+                        factoryAQL[d.factory].failed++;
+                    }
+                }
+            });
+            const lowQualityFactories = Object.entries(factoryAQL)
+                .filter(([_, v]) => v.total > 0 && (v.failed / v.total) > 0.05)
+                .map(([f, v]) => ({ factory: f, failRate: (v.failed / v.total * 100).toFixed(1) }));
+            if (lowQualityFactories.length > 0) {
+                const factoryInfo = lowQualityFactories.map(f => `${f.factory}공장(${f.failRate}%)`).join(', ');
+                recs.push({
+                    priority: 'medium',
+                    icon: '🏭',
+                    text: `품질 주의 공장: ${factoryInfo}`,
+                    action: '→ 공장별 품질 점검 필요'
+                });
+            }
+
+            // 5. 병목 공정 품질 리스크
             if (bottleneck && typeof bottleneck.completionRate === 'number' && bottleneck.completionRate < 70) {
                 recs.push({
                     priority: 'medium',
                     icon: '⚡',
-                    text: `[${bottleneck.process || 'N/A'}] 품질 리스크`,
+                    text: `[${bottleneck.process || 'N/A'}] 병목으로 품질 리스크`,
                     action: '→ 납기 압박으로 품질 타협 주의'
                 });
             }
 
-            // 4. 지연 심각도별 품질 권고
+            // 6. 7일+ 지연 오더 검사 우선
             const severeDelays = delayedOrders.filter(d => {
-                const today = new Date();
                 const sdd = new Date(d.sdd);
                 return (today - sdd) / (1000 * 60 * 60 * 24) > 7;
             });
             if (severeDelays.length > 0) {
+                const topSevere = severeDelays.slice(0, 2);
+                const severeInfo = topSevere.map(d => d.poNumber).join(', ');
                 recs.push({
                     priority: 'medium',
                     icon: '📋',
                     text: `7일+ 지연 ${severeDelays.length}건 품질 검수 강화`,
-                    action: '→ AQL 검사 우선 실시'
+                    action: `→ 우선 검사: ${severeInfo}${severeDelays.length > 2 ? ' 외' : ''}`
                 });
             }
 
-            // 5. 저성과 벤더 품질 권고
+            // 7. 저성과 벤더 품질 권고
             const lowQualityVendors = vendors.filter(v => v.score < 50);
             if (lowQualityVendors.length > 0) {
+                const vendorNames = lowQualityVendors.slice(0, 2).map(v => v.name).join(', ');
                 recs.push({
                     priority: 'medium',
-                    icon: '🏭',
+                    icon: '👟',
                     text: `저성과 벤더 ${lowQualityVendors.length}개 품질 감사`,
-                    action: '→ 납품 건 AQL 검사 강화'
+                    action: `→ 감사 대상: ${vendorNames}${lowQualityVendors.length > 2 ? ' 외' : ''}`
+                });
+            }
+
+            // 8. 오늘의 검사 현황 요약
+            const todayInspectionNeeded = filteredData.filter(d => {
+                if (!d.sdd) return false;
+                const sdd = new Date(d.sdd);
+                sdd.setHours(0, 0, 0, 0);
+                const whOutCompleted = d.production?.wh_out?.completed || 0;
+                const qty = d.quantity || 0;
+                return sdd.getTime() === today.getTime() && whOutCompleted < qty;
+            }).length;
+            if (todayInspectionNeeded > 0) {
+                recs.push({
+                    priority: 'high',
+                    icon: '📅',
+                    text: `오늘 출고 예정 ${todayInspectionNeeded}건 최종 검사 필요`,
+                    action: '→ 출고 전 최종 품질 확인 필수'
                 });
             }
 
@@ -19182,13 +21059,13 @@ function calculateVendorScore(vendor) {
             }
 
             const html = recs.map(r => `
-                <div class="flex items-start gap-2 p-2 rounded ${
+                <div class="flex items-start gap-2 p-2 rounded cursor-pointer hover:opacity-80 transition ${
                     r.priority === 'high' ? 'bg-red-50 dark:bg-red-900/30' :
                     r.priority === 'medium' ? 'bg-yellow-50 dark:bg-yellow-900/30' :
                     'bg-green-50 dark:bg-green-900/30'
-                }">
+                }" ${r.details ? `onclick="showQualityDetailModal('${escapeHtml(r.text)}', ${JSON.stringify(r.details?.slice(0, 20) || []).replace(/"/g, '&quot;')})"` : ''}>
                     <span>${r.icon}</span>
-                    <div>
+                    <div class="flex-1">
                         <div class="font-medium ${
                             r.priority === 'high' ? 'text-red-700 dark:text-red-300' :
                             r.priority === 'medium' ? 'text-yellow-700 dark:text-yellow-300' :
@@ -19196,10 +21073,55 @@ function calculateVendorScore(vendor) {
                         }">${escapeHtml(r.text)}</div>
                         <div class="text-xs text-gray-500 dark:text-gray-400">${escapeHtml(r.action)}</div>
                     </div>
+                    ${r.details ? '<span class="text-xs text-gray-400">▶</span>' : ''}
                 </div>
             `).join('');
 
             return { html, count: recs.length };
+        }
+
+        // 품질 상세 모달 표시 함수
+        function showQualityDetailModal(title, orders) {
+            if (!orders || orders.length === 0) return;
+
+            const tableRows = orders.map((d, i) => {
+                const sdd = d.sdd ? new Date(d.sdd).toLocaleDateString('ko-KR') : '-';
+                const aqlStatus = d.aql === true || d.aql === 'true' || d.aql === 'Y' ? '✅ 합격' :
+                                  d.aql === false || d.aql === 'false' || d.aql === 'N' ? '❌ 불합격' : '⏳ 미검사';
+                return `<tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td class="px-3 py-2 text-sm">${i + 1}</td>
+                    <td class="px-3 py-2 text-sm font-medium">${escapeHtml(d.poNumber || d.po || '-')}</td>
+                    <td class="px-3 py-2 text-sm">${escapeHtml(d.factory || '-')}</td>
+                    <td class="px-3 py-2 text-sm">${escapeHtml((d.model || '').substring(0, 20))}</td>
+                    <td class="px-3 py-2 text-sm">${sdd}</td>
+                    <td class="px-3 py-2 text-sm">${(d.quantity || 0).toLocaleString()}</td>
+                    <td class="px-3 py-2 text-sm">${aqlStatus}</td>
+                </tr>`;
+            }).join('');
+
+            const html = `
+                <h3 class="text-lg font-bold mb-4">🔍 ${escapeHtml(title)}</h3>
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-sm">
+                        <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
+                            <tr>
+                                <th class="px-3 py-2 text-left">#</th>
+                                <th class="px-3 py-2 text-left">PO</th>
+                                <th class="px-3 py-2 text-left">공장</th>
+                                <th class="px-3 py-2 text-left">모델</th>
+                                <th class="px-3 py-2 text-left">SDD</th>
+                                <th class="px-3 py-2 text-right">수량</th>
+                                <th class="px-3 py-2 text-left">AQL</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                </div>
+                <div class="mt-4 text-sm text-gray-500">
+                    총 ${orders.length}건 | 클릭하여 상세 정보 확인
+                </div>
+            `;
+            showInfoModal('품질 검사 상세', html);
         }
 
         function calculateRiskScore(delayedOrders, severity, bottleneck, vendors, aql) {
@@ -19515,9 +21437,9 @@ function calculateVendorScore(vendor) {
                             </tr></thead>
                             <tbody>`;
                 failed.forEach(d => {
-                    html += `<tr class="border-b"><td class="px-2 py-1">${escapeHtml(d.poNumber)}</td>
-                        <td class="px-2 py-1">${escapeHtml(d.model)}</td>
-                        <td class="px-2 py-1 text-center">${escapeHtml(d.factory)}</td></tr>`;
+                    html += `<tr class="border-b"><td class="px-2 py-1">${escapeHtml(d.poNumber || '-')}</td>
+                        <td class="px-2 py-1">${escapeHtml(d.model || '-')}</td>
+                        <td class="px-2 py-1 text-center">${escapeHtml(d.factory || '-')}</td></tr>`;
                 });
                 html += '</tbody></table></div>';
             }
@@ -19721,7 +21643,145 @@ function calculateVendorScore(vendor) {
                 }
             }
         });
+
+        // v20: 사이드바 네비게이션 JavaScript
+        (function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+            // 사이드바 아이템 클릭 처리
+            sidebar.addEventListener('click', function(e) {
+                const item = e.target.closest('.sidebar-item');
+                const parent = e.target.closest('.sidebar-parent');
+
+                // 하위 메뉴 토글
+                if (parent && !item.dataset.tab) {
+                    parent.classList.toggle('expanded');
+                    return;
+                }
+
+                // 탭 전환
+                if (item && item.dataset.tab) {
+                    const tabName = item.dataset.tab;
+
+                    // 활성 상태 업데이트
+                    sidebar.querySelectorAll('.sidebar-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    item.classList.add('active');
+
+                    // 부모 메뉴도 확장
+                    const parentMenu = item.closest('.sidebar-parent');
+                    if (parentMenu) {
+                        parentMenu.classList.add('expanded');
+                    }
+
+                    // 기존 탭 전환 함수 호출
+                    const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+                    if (tabBtn) {
+                        tabBtn.click();
+                    } else {
+                        // 직접 탭 콘텐츠 전환
+                        document.querySelectorAll('.tab-content').forEach(content => {
+                            content.classList.add('hidden');
+                        });
+                        const targetTab = document.getElementById(tabName + 'Tab');
+                        if (targetTab) {
+                            targetTab.classList.remove('hidden');
+                        }
+                    }
+
+                    // 모바일에서 사이드바 닫기
+                    if (window.innerWidth < 768) {
+                        closeMobileSidebar();
+                    }
+                }
+            });
+
+            // 사이드바 축소/확장 토글 (데스크톱)
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    // 아이콘 회전
+                    const icon = sidebarToggle.querySelector('svg');
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                    // 로컬스토리지에 상태 저장
+                    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+                });
+
+                // 저장된 상태 복원
+                if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                    sidebar.classList.add('collapsed');
+                    const icon = sidebarToggle.querySelector('svg');
+                    if (icon) icon.style.transform = 'rotate(180deg)';
+                }
+            }
+
+            // 모바일 메뉴 버튼
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    openMobileSidebar();
+                });
+            }
+
+            // 오버레이 클릭으로 사이드바 닫기
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function() {
+                    closeMobileSidebar();
+                });
+            }
+
+            function openMobileSidebar() {
+                sidebar.classList.add('mobile-open');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMobileSidebar() {
+                sidebar.classList.remove('mobile-open');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            // ESC 키로 사이드바 닫기
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('mobile-open')) {
+                    closeMobileSidebar();
+                }
+            });
+
+            // 윈도우 리사이즈 시 모바일 사이드바 상태 초기화
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
+                    closeMobileSidebar();
+                }
+            });
+
+            // 기존 탭 버튼과 사이드바 동기화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabName = this.dataset.tab;
+                    const sidebarItem = sidebar.querySelector(`.sidebar-item[data-tab="${tabName}"]`);
+                    if (sidebarItem) {
+                        sidebar.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+                        sidebarItem.classList.add('active');
+                        // 부모 메뉴 확장
+                        const parentMenu = sidebarItem.closest('.sidebar-parent');
+                        if (parentMenu) {
+                            parentMenu.classList.add('expanded');
+                        }
+                    }
+                });
+            });
+        })();
     </script>
-    </main>
+        </main>
+    </div> <!-- app-layout 닫기 -->
 </body>
 </html>

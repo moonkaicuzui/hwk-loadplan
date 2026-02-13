@@ -13,6 +13,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useOrdersContext } from './OrdersContext';
+import { useDashboard } from './DashboardContext';
 import { syncToProductionCache } from '../services/googleDrive';
 import { parseFile } from '../services/dataParser';
 import { CACHE_CONFIG, getPollingInterval, calculateBackoff } from '../config/caching';
@@ -58,6 +59,7 @@ const GoogleDriveContext = createContext(null);
  */
 export function GoogleDriveProvider({ children }) {
   const { setOrders } = useOrdersContext();
+  const { setOrders: setDashboardOrders } = useDashboard();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null); // User-visible error message
@@ -306,6 +308,9 @@ export function GoogleDriveProvider({ children }) {
         // Update orders context with merged orders (unified data management)
         setOrders(allOrders, 'googleDrive');
 
+        // Bridge to DashboardContext so useOrders hook can access data
+        setDashboardOrders(allOrders);
+
         // Cache to Firestore (optional - may fail due to permissions)
         try {
           await syncToProductionCache(null, { orders: allOrders }, 'ALL_FACTORIES');
@@ -343,7 +348,7 @@ export function GoogleDriveProvider({ children }) {
     } finally {
       setIsLoading(false);
     }
-  }, [listFiles, downloadFile, parseExcelFile, setOrders]);
+  }, [listFiles, downloadFile, parseExcelFile, setOrders, setDashboardOrders]);
 
   /**
    * Start watching for file changes

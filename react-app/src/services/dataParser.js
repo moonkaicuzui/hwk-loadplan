@@ -436,6 +436,12 @@ class DataParser {
       }
     }
 
+    // Field aliases for backward compatibility
+    // Parser maps 'Art' → 'style', but many components use 'article'
+    if (order.style && !order.article) {
+      order.article = order.style;
+    }
+
     // Calculate derived fields
     order.status = this._determineStatus(order);
     order.yearMonth = getYearMonth(order.sddDate || order.crdDate);
@@ -534,9 +540,9 @@ class DataParser {
       return parseInt(numMatch[1], 10);
     }
 
-    // Check for date format (MM/DD or YYYY.MM.DD) - these are plan dates, not completed qty
+    // Check for date format (MM/DD, YYYY.MM.DD, YYYY-MM-DD) - these are plan dates, not completed qty
     if (/^\s*\d{1,2}\/\d{1,2}\s*$/.test(strVal) ||
-        /^\d{4}\.\d{2}\.\d{2}$/.test(strVal)) {
+        /^\d{4}[\.\-]\d{2}[\.\-]\d{2}/.test(strVal)) {
       return 0; // Date = not yet completed
     }
 

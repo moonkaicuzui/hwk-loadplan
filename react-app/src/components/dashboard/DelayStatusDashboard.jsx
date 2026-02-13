@@ -116,9 +116,9 @@ function getDelayStatus(order, thresholds = DEFAULT_THRESHOLDS) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const crd = parseDate(order['CRD']);
-  const qty = parseNumber(order['Q.ty'] || order['Qty']);
-  const whOutBal = parseNumber(order['W.H OUT BAL']);
+  const crd = parseDate(order.crd || order['CRD']);
+  const qty = parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']);
+  const whOutBal = parseNumber(order.WH_OUT || order['W.H OUT BAL']);
 
   // If no CRD or no quantity, can't determine status
   if (!crd || qty === 0) {
@@ -206,7 +206,7 @@ export function DelayStatusDashboard({
       if (o.delayInfo.status) {
         counts[o.delayInfo.status.key]++;
 
-        const qty = parseNumber(o['Q.ty'] || o['Qty']);
+        const qty = parseNumber(o.quantity || o.ttl_qty || o['Q.ty'] || o['Qty']);
         if (o.delayInfo.status.key === 'OVERDUE') {
           totalOverdueQty += qty;
         } else if (o.delayInfo.status.key === 'AT_RISK') {
@@ -418,10 +418,10 @@ export function DelayStatusDashboard({
  * Memoized to prevent unnecessary re-renders in the list
  */
 const DelayStatusCard = memo(function DelayStatusCard({ order, delayInfo }) {
-  const po = order['Sales Order and Item'] || order['PO#'] || '-';
-  const style = order['Art'] || order['Style'] || '-';
-  const crd = order['CRD'] || '-';
-  const qty = parseNumber(order['Q.ty'] || order['Qty']);
+  const po = order.poNumber || order['Sales Order and Item'] || order['PO#'] || order['PO'] || '-';
+  const style = order.article || order.model || order['Art'] || order['Style'] || '-';
+  const crd = order.crd || order['CRD'] || '-';
+  const qty = parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']);
   const status = delayInfo.status;
 
   return (

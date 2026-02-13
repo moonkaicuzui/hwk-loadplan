@@ -66,6 +66,11 @@ class KeyboardShortcuts {
       '인쇄'
     );
 
+    // 품질 부서장 전용 단축키
+    this.register('Alt+Q', () => this.showQualityRisk(), '품질 리스크');
+    this.register('Alt+I', () => this.showInspectionSchedule(), '검사 일정');
+    this.register('Alt+A', () => this.showAQLDetail(), 'AQL 상세');
+
     // 특수 키
     this.register('Escape', () => this.closeModal(), '모달 닫기');
     this.register('/', () => this.focusSearch(), '검색 포커스');
@@ -342,6 +347,42 @@ class KeyboardShortcuts {
    */
   printPage() {
     window.print();
+  }
+
+  /**
+   * 품질 리스크 오더 표시 (품질 부서장 전용)
+   */
+  showQualityRisk() {
+    if (typeof showQualityRiskOrders === 'function') {
+      showQualityRiskOrders();
+      this.showToast('품질 리스크 오더 열림');
+    }
+  }
+
+  /**
+   * 검사 일정 섹션으로 이동 (품질 부서장 전용)
+   */
+  showInspectionSchedule() {
+    if (typeof scrollToInspectionSection === 'function') {
+      scrollToInspectionSection();
+      this.showToast('검사 일정 섹션으로 이동');
+    } else {
+      const el = document.getElementById('inspectionScheduleSection');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        this.showToast('검사 일정 섹션으로 이동');
+      }
+    }
+  }
+
+  /**
+   * AQL 상세 표시 (품질 부서장 전용)
+   */
+  showAQLDetail() {
+    if (typeof showAQLDetail === 'function') {
+      showAQLDetail();
+      this.showToast('AQL 상세 열림');
+    }
   }
 
   /**

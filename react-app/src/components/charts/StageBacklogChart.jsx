@@ -11,14 +11,14 @@ import React, { useMemo, memo } from 'react';
  * Stage configuration with colors and Korean labels
  */
 const STAGE_CONFIG = [
-  { key: 'S_CUT', label: '재단', color: '#3B82F6', fields: ['S.Cut Bal', '__EMPTY_40', '__EMPTY_38', '__EMPTY_53', '__EMPTY_52'] },
-  { key: 'PRE_SEW', label: '선봉', color: '#8B5CF6', fields: ['Pre-Sew Bal', 'Pre-Sew Bal.', '__EMPTY_41', '__EMPTY_39', '__EMPTY_54', '__EMPTY_53'] },
-  { key: 'SEW_INPUT', label: '봉제투입', color: '#EC4899', fields: ['Sew input Bal', '__EMPTY_42', '__EMPTY_40', '__EMPTY_55', '__EMPTY_54'] },
-  { key: 'SEW_BAL', label: '봉제', color: '#F59E0B', fields: ['Sew Bal', 'PRODUCTION STATUS', '__EMPTY_43', '__EMPTY_42', '__EMPTY_56', '__EMPTY_55'] },
-  { key: 'S_FIT', label: '핏팅', color: '#10B981', fields: ['S/Fit Bal', '__EMPTY_50', '__EMPTY_49', '__EMPTY_64', '__EMPTY_62'] },
-  { key: 'ASS_BAL', label: '조립', color: '#06B6D4', fields: ['Ass Bal', '__EMPTY_51', '__EMPTY_50', '__EMPTY_65', '__EMPTY_63'] },
-  { key: 'WH_IN', label: '입고', color: '#6366F1', fields: ['W.H IN BAL', '__EMPTY_54', '__EMPTY_53', '__EMPTY_68', '__EMPTY_66'] },
-  { key: 'WH_OUT', label: '출고', color: '#EF4444', fields: ['W.H OUT BAL', '__EMPTY_55', '__EMPTY_54', '__EMPTY_69', '__EMPTY_67'] }
+  { key: 'S_CUT', label: '재단', color: '#3B82F6', fields: ['S_CUT', 'S.Cut Bal', '__EMPTY_40', '__EMPTY_38', '__EMPTY_53', '__EMPTY_52'] },
+  { key: 'PRE_SEW', label: '선봉', color: '#8B5CF6', fields: ['PRE_SEW', 'Pre-Sew Bal', 'Pre-Sew Bal.', '__EMPTY_41', '__EMPTY_39', '__EMPTY_54', '__EMPTY_53'] },
+  { key: 'SEW_INPUT', label: '재봉투입', color: '#EC4899', fields: ['SEW_INPUT', 'Sew input Bal', '__EMPTY_42', '__EMPTY_40', '__EMPTY_55', '__EMPTY_54'] },
+  { key: 'SEW_BAL', label: '재봉', color: '#F59E0B', fields: ['SEW_BAL', 'Sew Bal', 'PRODUCTION STATUS', '__EMPTY_43', '__EMPTY_42', '__EMPTY_56', '__EMPTY_55'] },
+  { key: 'S_FIT', label: '핏팅', color: '#10B981', fields: ['S_FIT', 'S/Fit Bal', '__EMPTY_50', '__EMPTY_49', '__EMPTY_64', '__EMPTY_62'] },
+  { key: 'ASS_BAL', label: '제화', color: '#06B6D4', fields: ['ASS_BAL', 'Ass Bal', '__EMPTY_51', '__EMPTY_50', '__EMPTY_65', '__EMPTY_63'] },
+  { key: 'WH_IN', label: '제품창고 입고', color: '#6366F1', fields: ['WH_IN', 'W.H IN BAL', '__EMPTY_54', '__EMPTY_53', '__EMPTY_68', '__EMPTY_66'] },
+  { key: 'WH_OUT', label: '제품창고 출고', color: '#EF4444', fields: ['WH_OUT', 'W.H OUT BAL', '__EMPTY_55', '__EMPTY_54', '__EMPTY_69', '__EMPTY_67'] }
 ];
 
 /**

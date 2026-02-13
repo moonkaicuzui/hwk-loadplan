@@ -127,10 +127,10 @@ function getDaysUntilCRD(crdDate) {
  * Calculate completion rate for an order
  */
 function getCompletionRate(order) {
-  const totalQty = parseNumber(order['Q.ty'] || order['Qty']);
+  const totalQty = parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']);
   if (totalQty === 0) return 100;
 
-  const whOutBal = parseNumber(order['W.H OUT BAL'] || order['__EMPTY_55'] || order['__EMPTY_54']);
+  const whOutBal = parseNumber(order.WH_OUT || order['W.H OUT BAL'] || order['__EMPTY_55'] || order['__EMPTY_54']);
   const completed = totalQty - whOutBal;
 
   return Math.min(100, Math.max(0, (completed / totalQty) * 100));
@@ -140,7 +140,7 @@ function getCompletionRate(order) {
  * Determine urgency level for an order
  */
 function calculateUrgency(order, thresholds = DEFAULT_THRESHOLDS) {
-  const crdValue = order['CRD'] || order['Customer Required Date'];
+  const crdValue = order.crd || order['CRD'] || order['Customer Required Date'];
   const crdDate = parseDate(crdValue);
   const daysUntilCRD = getDaysUntilCRD(crdDate);
   const completionRate = getCompletionRate(order);
@@ -151,7 +151,7 @@ function calculateUrgency(order, thresholds = DEFAULT_THRESHOLDS) {
   }
 
   // Check Code04 approval (approved orders might have extended deadline)
-  const code04 = order['Code 04'] || order['Code04'] || '';
+  const code04 = order.code04 || order['Code 04'] || order['Code04'] || '';
   const isApproved = String(code04).toLowerCase() === 'yes';
 
   // If no CRD, can't determine urgency
@@ -377,10 +377,10 @@ const UrgentOrderCard = memo(function UrgentOrderCard({ order }) {
   const { urgency } = order;
   const level = urgency.level;
 
-  const po = order['Sales Order and Item'] || order['PO#'] || order['PO'] || '-';
-  const style = order['Art'] || order['Style'] || '-';
-  const qty = parseNumber(order['Q.ty'] || order['Qty']);
-  const dest = order['Dest'] || order['Destination'] || '-';
+  const po = order.poNumber || order['Sales Order and Item'] || order['PO#'] || order['PO'] || '-';
+  const style = order.article || order.model || order['Art'] || order['Style'] || '-';
+  const qty = parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']);
+  const dest = order.destination || order['Dest'] || order['Destination'] || '-';
 
   // Format days until CRD
   let crdText;

@@ -58,7 +58,7 @@ const GLOSSARY_TERMS = {
     abbr: 'WH_IN',
     full: { ko: 'Warehouse In', en: 'Warehouse In', vi: 'Nhập kho' },
     desc: {
-      ko: '창고 입고. 완제품이 창고에 입고된 수량입니다.',
+      ko: '제품창고 입고. 완제품이 제품창고에 입고된 수량입니다.',
       en: 'Quantity of finished goods received into warehouse.',
       vi: 'Số lượng thành phẩm nhập vào kho.'
     }
@@ -67,7 +67,7 @@ const GLOSSARY_TERMS = {
     abbr: 'WH_OUT',
     full: { ko: 'Warehouse Out', en: 'Warehouse Out', vi: 'Xuất kho' },
     desc: {
-      ko: '창고 출고. 고객에게 출하된 수량입니다.',
+      ko: '제품창고 출고. 고객에게 출하된 수량입니다.',
       en: 'Quantity shipped to customer from warehouse.',
       vi: 'Số lượng đã xuất cho khách hàng từ kho.'
     }

@@ -63,32 +63,32 @@ export const PROCESS_STAGES = [
   {
     id: 'ass_bal',
     code: 'ASS_BAL',
-    name: '조립',
+    name: '제화',
     nameEn: 'Assembly',
     nameVi: 'Hoàn thiện',
     order: 6,
     color: '#14B8A6', // Teal
-    description: '조립 완료'
+    description: '제화 완료'
   },
   {
     id: 'wh_in',
     code: 'WH_IN',
-    name: '입고',
+    name: '제품창고 입고',
     nameEn: 'Warehouse In',
     nameVi: 'Nhập kho',
     order: 7,
     color: '#06B6D4', // Cyan
-    description: '창고 입고'
+    description: '제품창고 입고'
   },
   {
     id: 'wh_out',
     code: 'WH_OUT',
-    name: '출고',
+    name: '제품창고 출고',
     nameEn: 'Warehouse Out',
     nameVi: 'Xuất kho',
     order: 8,
     color: '#22C55E', // Green
-    description: '창고 출고 (선적)'
+    description: '제품창고 출고 (선적)'
   }
 ];
 

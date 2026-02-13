@@ -137,21 +137,21 @@ const EXPORT_COLUMNS = {
   },
   ass_bal: {
     header: 'ASS_BAL',
-    headerKo: '조립',
+    headerKo: '제화',
     width: 10,
     type: 'number',
     getValue: (order) => getProductionData(order, 'ass_bal', 'completed', 0)
   },
   wh_in: {
     header: 'WH_IN',
-    headerKo: '입고',
+    headerKo: '제품창고 입고',
     width: 10,
     type: 'number',
     getValue: (order) => getProductionData(order, 'wh_in', 'completed', 0)
   },
   wh_out: {
     header: 'WH_OUT',
-    headerKo: '출고',
+    headerKo: '제품창고 출고',
     width: 10,
     type: 'number',
     getValue: (order) => getProductionData(order, 'wh_out', 'completed', 0)

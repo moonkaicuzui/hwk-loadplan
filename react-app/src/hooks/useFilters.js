@@ -228,10 +228,10 @@ export function useFilters(initialFilters = {}) {
         // Check each field individually for early termination
         if (order.model?.toLowerCase().includes(searchLower)) return true;
         if (order.destination?.toLowerCase().includes(searchLower)) return true;
-        if (order.outsoleVendor?.toLowerCase().includes(searchLower)) return true;
+        if (order.vendor?.toLowerCase().includes(searchLower)) return true;
         if (order.poNumber?.toLowerCase().includes(searchLower)) return true;
         if (order.factory?.toLowerCase().includes(searchLower)) return true;
-        if (order.article?.toLowerCase().includes(searchLower)) return true;
+        if (order.style?.toLowerCase().includes(searchLower)) return true;
         if (order.buyer?.toLowerCase().includes(searchLower)) return true;
         return false;
       });
@@ -262,7 +262,7 @@ export function useFilters(initialFilters = {}) {
     // Vendor filter
     if (filters.vendor) {
       const vendor = filters.vendor;
-      compiled.push((order) => order.outsoleVendor === vendor);
+      compiled.push((order) => order.vendor === vendor);
     }
 
     // Factory filter
@@ -322,6 +322,27 @@ export function useFilters(initialFilters = {}) {
             today.setHours(0, 0, 0, 0);
             const diff = Math.ceil((crdDate - today) / (1000 * 60 * 60 * 24));
             return diff > 3 && diff <= 7 && !isShipped(order);
+          }
+          // SDD/CRD date-based filters
+          case 'sdd_week':
+            return isWithinWeek(order.sddValue);
+          case 'sdd_month':
+            return isCurrentMonth(order.sddValue);
+          case 'crd_within_7': {
+            const crd7 = order.crd ? new Date(order.crd) : null;
+            if (!crd7) return false;
+            const today7 = new Date();
+            today7.setHours(0, 0, 0, 0);
+            const diff7 = Math.ceil((crd7 - today7) / (1000 * 60 * 60 * 24));
+            return diff7 >= 0 && diff7 <= 7 && !isShipped(order);
+          }
+          case 'crd_within_3': {
+            const crd3 = order.crd ? new Date(order.crd) : null;
+            if (!crd3) return false;
+            const today3 = new Date();
+            today3.setHours(0, 0, 0, 0);
+            const diff3 = Math.ceil((crd3 - today3) / (1000 * 60 * 60 * 24));
+            return diff3 >= 0 && diff3 <= 3 && !isShipped(order);
           }
           // Delay status filters
           case 'status_overdue':

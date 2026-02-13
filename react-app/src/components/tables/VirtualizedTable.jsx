@@ -22,8 +22,8 @@ const COLUMN_DESCRIPTIONS = {
   'crdDate': 'Customer Required Date - 고객 요청 납기일. 이 날짜까지 고객에게 도착해야 함',
   'sdd': 'Scheduled Delivery Date - 공장 출고 예정일',
   'sddValue': 'Scheduled Delivery Date - 공장 출고 예정일',
-  'wh_in': 'Warehouse In - 창고 입고 완료 수량',
-  'wh_out': 'Warehouse Out - 창고 출고 완료 수량'
+  'wh_in': 'Warehouse In - 제품창고 입고 완료 수량',
+  'wh_out': 'Warehouse Out - 제품창고 출고 완료 수량'
 };
 
 /**

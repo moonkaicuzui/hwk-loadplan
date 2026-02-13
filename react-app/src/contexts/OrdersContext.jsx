@@ -224,10 +224,10 @@ export function OrdersProvider({ children }) {
       compiled.push((order) => {
         if (order.model?.toLowerCase().includes(searchLower)) return true;
         if (order.destination?.toLowerCase().includes(searchLower)) return true;
-        if (order.outsoleVendor?.toLowerCase().includes(searchLower)) return true;
+        if (order.vendor?.toLowerCase().includes(searchLower)) return true;
         if (order.poNumber?.toLowerCase().includes(searchLower)) return true;
         if (order.factory?.toLowerCase().includes(searchLower)) return true;
-        if (order.article?.toLowerCase().includes(searchLower)) return true;
+        if (order.style?.toLowerCase().includes(searchLower)) return true;
         if (order.buyer?.toLowerCase().includes(searchLower)) return true;
         return false;
       });
@@ -258,7 +258,7 @@ export function OrdersProvider({ children }) {
     // Vendor filter
     if (filters.vendor) {
       const vendor = filters.vendor;
-      compiled.push((order) => order.outsoleVendor === vendor);
+      compiled.push((order) => order.vendor === vendor);
     }
 
     // Factory filter

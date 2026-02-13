@@ -50,7 +50,7 @@ export default function ModelAnalysis() {
     const groupedData = {};
 
     orders.forEach(order => {
-      const model = order.article || 'Unknown';
+      const model = order.model || order.article || 'Unknown';
       if (!groupedData[model]) {
         groupedData[model] = {
           model,

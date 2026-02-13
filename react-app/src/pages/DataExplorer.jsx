@@ -48,7 +48,7 @@ export default function DataExplorer() {
   });
 
   // Filter management
-  const { filters, setFilter, clearFilters, activeFilterCount, applyFilters } = useFilters();
+  const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } = useFilters();
 
   // Apply filters to orders
   const filteredOrders = useMemo(() => {
@@ -96,7 +96,7 @@ export default function DataExplorer() {
       align: 'left'
     },
     {
-      key: 'article',
+      key: 'style',
       label: t('table.style', '스타일'),
       sortable: true,
       align: 'left'
@@ -306,7 +306,7 @@ export default function DataExplorer() {
         <FilterPanel
           filters={filters}
           onFilterChange={setFilter}
-          onClearFilters={clearFilters}
+          onReset={resetFilters}
           orders={orders}
         />
       )}
@@ -346,7 +346,7 @@ export default function DataExplorer() {
                 </div>
                 <div>
                   <p className="text-sm text-secondary">{t('table.style', '스타일')}</p>
-                  <p className="font-medium">{selectedOrder.article}</p>
+                  <p className="font-medium">{selectedOrder.style}</p>
                 </div>
                 <div>
                   <p className="text-sm text-secondary">{t('table.destination', '행선지')}</p>

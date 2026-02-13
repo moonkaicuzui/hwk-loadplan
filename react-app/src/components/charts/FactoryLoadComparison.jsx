@@ -21,6 +21,8 @@ const FACTORY_CONFIG = {
  * Stage fields for backlog calculation
  */
 const BACKLOG_FIELDS = [
+  'S_CUT', 'PRE_SEW', 'SEW_INPUT', 'SEW_BAL',
+  'S_FIT', 'ASS_BAL', 'WH_IN', 'WH_OUT',
   'S.Cut Bal', 'Pre-Sew Bal', 'Sew input Bal', 'Sew Bal',
   'S/Fit Bal', 'Ass Bal', 'W.H IN BAL', 'W.H OUT BAL'
 ];
@@ -98,7 +100,7 @@ function calculateFactoryStats(orders, dynamicColumnMap = {}) {
     const factory = extractFactory(order);
     if (!factory || !stats[factory]) return;
 
-    const qty = parseNumber(order['Q.ty'] || order['Qty']);
+    const qty = parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']);
     const backlog = calculateBacklog(order, dynamicColumnMap);
 
     stats[factory].orderCount += 1;

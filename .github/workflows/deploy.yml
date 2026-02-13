@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install google-auth google-auth-oauthlib google-api-python-client openpyxl
+          pip install google-auth google-auth-oauthlib google-api-python-client openpyxl pandas
 
       - name: Download Excel files from Google Drive
         env:
@@ -64,6 +64,13 @@ jobs:
           echo "## 📊 빌드 결과" >> $GITHUB_STEP_SUMMARY
           DATA_COUNT=$(grep -o '"order_no"' rachgia_dashboard_v19.html | wc -l)
           echo "- 레코드: **${DATA_COUNT}개**" >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate consolidated Excel & upload to Drive
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        run: |
+          python scripts/generate_consolidated.py
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

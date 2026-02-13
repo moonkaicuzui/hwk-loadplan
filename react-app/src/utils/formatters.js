@@ -237,6 +237,10 @@ export function formatDisplayDate(date, format = 'short', locale = 'ko-KR') {
     const d = date instanceof Date ? date : new Date(date);
     if (isNaN(d.getTime())) return '-';
 
+    // Reject unreasonable years for production data (consistent with dateUtils.parseDate)
+    const year = d.getFullYear();
+    if (year < 2020 || year > 2100) return '-';
+
     switch (format) {
       case 'iso':
         return d.toISOString().split('T')[0];

@@ -35,16 +35,18 @@ const VALIDATION_RULES = {
   required: {
     fields: ['Sales Order and Item', 'Q.ty', 'CRD'],
     alternates: {
-      'Sales Order and Item': ['PO#', 'PO'],
-      'Q.ty': ['Qty', 'Quantity'],
-      'CRD': ['Customer Required Date']
+      'Sales Order and Item': ['PO#', 'PO', 'poNumber'],
+      'Q.ty': ['Qty', 'Quantity', 'quantity', 'ttl_qty'],
+      'CRD': ['Customer Required Date', 'crd']
     }
   },
 
   // Numeric fields - WARNING if non-numeric
   numeric: {
     fields: [
-      'Q.ty', 'Qty',
+      'Q.ty', 'Qty', 'quantity', 'ttl_qty',
+      'S_CUT', 'PRE_SEW', 'SEW_INPUT', 'SEW_BAL',
+      'S_FIT', 'ASS_BAL', 'WH_IN', 'WH_OUT',
       'S.Cut Bal', 'Pre-Sew Bal', 'Sew input Bal', 'Sew Bal',
       'S/Fit Bal', 'Ass Bal', 'W.H IN BAL', 'W.H OUT BAL'
     ],
@@ -54,7 +56,7 @@ const VALIDATION_RULES = {
 
   // Date fields - WARNING if invalid format
   dateFormat: {
-    fields: ['CRD', 'SDD'],
+    fields: ['CRD', 'SDD', 'crd', 'sdd'],
     invalidPatterns: [/^1\/0$/, /^0$/, /^-$/, /^#[A-Z]+!?$/i, /^N\/A$/i]
   },
 
@@ -62,14 +64,14 @@ const VALIDATION_RULES = {
   // Expected: S.Cut >= Pre-Sew >= Sew input >= Sew >= S/Fit >= Ass >= WH_IN >= WH_OUT
   processSequence: {
     stages: [
-      { field: 'S.Cut Bal', name: 'S_CUT' },
-      { field: 'Pre-Sew Bal', name: 'PRE_SEW' },
-      { field: 'Sew input Bal', name: 'SEW_INPUT' },
-      { field: 'Sew Bal', name: 'SEW_BAL' },
-      { field: 'S/Fit Bal', name: 'S_FIT' },
-      { field: 'Ass Bal', name: 'ASS_BAL' },
-      { field: 'W.H IN BAL', name: 'WH_IN' },
-      { field: 'W.H OUT BAL', name: 'WH_OUT' }
+      { field: 'S.Cut Bal', name: 'S_CUT', normalized: 'S_CUT' },
+      { field: 'Pre-Sew Bal', name: 'PRE_SEW', normalized: 'PRE_SEW' },
+      { field: 'Sew input Bal', name: 'SEW_INPUT', normalized: 'SEW_INPUT' },
+      { field: 'Sew Bal', name: 'SEW_BAL', normalized: 'SEW_BAL' },
+      { field: 'S/Fit Bal', name: 'S_FIT', normalized: 'S_FIT' },
+      { field: 'Ass Bal', name: 'ASS_BAL', normalized: 'ASS_BAL' },
+      { field: 'W.H IN BAL', name: 'WH_IN', normalized: 'WH_IN' },
+      { field: 'W.H OUT BAL', name: 'WH_OUT', normalized: 'WH_OUT' }
     ]
   },
 
@@ -281,8 +283,13 @@ class DataValidator {
 
     // Get values for each stage
     const stageValues = stages.map(stage => {
-      // Try direct field name first
-      let value = order[stage.field];
+      // Try normalized field name first
+      let value = order[stage.normalized];
+
+      // Try raw Excel field name
+      if (value === undefined) {
+        value = order[stage.field];
+      }
 
       // Try dynamic column mapping
       if (value === undefined) {
@@ -325,11 +332,13 @@ class DataValidator {
 
   _validateLogical(order, rowNumber, dynamicColumnMap) {
     const errors = [];
-    const qty = this._parseNumber(order['Q.ty'] || order['Qty']) || 0;
+    const qty = this._parseNumber(order.quantity || order.ttl_qty || order['Q.ty'] || order['Qty']) || 0;
 
     // Check balance not exceeding quantity
     if (this.rules.logical.balanceNotExceedQty && qty > 0) {
       const balanceFields = [
+        'S_CUT', 'PRE_SEW', 'SEW_INPUT', 'SEW_BAL',
+        'S_FIT', 'ASS_BAL', 'WH_IN', 'WH_OUT',
         'S.Cut Bal', 'Pre-Sew Bal', 'Sew input Bal', 'Sew Bal',
         'S/Fit Bal', 'Ass Bal', 'W.H IN BAL', 'W.H OUT BAL',
         ...Object.values(dynamicColumnMap)
@@ -351,7 +360,7 @@ class DataValidator {
     }
 
     // Check CRD reasonable range
-    const crd = order['CRD'];
+    const crd = order.crd || order['CRD'];
     if (crd && this.rules.logical.crdReasonableRange) {
       const crdDate = this._parseDate(crd);
       if (crdDate) {

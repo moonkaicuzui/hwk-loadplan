@@ -13,7 +13,7 @@ import { ChartSkeleton, TableSkeleton } from '../components/common/LoadingSpinne
 import { DestinationPieChart } from '../components/charts';
 import { DataTable } from '../components/tables';
 import { formatNumber, formatPercent } from '../utils/formatters';
-import { IMPORTANT_DESTINATIONS, DESTINATION_REGIONS } from '../constants/destinations';
+import { IMPORTANT_DESTINATIONS, DESTINATION_REGIONS, getDestinationRegion } from '../constants/destinations';
 import {
   ResponsiveContainer,
   BarChart,
@@ -53,14 +53,8 @@ export default function DestinationAnalysis() {
   const filteredData = useMemo(() => {
     if (selectedRegion === 'ALL') return destinationData;
 
-    const regionDestinations = Object.entries(DESTINATION_REGIONS)
-      .filter(([_, region]) => region === selectedRegion)
-      .map(([dest]) => dest);
-
     return destinationData.filter(item =>
-      regionDestinations.some(dest =>
-        item.destination?.toUpperCase().includes(dest.toUpperCase())
-      )
+      getDestinationRegion(item.destination) === selectedRegion
     );
   }, [destinationData, selectedRegion]);
 
@@ -84,7 +78,7 @@ export default function DestinationAnalysis() {
             {value}
           </span>
           {IMPORTANT_DESTINATIONS[value] && (
-            <span className="text-xs text-secondary">({IMPORTANT_DESTINATIONS[value]})</span>
+            <span className="text-xs text-secondary">{IMPORTANT_DESTINATIONS[value].flag}</span>
           )}
         </div>
       )
@@ -159,11 +153,11 @@ export default function DestinationAnalysis() {
     );
   };
 
-  // Get unique regions
+  // Get unique regions as {id, name} entries
   const regions = useMemo(() => {
-    const uniqueRegions = new Set(Object.values(DESTINATION_REGIONS));
-    return ['ALL', ...Array.from(uniqueRegions)];
-  }, []);
+    const regionEntries = Object.values(DESTINATION_REGIONS).map(r => ({ id: r.id, name: r.name }));
+    return [{ id: 'ALL', name: t('common.all', '전체') }, ...regionEntries];
+  }, [t]);
 
   if (loading) {
     return (
@@ -194,15 +188,15 @@ export default function DestinationAnalysis() {
         <div className="flex gap-2 flex-wrap">
           {regions.map(region => (
             <button
-              key={region}
-              onClick={() => setSelectedRegion(region)}
+              key={region.id}
+              onClick={() => setSelectedRegion(region.id)}
               className={`px-3 py-1.5 text-sm rounded-full transition-colors ${
-                selectedRegion === region
+                selectedRegion === region.id
                   ? 'bg-blue-500 text-white'
                   : 'bg-secondary hover:bg-hover'
               }`}
             >
-              {region === 'ALL' ? t('common.all', '전체') : region}
+              {region.name}
             </button>
           ))}
         </div>

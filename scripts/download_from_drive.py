@@ -30,7 +30,7 @@ except ImportError:
     from googleapiclient.http import MediaIoBaseDownload
 
 # 설정
-SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
+SCOPES = ['https://www.googleapis.com/auth/drive']
 DATA_DIR = Path(__file__).parent.parent / 'data'
 
 # 파일 매핑 (Google Drive 파일명 → 로컬 파일명)

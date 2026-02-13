@@ -5,7 +5,7 @@
  * @module hooks/useDataValidation
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import DataValidator, { dataValidator } from '../services/dataValidator';
 
 /**
@@ -16,6 +16,10 @@ import DataValidator, { dataValidator } from '../services/dataValidator';
 export function useDataValidation(options = {}) {
   const [validationResult, setValidationResult] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
+
+  // Store options in ref to avoid unstable dependency (callers pass new {} each render)
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
 
   /**
    * Validate orders data
@@ -31,7 +35,7 @@ export function useDataValidation(options = {}) {
     setIsValidating(true);
 
     try {
-      const validator = new DataValidator(options);
+      const validator = new DataValidator(optionsRef.current);
       const result = validator.validate(orders, { dynamicColumnMap });
 
       // Add CSV export function to result
@@ -59,7 +63,7 @@ export function useDataValidation(options = {}) {
     } finally {
       setIsValidating(false);
     }
-  }, [options]);
+  }, []);
 
   /**
    * Download validation errors as CSV

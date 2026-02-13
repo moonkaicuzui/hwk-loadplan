@@ -13,12 +13,12 @@ import React, { useMemo, useState } from 'react';
 const STAGES = [
   { key: 'S_CUT', label: '재단', fields: ['S.Cut Bal'] },
   { key: 'PRE_SEW', label: '선봉', fields: ['Pre-Sew Bal', 'Pre-Sew Bal.'] },
-  { key: 'SEW_INPUT', label: '봉제투입', fields: ['Sew input Bal'] },
-  { key: 'SEW_BAL', label: '봉제', fields: ['Sew Bal', 'PRODUCTION STATUS'] },
+  { key: 'SEW_INPUT', label: '재봉투입', fields: ['Sew input Bal'] },
+  { key: 'SEW_BAL', label: '재봉', fields: ['Sew Bal', 'PRODUCTION STATUS'] },
   { key: 'S_FIT', label: '핏팅', fields: ['S/Fit Bal'] },
-  { key: 'ASS_BAL', label: '조립', fields: ['Ass Bal'] },
-  { key: 'WH_IN', label: '입고', fields: ['W.H IN BAL'] },
-  { key: 'WH_OUT', label: '출고', fields: ['W.H OUT BAL'] }
+  { key: 'ASS_BAL', label: '제화', fields: ['Ass Bal'] },
+  { key: 'WH_IN', label: '제품창고 입고', fields: ['W.H IN BAL'] },
+  { key: 'WH_OUT', label: '제품창고 출고', fields: ['W.H OUT BAL'] }
 ];
 
 /**

@@ -17,6 +17,7 @@ import { KPIGrid, FilterPanel, HistoricalComparison, AlertThresholdSettings, Urg
 import { StageBacklogChart, FactoryLoadComparison } from '../components/charts';
 import { ValidationBanner } from '../components/validation';
 import { useDataValidation } from '../hooks/useDataValidation';
+import { FilterChipGroup } from '../components/common/FilterChip';
 import { AlertTriangle, ArrowRight, Settings, RefreshCw } from 'lucide-react';
 import { getProductionData, isDelayed, isWarning, getOrderStatus } from '../utils/orderUtils';
 import { MonthlyTrendChart, DestinationPieChart, FactoryComparisonChart } from '../components/charts';
@@ -43,7 +44,7 @@ export default function Dashboard() {
   });
 
   // Filter management
-  const { filters, setFilter, clearFilters, activeFilterCount, applyFilters } = useFilters();
+  const { filters, setFilter, resetFilters, activeFilterCount, applyFilters } = useFilters();
 
   // Data validation
   const { validationResult, validate, summary: validationSummary } = useDataValidation();
@@ -294,7 +295,7 @@ export default function Dashboard() {
           <FilterPanel
             filters={filters}
             onFilterChange={setFilter}
-            onClearFilters={clearFilters}
+            onReset={resetFilters}
             orders={orders}
           />
         </div>
@@ -367,6 +368,33 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Quick Filter Chips - SDD/CRD 기반 빠른 필터 */}
+      <div className="no-print bg-card rounded-xl shadow-sm p-4">
+        <div className="flex items-center gap-3 mb-2">
+          <span className="text-sm font-medium text-secondary">빠른 필터</span>
+          {filters.quickFilter && (
+            <button
+              onClick={() => setFilter('quickFilter', '')}
+              className="text-xs text-red-500 hover:text-red-600 underline"
+            >
+              해제
+            </button>
+          )}
+        </div>
+        <FilterChipGroup
+          options={[
+            { value: 'delayed', label: '지연 오더', color: 'red' },
+            { value: 'warning', label: '경고 오더', color: 'yellow' },
+            { value: 'sdd_week', label: '이번 주 출고', color: 'blue' },
+            { value: 'sdd_month', label: '이번 달 출고', color: 'blue' },
+            { value: 'crd_within_7', label: 'CRD 7일 이내', color: 'yellow' },
+            { value: 'crd_within_3', label: 'CRD 3일 이내', color: 'red' },
+          ]}
+          value={filters.quickFilter}
+          onChange={(val) => setFilter('quickFilter', val || '')}
+        />
+      </div>
 
       {/* KPI Summary Cards - uses filteredStats for filter-aware display */}
       <KPIGrid

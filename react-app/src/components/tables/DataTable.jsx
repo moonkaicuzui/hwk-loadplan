@@ -26,8 +26,8 @@ const COLUMN_DESCRIPTIONS = {
   'crdDate': 'Customer Required Date - 고객 요청 납기일. 이 날짜까지 고객에게 도착해야 함',
   'sdd': 'Scheduled Delivery Date - 공장 출고 예정일',
   'sddValue': 'Scheduled Delivery Date - 공장 출고 예정일',
-  'wh_in': 'Warehouse In - 창고 입고 완료 수량',
-  'wh_out': 'Warehouse Out - 창고 출고 완료 수량'
+  'wh_in': 'Warehouse In - 제품창고 입고 완료 수량',
+  'wh_out': 'Warehouse Out - 제품창고 출고 완료 수량'
 };
 
 /**
@@ -150,6 +150,19 @@ export default function DataTable({
     ? virtualize
     : data.length > virtualizationThreshold;
 
+  // Handle sorting
+  const handleSort = useCallback((key) => {
+    setSortKey(prev => {
+      if (prev === key) {
+        setSortOrder(o => o === 'asc' ? 'desc' : 'asc');
+        return prev;
+      }
+      setSortOrder('asc');
+      return key;
+    });
+    setCurrentPage(1);
+  }, []);
+
   // Convert columns format for VirtualizedTable
   const virtualizedColumns = useMemo(() => {
     return tableColumns.map(col => ({
@@ -163,33 +176,7 @@ export default function DataTable({
     }));
   }, [tableColumns]);
 
-  // If virtualization is enabled, delegate to VirtualizedTable
-  if (shouldVirtualize) {
-    return (
-      <VirtualizedTable
-        data={data}
-        columns={virtualizedColumns}
-        maxHeight={maxHeight}
-        onRowClick={onRowClick}
-        getRowClass={getOrderHighlightClass}
-        loading={loading}
-        emptyMessage={t('table.noData', '데이터가 없습니다')}
-      />
-    );
-  }
-
-  // Handle sorting
-  const handleSort = (key) => {
-    if (sortKey === key) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortKey(key);
-      setSortOrder('asc');
-    }
-    setCurrentPage(1); // Reset to first page on sort
-  };
-
-  // Sort and paginate data
+  // Sort and paginate data (must be before conditional return to satisfy React hooks rules)
   const sortedData = useMemo(() => {
     if (!data || data.length === 0) return [];
 
@@ -223,13 +210,27 @@ export default function DataTable({
     return result;
   }, [data, sortKey, sortOrder]);
 
-  // Paginate
   const paginatedData = useMemo(() => {
     if (!showPagination) return sortedData;
 
     const start = (currentPage - 1) * pageSize;
     return sortedData.slice(start, start + pageSize);
   }, [sortedData, currentPage, pageSize, showPagination]);
+
+  // If virtualization is enabled, delegate to VirtualizedTable
+  if (shouldVirtualize) {
+    return (
+      <VirtualizedTable
+        data={data}
+        columns={virtualizedColumns}
+        maxHeight={maxHeight}
+        onRowClick={onRowClick}
+        getRowClass={getOrderHighlightClass}
+        loading={loading}
+        emptyMessage={t('table.noData', '데이터가 없습니다')}
+      />
+    );
+  }
 
   const totalPages = Math.ceil(sortedData.length / pageSize);
 
